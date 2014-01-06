@@ -1,20 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.VBox?>
-<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.github.odinasen.gui.Controller">
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+      fx:controller="com.github.odinasen.gui.Controller">
     <MenuBar>
-        <Menu mnemonicParsing="false" text="%menu.file">
+        <Menu mnemonicParsing="false" text="%menu.server">
             <MenuItem mnemonicParsing="false" text="%menu.item.close"/>
         </Menu>
+        <Menu mnemonicParsing="false" text="%menu.settings"/>
     </MenuBar>
-  <ToolBar maxWidth="1.7976931348623157E308">
-    <Button mnemonicParsing="false" text="Sprache" />
-  </ToolBar>
-  <Pane prefHeight="200.0" prefWidth="200.0" />
-  <HBox maxWidth="1.7976931348623157E308">
-    <Label text="Statusleiste" />
-  </HBox>
+    <ToolBar maxWidth="1.7976931348623157E308">
+        <Button mnemonicParsing="false" text="%button.button"/>
+    </ToolBar>
+    <AnchorPane maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+        <Label alignment="CENTER" layoutX="22.0" layoutY="19.0" minWidth="-1.0" prefWidth="-1.0"
+               style="&#10;" text="Stapel/Tisch/Gegner/Handkarten" textAlignment="CENTER" textFill="9f9f9f"
+               wrapText="false">
+            <font>
+                <Font size="18.0"/>
+            </font>
+        </Label>
+    </AnchorPane>
+    <HBox maxWidth="-1.0" VBox.vgrow="NEVER">
+        <Label text="Left Status">
+            <HBox.margin>
+                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" fx:id="x1" />
+            </HBox.margin>
+        </Label>
+        <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS"/>
+        <Label text="Right Status" HBox.margin="$x1" />
+    </HBox>
 </VBox>
