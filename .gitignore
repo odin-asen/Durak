@@ -17,6 +17,7 @@
 /bin
 /out
 /libs
+unicode-zeichen
 
 # Ignore image, sound and other files.
 *.jp*g

@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 
 public class DurakApplication extends Application implements Observer {
 
-  private static final String BUNDLE_NAME = "com.github.odinasen.i18n.gui";
+  public static final String BUNDLE_NAME = "com.github.odinasen.i18n.gui";
   private static final String TITLE = "Durak";
   private static final String MAIN_FXML = "main_content.fxml";
 
@@ -30,8 +30,7 @@ public class DurakApplication extends Application implements Observer {
   @Override
   public void start(Stage primaryStage) throws Exception {
     ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault());
-    Parent root = FXMLLoader.load(
-        getClass().getResource(MAIN_FXML), bundle);
+    Parent root = FXMLLoader.load(getClass().getResource(MAIN_FXML), bundle);
     primaryStage.setTitle(TITLE);
     primaryStage.setScene(new Scene(root, 300, 275));
     primaryStage.show();

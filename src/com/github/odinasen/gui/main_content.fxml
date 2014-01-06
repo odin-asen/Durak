@@ -4,17 +4,19 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.github.odinasen.gui.Controller">
-  <MenuBar>
-    <Menu mnemonicParsing="false" text="%menu.server">
-      <MenuItem mnemonicParsing="false" text="%menu.item.close" />
-    </Menu>
-    <Menu mnemonicParsing="false" text="%menu.settings" />
-  </MenuBar>
-  <ToolBar maxWidth="1.7976931348623157E308">
-    <Button mnemonicParsing="false" text="%button.button" />
-  </ToolBar>
-    <SplitPane id="SplitPane" dividerPositions="" VBox.vgrow="ALWAYS">
+<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+      fx:controller="com.github.odinasen.gui.Controller">
+    <MenuBar>
+        <Menu text="%menu.server">
+            <MenuItem text="%menu.item.open" onAction="#openServerPanel"/>
+            <MenuItem text="%menu.item.close"/>
+        </Menu>
+        <Menu text="%menu.settings"/>
+    </MenuBar>
+    <ToolBar maxWidth="1.7976931348623157E308">
+        <Button text="%button.button"/>
+    </ToolBar>
+    <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS">
         <Label alignment="CENTER" minWidth="-1.0" prefWidth="-1.0" style="&#10;" text="Stapel/Tisch/Gegner/Handkarten"
                textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
             <font>
@@ -22,13 +24,13 @@
             </font>
         </Label>
     </SplitPane>
-  <HBox maxWidth="-1.0" VBox.vgrow="NEVER">
-    <Label text="Left Status">
-      <HBox.margin>
-        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" fx:id="x1" />
-      </HBox.margin>
-    </Label>
-    <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
-    <Label text="Right Status" HBox.margin="$x1" />
-  </HBox>
+    <HBox maxWidth="-1.0" VBox.vgrow="NEVER">
+        <Label text="Left Status">
+            <HBox.margin>
+                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" fx:id="x1"/>
+            </HBox.margin>
+        </Label>
+        <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS"/>
+        <Label text="Right Status" HBox.margin="$x1"/>
+    </HBox>
 </VBox>
