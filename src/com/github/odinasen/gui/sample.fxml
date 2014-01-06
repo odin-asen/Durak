@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.text.*?>
+
+<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.github.odinasen.gui.Controller">
+  <ToolBar maxWidth="1.7976931348623157E308">
+    <Button mnemonicParsing="false" text="Sprache" />
+  </ToolBar>
+  <HBox maxWidth="1.7976931348623157E308">
+    <VBox>
+      <HBox prefHeight="-1.0" prefWidth="-1.0">
+        <VBox.margin>
+          <Insets bottom="4.0" left="4.0" right="4.0" top="4.0" fx:id="x1" />
+        </VBox.margin>
+        <Separator prefWidth="-1.0" HBox.hgrow="SOMETIMES" />
+        <Button alignment="CENTER" contentDisplay="LEFT" disable="false" maxWidth="-1.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="80.0" text="Client" />
+        <Separator prefWidth="-1.0" HBox.hgrow="SOMETIMES" />
+      </HBox>
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="text.description.start.client" VBox.margin="$x1" />
+    </VBox>
+    <VBox>
+      <HBox prefHeight="-1.0" prefWidth="-1.0" VBox.margin="$x1">
+        <Separator prefWidth="-1.0" HBox.hgrow="SOMETIMES" />
+        <Button alignment="CENTER" contentDisplay="LEFT" maxWidth="-1.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="80.0" text="Server" />
+        <Separator prefWidth="-1.0" HBox.hgrow="SOMETIMES" />
+      </HBox>
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="text.description.start.server" VBox.margin="$x1" />
+    </VBox>
+  </HBox>
+</VBox>
