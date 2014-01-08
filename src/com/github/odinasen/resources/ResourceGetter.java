@@ -2,12 +2,11 @@ package com.github.odinasen.resources;
 
 import com.github.odinasen.LoggingUtility;
 import com.github.odinasen.i18n.I18nSupport;
+import javafx.scene.image.Image;
 
-import javax.swing.*;
-import java.net.URL;
 import java.util.logging.Logger;
 
-import static com.github.odinasen.i18n.BundleStrings.GUI;
+import static com.github.odinasen.i18n.BundleStrings.RESOURCES_IMAGES;
 
 /**
  * User: Timm Herrmann
@@ -15,7 +14,8 @@ import static com.github.odinasen.i18n.BundleStrings.GUI;
  * Time: 19:59
  */
 public class ResourceGetter {
-  private static final String PICTURES_ROOT = "icons/";
+  private static final String RESOURCES_ROOT = "com/github/odinasen/resources/";
+  private static final String PICTURES_ROOT = RESOURCES_ROOT + "icons/";
   private static final String TOOLBAR_ROOT = PICTURES_ROOT + "toolbar/";
 
   private static final String PNG = "png";
@@ -25,9 +25,9 @@ public class ResourceGetter {
   /***********/
   /* Methods */
 
-  public static ImageIcon getToolbarIcon(String toolbarBundleKey, Object... params) {
+  public static Image getToolbarIcon(String toolbarBundleKey, Object... params) {
     return getImage(
-        TOOLBAR_ROOT+ I18nSupport.getValue(GUI, toolbarBundleKey, params), PNG);
+        TOOLBAR_ROOT+ I18nSupport.getValue(RESOURCES_IMAGES, toolbarBundleKey, params), PNG);
   }
 
   /*   End   */
@@ -38,32 +38,25 @@ public class ResourceGetter {
 
   /* Loads an image from the specified path and adds the */
   /* surpassed extension if it is not null */
-  private static ImageIcon getImage(String imageName, String extension) {
-    ImageIcon image = null;
+  private static Image getImage(String imageName, String extension) {
+    Image image = null;
 
-    if(extension == null) extension = "";
-    else if(!extension.isEmpty()) extension = "."+extension;
+    final String imageURL = imageName + getDotExtension(extension);
 
     try {
-      image = loadImage(imageName+extension);
-    } catch (ResourceGetterException e) {
-      LOGGER.warning(e.getMessage());
+      image = new Image(imageURL);
+    } catch (Exception e) {
+      LOGGER.warning(e.getMessage()
+          + "\nCould not find an URL for the path " + imageURL);
     }
 
     return image;
   }
 
-  private static ImageIcon loadImage(String imageURL)
-      throws ResourceGetterException {
-    final ImageIcon image;
-
-    final URL url = ResourceGetter.class.getResource(imageURL);
-    if(url != null)
-      image = new ImageIcon(url);
-    else
-      throw new ResourceGetterException("Could not find an URL for the path "+imageURL);
-
-    return image;
+  private static String getDotExtension(String extension) {
+    if(extension == null) extension = "";
+    else if(!extension.isEmpty()) extension = "."+extension;
+    return extension;
   }
 
   /*       End       */

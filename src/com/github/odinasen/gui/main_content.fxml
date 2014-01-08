@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/javafx/2.2"
       fx:controller="com.github.odinasen.gui.Controller">
     <MenuBar>
         <Menu text="%menu.server">

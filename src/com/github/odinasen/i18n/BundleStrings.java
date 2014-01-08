@@ -7,4 +7,5 @@ package com.github.odinasen.i18n;
  */
 public interface BundleStrings {
   String GUI = "gui"; //NON-NLS
+  String RESOURCES_IMAGES = "resources.images"; //NON-NLS
 }

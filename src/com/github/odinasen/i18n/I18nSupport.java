@@ -15,7 +15,7 @@ public class I18nSupport {
   private static final Logger LOGGER = LoggingUtility.getLogger(I18nSupport.class.getName());
   private static String BUNDLE_NAME = "";
   private static ResourceBundle BUNDLE;
-  private static final String I18N_POINT = "common.i18n."; //NON-NLS
+  private static final String I18N_POINT = "com.github.odinasen.i18n."; //NON-NLS
 
   public static String getValue(String bundleName, String key, Object... params) {
     try {

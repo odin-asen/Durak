@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0" xmlns="http://javafx.com/javafx/2.2">
+<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.github.odinasen.gui.server.ServerPanel">
   <ToolBar>
-    <Button id="button_launch_server" text="" />
-    <Button id="button_launch_game" text="" />
+    <Button fx:id="buttonLaunchServer" />
+    <Button fx:id="buttonLaunchGame" />
   </ToolBar>
   <TitledPane collapsible="false" text="%title.port.number.of.cards" VBox.vgrow="NEVER">
-    <HBox prefHeight="-1.0" prefWidth="-1.0">
+    <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
       <TextField minHeight="-1.0" prefColumnCount="4" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
-      <ChoiceBox maxWidth="Infinity" minWidth="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+      <ChoiceBox maxWidth="+Infinity" minWidth="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+      <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </padding>
     </HBox>
+    <VBox.margin>
+      <Insets />
+    </VBox.margin>
   </TitledPane>
-  <TitledPane collapsible="false" maxHeight="Infinity" text="%title.logged.in" VBox.vgrow="ALWAYS">
+  <TitledPane collapsible="false" maxHeight="+Infinity" text="%title.logged.in" VBox.vgrow="ALWAYS">
     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="-1.0" prefWidth="-1.0">
       <ListView orientation="VERTICAL" prefHeight="-1.0" prefWidth="-1.0" />
     </ScrollPane>
