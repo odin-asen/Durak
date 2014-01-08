@@ -5,11 +5,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/javafx/2.2"
-      fx:controller="com.github.odinasen.gui.Controller">
-    <MenuBar>
+      fx:controller="com.github.odinasen.gui.MainGUIController">
+    <MenuBar xmlns:fx="http://javafx.com/javafx/2.2" >
         <Menu text="%menu.server">
-            <MenuItem text="%menu.item.open" onAction="#openServerPanel"/>
-            <MenuItem text="%menu.item.close"/>
+            <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open"/>
+            <MenuItem fx:id="closeServerenuItem" text="%menu.item.close"/>
         </Menu>
         <Menu text="%menu.settings"/>
     </MenuBar>

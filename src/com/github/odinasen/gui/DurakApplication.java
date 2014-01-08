@@ -32,7 +32,7 @@ public class DurakApplication extends Application implements Observer {
     ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault());
     Parent root = FXMLLoader.load(getClass().getResource(MAIN_FXML), bundle);
     primaryStage.setTitle(TITLE);
-    primaryStage.setScene(new Scene(root, 300, 275));
+    primaryStage.setScene(new Scene(root, 500, 500));
     primaryStage.show();
   }
 
