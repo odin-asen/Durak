@@ -20,11 +20,17 @@ import java.util.ResourceBundle;
  * Date: 06.01.14
  */
 public class ServerPanel {
+  private static final String ASSERT_SERVER_GAME_IMPLICATION = "Game is running while server doesn't!";
+  private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
   @FXML Button buttonLaunchServer;
   @FXML Button buttonLaunchGame;
 
-  private int mPort;
+  private int port;
   private InitialCard numberCards;
+
+  /* Loeschen, wenn Server implementiert ist und information von Server holen */
+  private boolean serverRunning;
+  private boolean gameRunning;
 
   /****************/
   /* Constructors */
@@ -48,20 +54,39 @@ public class ServerPanel {
     buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
   }
 
-  public boolean startGame() {
-    return false;
+  public void startStopServer() {
+    if(isServerRunning()) {
+      if(isGameRunning()) {
+        //TODO DIalog fragt, ob gestoppt werden soll
+        stopGame();
+        buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
+      }
+      stopServer();
+      buttonLaunchGame.setVisible(false);
+      buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
+    } else {
+      if(startServer()) {
+        buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.stop")));
+        buttonLaunchGame.setVisible(true);
+      } else {
+        //TODO Fehlerpopup
+      }
+    }
   }
 
-  public boolean startServer() {
-    return false;
-  }
+  public void startStopGame() {
+    assert isServerRunning() : ASSERT_SERVER_RUN_BEFORE_GAME;
 
-  public void stopGame() {
-
-  }
-
-  public void stopServer() {
-
+    if(isGameRunning()) {
+      stopGame();
+      buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
+    } else {
+      if(startGame()) {
+        buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.stop")));
+      } else {
+        //TODO Fehlerpopup
+      }
+    }
   }
 
   /**
@@ -75,8 +100,30 @@ public class ServerPanel {
   /*   End   */
   /***********/
 
+  //TODO Im Status soll angezeigt werden, wenn Server laeuft oder beendet wurde
+
   /*******************/
   /* Private Methods */
+
+  private boolean startGame() {
+    setGameRunning(true);
+    //TODO startet nur, wenn mehr als 2 SPieler angemeldet sind
+    return true;
+  }
+
+  private boolean startServer() {
+    setServerRunning(true);
+    return true;
+  }
+
+  private void stopGame() {
+    setGameRunning(false);
+  }
+
+  private void stopServer() {
+    setServerRunning(false);
+  }
+
   /*       End       */
   /*******************/
 
@@ -84,15 +131,35 @@ public class ServerPanel {
   /* Getter and Setter */
 
   public int getPort() {
-    return mPort;
+    return port;
   }
 
   public void setPort(int port) {
-    mPort = port;
+    this.port = port;
   }
 
   public void setInitialCard(InitialCard numberCards) {
     this.numberCards = numberCards;
+  }
+
+  public void setServerRunning(boolean running) {
+    serverRunning = running;
+    if(!serverRunning)
+      setGameRunning(false);
+
+    assert (serverRunning || !gameRunning) : ASSERT_SERVER_GAME_IMPLICATION;
+  }
+
+  public void setGameRunning(boolean running) {
+    gameRunning = serverRunning && running;
+  }
+
+  public boolean isServerRunning() {
+    return serverRunning;
+  }
+
+  public boolean isGameRunning() {
+    return gameRunning;
   }
 
   /*        End        */

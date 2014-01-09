@@ -5,8 +5,8 @@
 <?import javafx.scene.layout.*?>
 <VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.github.odinasen.gui.server.ServerPanel">
   <ToolBar>
-    <Button fx:id="buttonLaunchServer" />
-    <Button fx:id="buttonLaunchGame" />
+    <Button fx:id="buttonLaunchServer" onAction="#startStopServer" />
+    <Button fx:id="buttonLaunchGame" onAction="#startStopGame" visible="false" />
   </ToolBar>
   <TitledPane collapsible="false" text="%title.port.number.of.cards" VBox.vgrow="NEVER">
     <HBox prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
