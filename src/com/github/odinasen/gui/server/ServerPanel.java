@@ -6,11 +6,12 @@ import com.github.odinasen.resources.ResourceGetter;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -28,8 +29,10 @@ public class ServerPanel {
   private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
   private static final String DEFAULT_PORT_STRING = "10000";
 
+  @FXML private HBox hBoxPortCards;
   @FXML private TextField fieldServerPort;
   @FXML private ChoiceBox<InitialCard> boxInitialCards;
+  private Label labelInitialCards;
   @FXML private Button buttonLaunchServer;
   @FXML private Button buttonLaunchGame;
 
@@ -58,7 +61,7 @@ public class ServerPanel {
     buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
     buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
 
-    initBoxInitialCards();
+    initInitialCardsComponents();
     fieldServerPort.setText(DEFAULT_PORT_STRING);
   }
 
@@ -68,12 +71,15 @@ public class ServerPanel {
         //TODO DIalog fragt, ob gestoppt werden soll
         stopGame();
         buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
+        setBoxEditable(true);
       }
       stopServer();
       buttonLaunchGame.setVisible(false);
       buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
+      fieldServerPort.setEditable(true);
     } else {
       if(startServer()) {
+        fieldServerPort.setEditable(false);
         buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.stop")));
         buttonLaunchGame.setVisible(true);
       } else {
@@ -88,11 +94,30 @@ public class ServerPanel {
     if(isGameRunning()) {
       stopGame();
       buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
+      setBoxEditable(true);
     } else {
       if(startGame()) {
+        setBoxEditable(false);
         buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.stop")));
       } else {
         //TODO Fehlerpopup
+      }
+    }
+  }
+
+  private void setBoxEditable(boolean editable) {
+    final ObservableList<Node> children = hBoxPortCards.getChildren();
+
+    if(editable) {
+      children.remove(labelInitialCards);
+      if(!children.contains(boxInitialCards)) {
+        children.add(boxInitialCards);
+      }
+    } else {
+      children.remove(boxInitialCards);
+      if(!children.contains(labelInitialCards)) {
+        children.add(labelInitialCards);
+        labelInitialCards.setText(boxInitialCards.getValue().toString());
       }
     }
   }
@@ -113,10 +138,24 @@ public class ServerPanel {
   /*******************/
   /* Private Methods */
 
-  private void initBoxInitialCards() {
+  private void initInitialCardsComponents() {
     ObservableList<InitialCard> cards = boxInitialCards.getItems();
     Collections.addAll(cards, InitialCard.values());
     boxInitialCards.setValue(cards.get(0));
+
+    /* Nicht editierbares Feld initialisieren */
+    labelInitialCards = new Label();
+    copyHeightsAndWidths(boxInitialCards, labelInitialCards);
+    HBox.setHgrow(labelInitialCards, Priority.ALWAYS);
+  }
+
+  private void copyHeightsAndWidths(Control from, Control to) {
+    to.setMaxWidth(from.getMaxWidth());
+    to.setMinWidth(from.getMinWidth());
+    to.setMaxHeight(from.getMaxHeight());
+    to.setMinHeight(from.getMinHeight());
+    to.setPrefHeight(from.getPrefHeight());
+    to.setPrefWidth(from.getPrefWidth());
   }
 
   private boolean startGame() {
