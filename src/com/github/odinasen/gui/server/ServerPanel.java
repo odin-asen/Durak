@@ -55,8 +55,11 @@ public class ServerPanel {
 
   @FXML
   void initialize() {
-    assert buttonLaunchGame != null : "fx:id=\"buttonLaunchGame\" was not injected: check your FXML file 'server.fxml'.";
-    assert buttonLaunchServer != null : "fx:id=\"buttonLaunchServer\" was not injected: check your FXML file 'server.fxml'.";
+    assert buttonLaunchGame != null : getInjectionAssertMessage("buttonLaunchGame");
+    assert buttonLaunchServer != null : getInjectionAssertMessage("buttonLaunchServer");
+    assert hBoxPortCards != null : getInjectionAssertMessage("hBoxPortCards");
+    assert fieldServerPort != null : getInjectionAssertMessage("fieldServerPort");
+    assert boxInitialCards != null : getInjectionAssertMessage("boxInitialCards");
 
     buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
     buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
@@ -70,19 +73,10 @@ public class ServerPanel {
       if(isGameRunning()) {
         //TODO DIalog fragt, ob gestoppt werden soll
         stopGame();
-        buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
-        setBoxEditable(true);
       }
       stopServer();
-      buttonLaunchGame.setVisible(false);
-      buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
-      fieldServerPort.setEditable(true);
     } else {
-      if(startServer()) {
-        fieldServerPort.setEditable(false);
-        buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.stop")));
-        buttonLaunchGame.setVisible(true);
-      } else {
+      if(!startServer()) {
         //TODO Fehlerpopup
       }
     }
@@ -93,31 +87,9 @@ public class ServerPanel {
 
     if(isGameRunning()) {
       stopGame();
-      buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
-      setBoxEditable(true);
     } else {
-      if(startGame()) {
-        setBoxEditable(false);
-        buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.stop")));
-      } else {
+      if(!startGame()) {
         //TODO Fehlerpopup
-      }
-    }
-  }
-
-  private void setBoxEditable(boolean editable) {
-    final ObservableList<Node> children = hBoxPortCards.getChildren();
-
-    if(editable) {
-      children.remove(labelInitialCards);
-      if(!children.contains(boxInitialCards)) {
-        children.add(boxInitialCards);
-      }
-    } else {
-      children.remove(boxInitialCards);
-      if(!children.contains(labelInitialCards)) {
-        children.add(labelInitialCards);
-        labelInitialCards.setText(boxInitialCards.getValue().toString());
       }
     }
   }
@@ -138,6 +110,7 @@ public class ServerPanel {
   /*******************/
   /* Private Methods */
 
+  /** Initialisiert das ChoiceBox- und Label-Objekt für die Anzahl der Karten */
   private void initInitialCardsComponents() {
     ObservableList<InitialCard> cards = boxInitialCards.getItems();
     Collections.addAll(cards, InitialCard.values());
@@ -149,6 +122,10 @@ public class ServerPanel {
     HBox.setHgrow(labelInitialCards, Priority.ALWAYS);
   }
 
+  /**
+   * Kopiert die Werte maxHeight, maxWidth, minHeight, minWidth,
+   * prefHeight und preifWidth von einem Control-Objekt zum anderen.
+   */
   private void copyHeightsAndWidths(Control from, Control to) {
     to.setMaxWidth(from.getMaxWidth());
     to.setMinWidth(from.getMinWidth());
@@ -158,23 +135,62 @@ public class ServerPanel {
     to.setPrefWidth(from.getPrefWidth());
   }
 
+  /** Label und Choicebox tauschen Plaetze. */
+  private void setBoxEditable(boolean editable) {
+    final ObservableList<Node> children = hBoxPortCards.getChildren();
+
+    if(editable) {
+      children.remove(labelInitialCards);
+      if(!children.contains(boxInitialCards)) {
+        children.add(boxInitialCards);
+      }
+    } else {
+      children.remove(boxInitialCards);
+      if(!children.contains(labelInitialCards)) {
+        children.add(labelInitialCards);
+        labelInitialCards.setText(boxInitialCards.getValue().toString());
+      }
+    }
+  }
+
+  private String getInjectionAssertMessage(String name) {
+    return "fx:id=\""+name+"\" was not injected: check your FXML file 'server.fxml'.";
+  }
+
   private boolean startGame() {
-    setGameRunning(true);
+    boolean started = true;
+    if(started) {
+      setGameRunning(true);
+      setBoxEditable(false);
+      buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.stop")));
+    }
     //TODO startet nur, wenn mehr als 2 SPieler angemeldet sind
-    return true;
+    return started;
   }
 
   private boolean startServer() {
-    setServerRunning(true);
-    return true;
+    boolean started = true;
+    if(started) {
+      setServerRunning(started);
+      fieldServerPort.setEditable(false);
+      buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.stop")));
+      buttonLaunchGame.setVisible(true);
+    }
+
+    return started;
   }
 
   private void stopGame() {
     setGameRunning(false);
+    buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
+    setBoxEditable(true);
   }
 
   private void stopServer() {
     setServerRunning(false);
+    buttonLaunchGame.setVisible(false);
+    buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
+    fieldServerPort.setEditable(true);
   }
 
   /*       End       */
