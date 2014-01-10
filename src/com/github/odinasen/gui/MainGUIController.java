@@ -1,7 +1,7 @@
 package com.github.odinasen.gui;
 
 import com.github.odinasen.LoggingUtility;
-import com.github.odinasen.gui.server.ServerPanel;
+import com.github.odinasen.gui.server.ServerPanelController;
 import com.github.odinasen.i18n.BundleStrings;
 import com.github.odinasen.i18n.I18nSupport;
 import com.github.odinasen.resources.ResourceGetter;
@@ -21,11 +21,11 @@ public class MainGUIController {
   @FXML private SplitPane mainSplitPane;
   @FXML private MenuItem openHideServerPanelMenuItem;
 
-  private ServerPanel serverPanel;
+  private ServerPanelController serverPanelController;
   private Parent serverPanelContent;
 
   public MainGUIController() {
-    serverPanel = new ServerPanel();
+    serverPanelController = new ServerPanelController();
   }
 
   @FXML
@@ -36,11 +36,11 @@ public class MainGUIController {
     openHideServerPanelMenuItem.setOnAction(new OpenHideServerPanelHandle());
   }
 
-  private Parent getServerPanel() {
+  private Parent getServerPanelContent() {
     try {
-      return serverPanel.getContent();
+      return serverPanelController.getContent();
     } catch (IOException e) {
-      LOGGER.warning("Cannot open server panel!");
+      LOGGER.warning("Cannot open server panel!\n"+e.getMessage());
     }
 
     return null;
@@ -62,7 +62,7 @@ public class MainGUIController {
       MenuItem menuItem = (MenuItem) actionEvent.getSource();
 
       if(serverPanelContent == null)
-        serverPanelContent = getServerPanel();
+        serverPanelContent = getServerPanelContent();
 
       if(serverPanelContent != null) {
         if(open) {

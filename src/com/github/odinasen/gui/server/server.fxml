@@ -6,38 +6,28 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.github.odinasen.gui.server.ServerPanel">
+<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.github.odinasen.gui.server.ServerPanelController">
   <ToolBar>
-    <Button fx:id="buttonLaunchServer" onAction="#startStopServer">
-      <tooltip>
-        <Tooltip text="%tooltip.start.server" />
-      </tooltip>
-    </Button>
-    <Button fx:id="buttonLaunchGame" onAction="#startStopGame" visible="false">
-      <tooltip>
-        <Tooltip text="%tooltip.start.game" />
-      </tooltip>
-    </Button>
+    <Button fx:id="buttonLaunchServer" onAction="#startStopServer" />
+    <Button fx:id="buttonLaunchGame" onAction="#startStopGame" visible="false" />
   </ToolBar>
   <TitledPane collapsible="false" text="%title.port.number.of.cards" VBox.vgrow="NEVER">
     <HBox fx:id="hBoxPortCards" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
-      <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-      </padding>
       <IntegerTextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="4" prefWidth="-1.0" HBox.hgrow="ALWAYS">
         <tooltip>
           <Tooltip text="%tooltip.server.server.port" />
         </tooltip>
       </IntegerTextField>
       <ChoiceBox fx:id="boxInitialCards" maxWidth="+Infinity" minWidth="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+      <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      </padding>
     </HBox>
     <VBox.margin>
       <Insets />
     </VBox.margin>
   </TitledPane>
   <TitledPane collapsible="false" maxHeight="+Infinity" text="%title.logged.in" VBox.vgrow="ALWAYS">
-    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="-1.0" prefWidth="-1.0">
-      <ListView orientation="VERTICAL" prefHeight="-1.0" prefWidth="-1.0" />
-    </ScrollPane>
+    <ListView fx:id="listLoggedClients" orientation="VERTICAL" prefHeight="182.0" prefWidth="148.0" />
   </TitledPane>
 </VBox>

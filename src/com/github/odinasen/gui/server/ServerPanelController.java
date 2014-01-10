@@ -5,6 +5,7 @@ import com.github.odinasen.gui.DurakApplication;
 import com.github.odinasen.i18n.BundleStrings;
 import com.github.odinasen.i18n.I18nSupport;
 import com.github.odinasen.resources.ResourceGetter;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -14,6 +15,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -26,7 +28,7 @@ import java.util.ResourceBundle;
  * Author: Timm Herrmann<br/>
  * Date: 06.01.14
  */
-public class ServerPanel {
+public class ServerPanelController {
   private static final String ASSERT_SERVER_GAME_IMPLICATION = "Game is running while server doesn't!";
   private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
   private static final String DEFAULT_PORT_STRING = "10000";
@@ -37,6 +39,7 @@ public class ServerPanel {
   private Label labelInitialCards;
   @FXML private Button buttonLaunchServer;
   @FXML private Button buttonLaunchGame;
+  @FXML private ListView<DTOClient> listLoggedClients;
 
   /* Loeschen, wenn Server implementiert ist und information von Server holen */
   private boolean serverRunning;
@@ -62,12 +65,29 @@ public class ServerPanel {
     assert hBoxPortCards != null : getInjectionAssertMessage("hBoxPortCards");
     assert fieldServerPort != null : getInjectionAssertMessage("fieldServerPort");
     assert boxInitialCards != null : getInjectionAssertMessage("boxInitialCards");
+    assert listLoggedClients != null : getInjectionAssertMessage("listLoggedClients");
 
-    buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.start.game")));
-    buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.start.server")));
-
+    initListView();
+    changeButton(buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
+    changeButton(buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
     initInitialCardsComponents();
     fieldServerPort.setText(DEFAULT_PORT_STRING);
+  }
+
+  private void initListView() {
+    ObservableList<DTOClient> clients = FXCollections.observableArrayList(new DTOClient());
+    for (int i = 0; i < 20; i++) {
+      clients.add(new DTOClient());
+    }
+    listLoggedClients.setItems(clients);
+    listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+    listLoggedClients.setCellFactory(
+        new Callback<ListView<DTOClient>, ListCell<DTOClient>>() {
+          @Override
+          public ListCell<DTOClient> call(ListView<DTOClient> listView) {
+            return new ClientCell();
+          }
+        });
   }
 
   public void startStopServer() {
@@ -94,14 +114,6 @@ public class ServerPanel {
         //TODO Fehlerpopup
       }
     }
-  }
-
-  /**
-   * Loescht die uebergebenen Clients und gibt die Anzahl
-   * der geloeschten Clients zurueck.
-   */
-  public int removeClients(List<DTOClient> toRemove) {
-    return 0;
   }
 
   /*   End   */
@@ -159,6 +171,24 @@ public class ServerPanel {
     return "fx:id=\""+name+"\" was not injected: check your FXML file 'server.fxml'.";
   }
 
+  private String getAssertMessage(String methodName, String parameter, String mustNotBe) {
+    return "Parameter \'"+parameter+"\' in method \'"+methodName+"\' must not be "+mustNotBe;
+  }
+
+  /**
+   * Loescht die uebergebenen Clients und gibt die Anzahl
+   * der geloeschten Clients zurueck.
+   */
+  private int removeClients(List<DTOClient> toRemove) {
+    assert toRemove != null : getAssertMessage("removeClients", "toRemove", "null");
+
+    ObservableList<DTOClient> loggedClients = listLoggedClients.getItems();
+    int before = loggedClients.size();
+    loggedClients.removeAll(toRemove);
+
+    return before - loggedClients.size();
+  }
+
   private boolean startGame() {
     boolean started = true;
     if(started) {
@@ -197,7 +227,12 @@ public class ServerPanel {
 
   private void changeButton(Button button, String iconKey, String tooltipKey) {
     button.setGraphic(new ImageView(ResourceGetter.getToolbarIcon(iconKey)));
-    button.getTooltip().setText(I18nSupport.getValue(BundleStrings.GUI, tooltipKey));
+    Tooltip tooltip = button.getTooltip();
+    if(tooltip == null) {
+      tooltip = new Tooltip();
+      button.setTooltip(tooltip);
+    }
+    tooltip.setText(I18nSupport.getValue(BundleStrings.GUI, tooltipKey));
   }
 
   /*       End       */
@@ -231,6 +266,17 @@ public class ServerPanel {
 
   /*****************/
   /* Inner classes */
+
+  static class ClientCell extends ListCell<DTOClient> {
+    @Override
+    public void updateItem(DTOClient item, boolean empty) {
+      super.updateItem(item, empty);
+      if (item != null) {
+        setText(item.toString());
+      }
+    }
+  }
+
   /*      End      */
   /*****************/
 }
