@@ -3,13 +3,17 @@ package com.github.odinasen.gui.server;
 import com.github.odinasen.dto.DTOClient;
 import com.github.odinasen.gui.DurakApplication;
 import com.github.odinasen.resources.ResourceGetter;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -22,11 +26,12 @@ import java.util.ResourceBundle;
 public class ServerPanel {
   private static final String ASSERT_SERVER_GAME_IMPLICATION = "Game is running while server doesn't!";
   private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
-  @FXML Button buttonLaunchServer;
-  @FXML Button buttonLaunchGame;
+  private static final String DEFAULT_PORT_STRING = "10000";
 
-  private int port;
-  private InitialCard numberCards;
+  @FXML private TextField fieldServerPort;
+  @FXML private ChoiceBox<InitialCard> boxInitialCards;
+  @FXML private Button buttonLaunchServer;
+  @FXML private Button buttonLaunchGame;
 
   /* Loeschen, wenn Server implementiert ist und information von Server holen */
   private boolean serverRunning;
@@ -52,6 +57,9 @@ public class ServerPanel {
 
     buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
     buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
+
+    initBoxInitialCards();
+    fieldServerPort.setText(DEFAULT_PORT_STRING);
   }
 
   public void startStopServer() {
@@ -105,6 +113,12 @@ public class ServerPanel {
   /*******************/
   /* Private Methods */
 
+  private void initBoxInitialCards() {
+    ObservableList<InitialCard> cards = boxInitialCards.getItems();
+    Collections.addAll(cards, InitialCard.values());
+    boxInitialCards.setValue(cards.get(0));
+  }
+
   private boolean startGame() {
     setGameRunning(true);
     //TODO startet nur, wenn mehr als 2 SPieler angemeldet sind
@@ -129,18 +143,6 @@ public class ServerPanel {
 
   /*********************/
   /* Getter and Setter */
-
-  public int getPort() {
-    return port;
-  }
-
-  public void setPort(int port) {
-    this.port = port;
-  }
-
-  public void setInitialCard(InitialCard numberCards) {
-    this.numberCards = numberCards;
-  }
 
   public void setServerRunning(boolean running) {
     serverRunning = running;
