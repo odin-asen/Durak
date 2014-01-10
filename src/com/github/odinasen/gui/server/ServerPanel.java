@@ -2,6 +2,8 @@ package com.github.odinasen.gui.server;
 
 import com.github.odinasen.dto.DTOClient;
 import com.github.odinasen.gui.DurakApplication;
+import com.github.odinasen.i18n.BundleStrings;
+import com.github.odinasen.i18n.I18nSupport;
 import com.github.odinasen.resources.ResourceGetter;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -61,8 +63,8 @@ public class ServerPanel {
     assert fieldServerPort != null : getInjectionAssertMessage("fieldServerPort");
     assert boxInitialCards != null : getInjectionAssertMessage("boxInitialCards");
 
-    buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
-    buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
+    buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.start.game")));
+    buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.start.server")));
 
     initInitialCardsComponents();
     fieldServerPort.setText(DEFAULT_PORT_STRING);
@@ -162,7 +164,7 @@ public class ServerPanel {
     if(started) {
       setGameRunning(true);
       setBoxEditable(false);
-      buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.stop")));
+      changeButton(buttonLaunchGame, "toolbar.stop.game", "tooltip.stop.game");
     }
     //TODO startet nur, wenn mehr als 2 SPieler angemeldet sind
     return started;
@@ -173,7 +175,7 @@ public class ServerPanel {
     if(started) {
       setServerRunning(started);
       fieldServerPort.setEditable(false);
-      buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.stop")));
+      changeButton(buttonLaunchServer, "toolbar.server.stop", "tooltip.stop.server");
       buttonLaunchGame.setVisible(true);
     }
 
@@ -182,15 +184,20 @@ public class ServerPanel {
 
   private void stopGame() {
     setGameRunning(false);
-    buttonLaunchGame.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.game.start")));
+    changeButton(buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
     setBoxEditable(true);
   }
 
   private void stopServer() {
     setServerRunning(false);
     buttonLaunchGame.setVisible(false);
-    buttonLaunchServer.setGraphic(new ImageView(ResourceGetter.getToolbarIcon("toolbar.server.start")));
+    changeButton(buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
     fieldServerPort.setEditable(true);
+  }
+
+  private void changeButton(Button button, String iconKey, String tooltipKey) {
+    button.setGraphic(new ImageView(ResourceGetter.getToolbarIcon(iconKey)));
+    button.getTooltip().setText(I18nSupport.getValue(BundleStrings.GUI, tooltipKey));
   }
 
   /*       End       */
