@@ -1,5 +1,6 @@
 package com.github.odinasen.gui.server;
 
+import com.github.odinasen.LoggingUtility;
 import com.github.odinasen.dto.DTOClient;
 import com.github.odinasen.gui.DurakApplication;
 import com.github.odinasen.i18n.BundleStrings;
@@ -7,6 +8,8 @@ import com.github.odinasen.i18n.I18nSupport;
 import com.github.odinasen.resources.ResourceGetter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -22,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 
 /**
  * <p/>
@@ -32,6 +36,10 @@ public class ServerPanelController {
   private static final String ASSERT_SERVER_GAME_IMPLICATION = "Game is running while server doesn't!";
   private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
   private static final String DEFAULT_PORT_STRING = "10000";
+
+  private static MenuItem removeMenuItem = new MenuItem("Remove");
+  private static ContextMenu contextMenu = new ContextMenu(removeMenuItem);
+  private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
 
   @FXML private HBox hBoxPortCards;
   @FXML private TextField fieldServerPort;
@@ -47,6 +55,11 @@ public class ServerPanelController {
 
   /****************/
   /* Constructors */
+
+  public ServerPanelController() {
+    removeMenuItem.setOnAction(new RemoveClientAction());
+  }
+
   /*     End      */
   /****************/
 
@@ -75,9 +88,9 @@ public class ServerPanelController {
   }
 
   private void initListView() {
-    ObservableList<DTOClient> clients = FXCollections.observableArrayList(new DTOClient());
-    for (int i = 0; i < 20; i++) {
-      clients.add(new DTOClient());
+    ObservableList<DTOClient> clients = FXCollections.observableArrayList(new DTOClient(0));
+    for (int i = 0; i < 10; i++) {
+      clients.add(new DTOClient(i+1));
     }
     listLoggedClients.setItems(clients);
     listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -179,12 +192,15 @@ public class ServerPanelController {
    * Loescht die uebergebenen Clients und gibt die Anzahl
    * der geloeschten Clients zurueck.
    */
-  private int removeClients(List<DTOClient> toRemove) {
-    assert toRemove != null : getAssertMessage("removeClients", "toRemove", "null");
-
+  private int removeSelectedClients() {
     ObservableList<DTOClient> loggedClients = listLoggedClients.getItems();
     int before = loggedClients.size();
-    loggedClients.removeAll(toRemove);
+
+    final List<DTOClient> selectedClients = listLoggedClients.getSelectionModel().getSelectedItems();
+
+    for (int i = selectedClients.size() - 1; i >= 0; i--) {
+      listLoggedClients.getItems().remove(selectedClients.get(i));
+    }
 
     return before - loggedClients.size();
   }
@@ -267,13 +283,21 @@ public class ServerPanelController {
   /*****************/
   /* Inner classes */
 
-  static class ClientCell extends ListCell<DTOClient> {
+  private class ClientCell extends ListCell<DTOClient> {
     @Override
     public void updateItem(DTOClient item, boolean empty) {
       super.updateItem(item, empty);
       if (item != null) {
-        setText(item.toString());
+        setText(Integer.toString(item.id));
+        setContextMenu(contextMenu);
       }
+    }
+  }
+
+  private class RemoveClientAction implements EventHandler<ActionEvent> {
+    @Override
+    public void handle(ActionEvent actionEvent) {
+      removeSelectedClients();
     }
   }
 

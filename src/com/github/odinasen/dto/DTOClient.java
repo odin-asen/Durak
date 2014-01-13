@@ -7,8 +7,15 @@ package com.github.odinasen.dto;
  * Date: 06.01.14
  */
 public class DTOClient {
+  public int id;
+
   /****************/
   /* Constructors */
+
+  public DTOClient(int id) {
+    this.id = id;
+  }
+
   /*     End      */
   /****************/
 
