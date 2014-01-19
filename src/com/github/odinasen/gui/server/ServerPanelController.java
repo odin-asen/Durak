@@ -207,12 +207,13 @@ public class ServerPanelController {
 
   private boolean startGame() {
     boolean started = true;
-    if(started) {
+
+    if(listLoggedClients.getItems().size() > 52) {
       setGameRunning(true);
       setBoxEditable(false);
       changeButton(buttonLaunchGame, "toolbar.stop.game", "tooltip.stop.game");
-    }
-    //TODO startet nur, wenn mehr als 2 SPieler angemeldet sind
+    } else started = false;
+
     return started;
   }
 
