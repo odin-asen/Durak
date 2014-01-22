@@ -2,6 +2,7 @@ package com.github.odinasen.gui.server;
 
 import com.github.odinasen.LoggingUtility;
 import com.github.odinasen.dto.DTOClient;
+import com.github.odinasen.gui.DialogPopupFactory;
 import com.github.odinasen.gui.DurakApplication;
 import com.github.odinasen.i18n.BundleStrings;
 import com.github.odinasen.i18n.I18nSupport;
@@ -36,6 +37,8 @@ public class ServerPanelController {
   private static final String ASSERT_SERVER_GAME_IMPLICATION = "Game is running while server doesn't!";
   private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
   private static final String DEFAULT_PORT_STRING = "10000";
+  private static final String GAME_NOT_STARTED_MESSAGE = "";
+  private static final String SERVER_NOT_STARTED_MESSAGE = "";
 
   private static MenuItem removeMenuItem = new MenuItem("Remove");
   private static ContextMenu contextMenu = new ContextMenu(removeMenuItem);
@@ -112,7 +115,10 @@ public class ServerPanelController {
       stopServer();
     } else {
       if(!startServer()) {
-        //TODO Fehlerpopup
+        /* Fehlerpopup, da der Server nicht gestartet werden konnte */
+        DialogPopupFactory.getFactory().showErrorPopup(
+            buttonLaunchGame.getScene().getWindow(),
+            SERVER_NOT_STARTED_MESSAGE, DialogPopupFactory.LOCATION_CENTRE, 8.0);
       }
     }
   }
@@ -124,7 +130,10 @@ public class ServerPanelController {
       stopGame();
     } else {
       if(!startGame()) {
-        //TODO Fehlerpopup
+        /* Fehlerpopup, da das Spiel nicht gestartet werden konnte */
+        DialogPopupFactory.getFactory().showErrorPopup(
+            buttonLaunchGame.getScene().getWindow(),
+            GAME_NOT_STARTED_MESSAGE, DialogPopupFactory.LOCATION_CENTRE, 8.0);
       }
     }
   }

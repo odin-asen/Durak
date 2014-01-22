@@ -42,6 +42,30 @@ public class DialogPopupFactory {
   /* Methods */
 
   /**
+   * Fuer gruene Popups.
+   * Siehe {@link #showWarningPopup(javafx.stage.Window, String, int, double)}
+   */
+  public void showSuccessPopup(Window parentWindow, String message,
+                               int popupLocation, double openSeconds) {
+    final Tooltip tooltip = createStandardTooltip(message);
+
+    tooltip.setStyle("-fx-background-color: linear-gradient(#00F600, #008800)");
+    showTooltip(parentWindow, popupLocation, openSeconds, tooltip);
+  }
+
+  /**
+   * Fuer eierschalenweisse Popups.
+   * Siehe {@link #showWarningPopup(javafx.stage.Window, String, int, double)}
+   */
+  public void showInfoPopup(Window parentWindow, String message,
+                            int popupLocation, double openSeconds) {
+    final Tooltip tooltip = createStandardTooltip(message);
+
+    tooltip.setStyle("-fx-background-color: linear-gradient(#F6E59C, #887A53)");
+    showTooltip(parentWindow, popupLocation, openSeconds, tooltip);
+  }
+
+  /**
    * Zeigt ein einfaches Popup an, das eine Textnachricht darstellt, gelb ist und
    * nach einer gewissen Zeit von alleine verschwindet.
    * @param parentWindow Window-Objekt, das das Popup enthaelt.
@@ -50,15 +74,43 @@ public class DialogPopupFactory {
    * @param openSeconds Anzahl der Sekunden, die das Popup gezeigt wird.
    */
   public void showWarningPopup(Window parentWindow, String message,
-                                      int popupLocation, double openSeconds) {
-    final Tooltip tooltip = new Tooltip(message);
+                               int popupLocation, double openSeconds) {
+    final Tooltip tooltip = createStandardTooltip(message);
 
+    tooltip.setStyle("-fx-background-color: linear-gradient(#F1F600, #888900)");
+    showTooltip(parentWindow, popupLocation, openSeconds, tooltip);
+  }
+
+  /**
+   * Fuer rote Popups.
+   * Siehe {@link #showWarningPopup(javafx.stage.Window, String, int, double)}
+   */
+  public void showErrorPopup(Window parentWindow, String message,
+                             int popupLocation, double openSeconds) {
+    final Tooltip tooltip = createStandardTooltip(message);
+
+    tooltip.setStyle("-fx-background-color: linear-gradient(#F69999, #880000)");
+    showTooltip(parentWindow, popupLocation, openSeconds, tooltip);
+  }
+
+  /*   End   */
+  /***********/
+
+  /*******************/
+  /* Private Methods */
+
+  private Tooltip createStandardTooltip(String message) {
+    final Tooltip tooltip = new Tooltip(message);
     tooltip.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
       @Override
       public void handle(MouseEvent mouseEvent) {
         tooltip.hide();
       }
     });
+    return tooltip;
+  }
+
+  private void showTooltip(Window parentWindow, int popupLocation, double openSeconds, Tooltip tooltip) {
     tooltip.show(parentWindow);
     tooltip.setX(computeXLocation(parentWindow, tooltip, popupLocation));
     tooltip.setY(computeYLocation(parentWindow, tooltip, popupLocation));
@@ -72,12 +124,6 @@ public class DialogPopupFactory {
       e.printStackTrace();
     }
   }
-
-  /*   End   */
-  /***********/
-
-  /*******************/
-  /* Private Methods */
 
   private double computeXLocation(Window owner, Window popup, int popupLocation) {
     final double ownerX = owner.getX();
