@@ -9,24 +9,37 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 
 import java.io.IOException;
 import java.util.logging.Logger;
 
+/**
+ * Diese Klasse sollte nur einmal erstellt werden. Statische Zugriffe auf Oberflaechen koennen erst
+ * gemacht werden, wenn ein Objekt erstellt wird.
+ */
 public class MainGUIController {
   private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
+  private static MainGUIController MAIN_CONTROLLER;
 
   @FXML private SplitPane mainSplitPane;
   @FXML private MenuItem openHideServerPanelMenuItem;
+  @FXML private Label leftStatus;
+  @FXML private Label rightStatus;
 
   private ServerPanelController serverPanelController;
   private Parent serverPanelContent;
 
   public MainGUIController() {
     serverPanelController = new ServerPanelController();
+    if(MAIN_CONTROLLER == null)
+      MAIN_CONTROLLER = this;
   }
+
+  /***********/
+  /* Methods */
 
   @FXML
   void initialize() {
@@ -35,6 +48,16 @@ public class MainGUIController {
 
     openHideServerPanelMenuItem.setOnAction(new OpenHideServerPanelHandle());
   }
+
+  public static void setStatus(StatusType type, String status) {
+    MAIN_CONTROLLER.leftStatus.setText(status);
+  }
+
+  /*   End   */
+  /***********/
+
+  /*******************/
+  /* Private Methods */
 
   private Parent getServerPanelContent() {
     try {
@@ -46,8 +69,15 @@ public class MainGUIController {
     return null;
   }
 
+  /*       End       */
+  /*******************/
+
   /*****************/
   /* Inner classes */
+
+  public enum StatusType {
+    DEFAULT
+  }
 
   /* MenuItem-Event Handles */
   private class OpenHideServerPanelHandle implements EventHandler<ActionEvent> {

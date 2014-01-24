@@ -4,6 +4,7 @@ import com.github.odinasen.LoggingUtility;
 import com.github.odinasen.dto.DTOClient;
 import com.github.odinasen.gui.DialogPopupFactory;
 import com.github.odinasen.gui.DurakApplication;
+import com.github.odinasen.gui.MainGUIController;
 import com.github.odinasen.i18n.BundleStrings;
 import com.github.odinasen.i18n.I18nSupport;
 import com.github.odinasen.resources.ResourceGetter;
@@ -113,12 +114,16 @@ public class ServerPanelController {
         stopGame();
       }
       stopServer();
+      MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Server wurde angehalten!");
     } else {
       if(!startServer()) {
         /* Fehlerpopup, da der Server nicht gestartet werden konnte */
         DialogPopupFactory.getFactory().showErrorPopup(
             buttonLaunchGame.getScene().getWindow(),
             SERVER_NOT_STARTED_MESSAGE, DialogPopupFactory.LOCATION_CENTRE, 8.0);
+        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Serverstart ist fehlgeschlagen!");
+      } else {
+        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Server läuft!");
       }
     }
   }
@@ -128,20 +133,22 @@ public class ServerPanelController {
 
     if(isGameRunning()) {
       stopGame();
+      MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Das Spiel wurde beendet!");
     } else {
       if(!startGame()) {
         /* Fehlerpopup, da das Spiel nicht gestartet werden konnte */
         DialogPopupFactory.getFactory().showErrorPopup(
             buttonLaunchGame.getScene().getWindow(),
             GAME_NOT_STARTED_MESSAGE, DialogPopupFactory.LOCATION_CENTRE, 8.0);
+        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Das Spiel konnte nicht gestartet werden!");
+      } else {
+        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Das Spiel wurde gestartet!");
       }
     }
   }
 
   /*   End   */
   /***********/
-
-  //TODO Im Status soll angezeigt werden, wenn Server laeuft oder beendet wurde
 
   /*******************/
   /* Private Methods */
