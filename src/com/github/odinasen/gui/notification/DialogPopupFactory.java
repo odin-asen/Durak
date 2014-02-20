@@ -1,10 +1,19 @@
-package com.github.odinasen.gui;
+package com.github.odinasen.gui.notification;
 
+import com.github.odinasen.LoggingUtility;
+import com.github.odinasen.gui.notification.dialog.message.MessageDialog;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.BoxBlur;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
+
+import java.io.IOException;
+import java.util.logging.Logger;
 
 /**
  * Klasse fuer statische Methoden, um Dialoge und Popups zu zeigen.
@@ -13,20 +22,24 @@ import javafx.stage.Window;
  * Date: 06.01.14
  */
 public class DialogPopupFactory {
-  /** Platziert ein Popup oder Dialog oben links. */
-  public static final int LOCATION_UP_LEFT = 0;
-  /** Platziert ein Popup oder Dialog oben rechts. */
-  public static final int LOCATION_UP_RIGHT = 1;
-  /** Platziert ein Popup oder Dialog unten links. */
-  public static final int LOCATION_DOWN_LEFT = 2;
-  /** Platziert ein Popup oder Dialog unten rechts. */
-  public static final int LOCATION_DOWN_RIGHT = 3;
-  /** Platziert ein Popup oder Dialog mittig. */
-  public static final int LOCATION_CENTRE = 4;
+  private static final Logger LOGGER = LoggingUtility.getLogger(DialogPopupFactory.class.getName());
 
+  /** Offset zum Rand des Fensters in Pixel */
   private static final int POPUP_OFFSET = 10;
 
+  /** Singelton-Objekt */
   private static DialogPopupFactory FACTORY;
+
+  /** Platziert ein Popup oder AbstractDialog oben links. */
+  public static final int LOCATION_UP_LEFT = 0;
+  /** Platziert ein Popup oder AbstractDialog oben rechts. */
+  public static final int LOCATION_UP_RIGHT = 1;
+  /** Platziert ein Popup oder AbstractDialog unten links. */
+  public static final int LOCATION_DOWN_LEFT = 2;
+  /** Platziert ein Popup oder AbstractDialog unten rechts. */
+  public static final int LOCATION_DOWN_RIGHT = 3;
+  /** Platziert ein Popup oder AbstractDialog mittig. */
+  public static final int LOCATION_CENTRE = 4;
 
   /****************/
   /* Constructors */
@@ -40,6 +53,23 @@ public class DialogPopupFactory {
 
   /***********/
   /* Methods */
+
+  public Stage makeDialog(final Window owner, String message) {
+    final Stage dialog;
+
+    try {
+      dialog = new MessageDialog(message);
+      dialog.initOwner(owner);
+
+      /* Damit der AbstractDialog bewegt werden kann. */
+      new DialogDraggableMaker(owner, dialog).makeDraggable();
+    } catch(IOException ex) {
+      LOGGER.severe("Ein Dialog konnte nicht angezeigt werden.");
+      throw new RuntimeException(ex);
+    }
+
+    return dialog;
+  }
 
   /**
    * Fuer gruene Popups.
@@ -199,6 +229,77 @@ public class DialogPopupFactory {
       });
     }
   }
+
+  /**
+   * Mit dieser Klasse kann ein AbstractDialog bewegbar gemacht werden.
+   * Der Benutzer kann dann den AbstractDialog mit dem Mauszeiger bewegen.
+   */
+  private class DialogDraggableMaker {
+
+    private Window owner;
+    private Window dialog;
+
+    private DialogDraggableMaker(final Window owner, final Window dialog) {
+      this.owner = owner;
+      this.dialog = dialog;
+    }
+
+    void makeDraggable() {
+      final Node root = dialog.getScene().getRoot();
+      final DragPoint dragPoint = new DragPoint();
+
+      setOnMousePressedHandler(dialog, root, dragPoint);
+
+      setOnMouseDraggedEvent(dialog, root, dragPoint);
+
+      setWindowShowingHandler(owner, dialog);
+      setWindowHidingHandler(owner, dialog);
+    }
+
+    private void setWindowHidingHandler(final Window owner, Window dialog) {
+      dialog.addEventHandler(WindowEvent.WINDOW_HIDING, new EventHandler<WindowEvent>() {
+        @Override
+        public void handle(WindowEvent windowEvent) {
+          owner.getScene().getRoot().setEffect(null);
+        }
+      });
+    }
+
+    private void setWindowShowingHandler(final Window owner, Window dialog) {
+      dialog.addEventHandler(WindowEvent.WINDOW_SHOWING, new EventHandler<WindowEvent>() {
+        @Override
+        public void handle(WindowEvent windowEvent) {
+          owner.getScene().getRoot().setEffect(new BoxBlur());
+        }
+      });
+    }
+
+    private void setOnMouseDraggedEvent(final Window dialog, Node root,
+                                        final DragPoint dragPoint) {
+      root.setOnMouseDragged(new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+          dialog.setX(mouseEvent.getScreenX() + dragPoint.x);
+          dialog.setY(mouseEvent.getScreenY() + dragPoint.y);
+        }
+      });
+    }
+
+    private void setOnMousePressedHandler(final Window dialog, Node root,
+                                          final DragPoint dragPoint) {
+      root.setOnMousePressed(new EventHandler<MouseEvent>() {
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+          /* Speicherung des Abstandes fuer die Mauszugoperation */
+          dragPoint.x = dialog.getX() - mouseEvent.getScreenX();
+          dragPoint.y = dialog.getY() - mouseEvent.getScreenY();
+        }
+      });
+    }
+
+    private class DragPoint {private double x,y;}
+  }
+
   /*      End      */
   /*****************/
 }

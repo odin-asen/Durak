@@ -1,10 +1,9 @@
 package com.github.odinasen.gui.server;
 
-import com.github.odinasen.LoggingUtility;
 import com.github.odinasen.dto.DTOClient;
-import com.github.odinasen.gui.DialogPopupFactory;
 import com.github.odinasen.gui.DurakApplication;
 import com.github.odinasen.gui.MainGUIController;
+import com.github.odinasen.gui.notification.DialogPopupFactory;
 import com.github.odinasen.i18n.BundleStrings;
 import com.github.odinasen.i18n.I18nSupport;
 import com.github.odinasen.resources.ResourceGetter;
@@ -20,6 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.stage.Window;
 import javafx.util.Callback;
 
 import java.io.IOException;
@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
 
 /**
  * <p/>
@@ -38,12 +37,8 @@ public class ServerPanelController {
   private static final String ASSERT_SERVER_GAME_IMPLICATION = "Game is running while server doesn't!";
   private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
   private static final String DEFAULT_PORT_STRING = "10000";
-  private static final String GAME_NOT_STARTED_MESSAGE = "";
-  private static final String SERVER_NOT_STARTED_MESSAGE = "";
-
-  private static MenuItem removeMenuItem = new MenuItem("Remove");
-  private static ContextMenu contextMenu = new ContextMenu(removeMenuItem);
-  private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
+  private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
+  private static final String SERVER_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
   @FXML private HBox hBoxPortCards;
   @FXML private TextField fieldServerPort;
@@ -57,13 +52,10 @@ public class ServerPanelController {
   private boolean serverRunning;
   private boolean gameRunning;
 
+  private Window mainWindow;
+
   /****************/
   /* Constructors */
-
-  public ServerPanelController() {
-    removeMenuItem.setOnAction(new RemoveClientAction());
-  }
-
   /*     End      */
   /****************/
 
@@ -89,6 +81,8 @@ public class ServerPanelController {
     changeButton(buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
     initInitialCardsComponents();
     fieldServerPort.setText(DEFAULT_PORT_STRING);
+
+    mainWindow = buttonLaunchGame.getScene().getWindow();
   }
 
   private void initListView() {
@@ -102,7 +96,12 @@ public class ServerPanelController {
         new Callback<ListView<DTOClient>, ListCell<DTOClient>>() {
           @Override
           public ListCell<DTOClient> call(ListView<DTOClient> listView) {
-            return new ClientCell();
+            return new ClientListCell(new EventHandler<ActionEvent>() {
+              @Override
+              public void handle(ActionEvent actionEvent) {
+                removeSelectedClients();
+              }
+            });
           }
         });
   }
@@ -110,7 +109,7 @@ public class ServerPanelController {
   public void startStopServer() {
     if(isServerRunning()) {
       if(isGameRunning()) {
-        //TODO DIalog fragt, ob gestoppt werden soll
+        DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
         stopGame();
       }
       stopServer();
@@ -119,9 +118,9 @@ public class ServerPanelController {
       if(!startServer()) {
         /* Fehlerpopup, da der Server nicht gestartet werden konnte */
         DialogPopupFactory.getFactory().showErrorPopup(
-            buttonLaunchGame.getScene().getWindow(),
-            SERVER_NOT_STARTED_MESSAGE, DialogPopupFactory.LOCATION_CENTRE, 8.0);
-        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Serverstart ist fehlgeschlagen!");
+            mainWindow, SERVER_NOT_STARTED_MESSAGE, DialogPopupFactory.LOCATION_CENTRE, 8.0);
+        MainGUIController.
+            setStatus(MainGUIController.StatusType.DEFAULT, "Serverstart ist fehlgeschlagen!");
       } else {
         MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Server läuft!");
       }
@@ -299,25 +298,6 @@ public class ServerPanelController {
 
   /*****************/
   /* Inner classes */
-
-  private class ClientCell extends ListCell<DTOClient> {
-    @Override
-    public void updateItem(DTOClient item, boolean empty) {
-      super.updateItem(item, empty);
-      if (item != null) {
-        setText(Integer.toString(item.id));
-        setContextMenu(contextMenu);
-      }
-    }
-  }
-
-  private class RemoveClientAction implements EventHandler<ActionEvent> {
-    @Override
-    public void handle(ActionEvent actionEvent) {
-      removeSelectedClients();
-    }
-  }
-
   /*      End      */
   /*****************/
 }

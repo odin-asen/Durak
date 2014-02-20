@@ -17,7 +17,7 @@ public class DurakApplication extends Application implements Observer {
   private static final String TITLE = "Durak";
   private static final String MAIN_FXML = "main_content.fxml";
 
-  private GUIMode mMode;
+  private GUIMode guiMode;
 
   public static void main(String[] args) {
     /* init logging class */
@@ -76,7 +76,7 @@ public class DurakApplication extends Application implements Observer {
   /** Setzt den Modus fuer die Oberflache.
    * Moegliche Werte sind statische Felder dieser Klasse. */
   public void setMode(GUIMode mode) {
-    mMode = mode;
+    this.guiMode = mode;
   }
 
   /*        End        */
