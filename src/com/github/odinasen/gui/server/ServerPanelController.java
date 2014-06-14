@@ -1,5 +1,6 @@
 package com.github.odinasen.gui.server;
 
+import com.github.odinasen.Assert;
 import com.github.odinasen.dto.DTOClient;
 import com.github.odinasen.gui.DurakApplication;
 import com.github.odinasen.gui.MainGUIController;
@@ -77,15 +78,22 @@ public class ServerPanelController {
     return root;
   }
 
+  /**
+   * Prueft, ob alle Objektvariablen, die in der fxml-Datei definiert sind, geladen wurden.
+   * Initialisiert die Oberflaechen-Komponenten.
+   */
   @FXML
   void initialize() {
-    this.assertFXElementNotNull(this.buttonLaunchGame, "buttonLaunchGame");
-    this.assertFXElementNotNull(this.buttonLaunchServer, "buttonLaunchServer");
-    this.assertFXElementNotNull(this.hBoxPortCards, "hBoxPortCards");
-    this.assertFXElementNotNull(this.fieldServerPort, "fieldServerPort");
-    this.assertFXElementNotNull(this.boxInitialCards, "boxInitialCards");
-    this.assertFXElementNotNull(this.listLoggedClients, "listLoggedClients");
+    final String fxmlName = "server";
 
+    Assert.assertFXElementNotNull(this.buttonLaunchGame, "buttonLaunchGame", fxmlName);
+    Assert.assertFXElementNotNull(this.buttonLaunchServer, "buttonLaunchServer", fxmlName);
+    Assert.assertFXElementNotNull(this.hBoxPortCards, "hBoxPortCards", fxmlName);
+    Assert.assertFXElementNotNull(this.fieldServerPort, "fieldServerPort", fxmlName);
+    Assert.assertFXElementNotNull(this.boxInitialCards, "boxInitialCards", fxmlName);
+    Assert.assertFXElementNotNull(this.listLoggedClients, "listLoggedClients", fxmlName);
+
+    //==============================================================================================
     initListView();
     changeButton(this.buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
     changeButton(this.buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
@@ -229,14 +237,6 @@ public class ServerPanelController {
         labelInitialCards.setText(boxInitialCards.getValue().toString());
       }
     }
-  }
-
-  private void assertFXElementNotNull(Object fxElement, String name) {
-    assert fxElement != null : "fx:id=\""+name+"\" was not injected: check your FXML file 'server.fxml'.";
-  }
-
-  private String getAssertMessage(String methodName, String parameter, String mustNotBe) {
-    return "Parameter \'"+parameter+"\' in method \'"+methodName+"\' must not be "+mustNotBe;
   }
 
   /**

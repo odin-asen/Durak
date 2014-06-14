@@ -1,5 +1,6 @@
 package com.github.odinasen.gui;
 
+import com.github.odinasen.Assert;
 import com.github.odinasen.LoggingUtility;
 import com.github.odinasen.gui.server.ServerPanelController;
 import com.github.odinasen.i18n.BundleStrings;
@@ -25,28 +26,41 @@ public class MainGUIController {
   private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
   private static MainGUIController MAIN_CONTROLLER;
 
-  @FXML private SplitPane mainSplitPane;
-  @FXML private MenuItem openHideServerPanelMenuItem;
-  @FXML private Label leftStatus;
-  @FXML private Label rightStatus;
+  @FXML
+  private SplitPane mainSplitPane;
+  @FXML
+  private MenuItem openHideServerPanelMenuItem;
+  @FXML
+  private Label leftStatus;
+  @FXML
+  private Label rightStatus;
 
   private ServerPanelController serverPanelController;
   private Parent serverPanelContent;
 
   public MainGUIController() {
     serverPanelController = new ServerPanelController();
-    if(MAIN_CONTROLLER == null)
+    if (MAIN_CONTROLLER == null)
       MAIN_CONTROLLER = this;
   }
 
   /***********/
   /* Methods */
 
+  /**
+   * Prueft, ob alle Objektvariablen, die in der fxml-Datei definiert sind, geladen wurden.
+   * Initialisiert die Oberflaechen-Komponenten.
+   */
   @FXML
   void initialize() {
-    assert mainSplitPane != null : "fx:id=\"mainSplitPane\" was not injected: check your FXML file 'main_content.fxml'.";
-    assert openHideServerPanelMenuItem != null : "fx:id=\"openHideServerPanelMenuItem\" was not injected: check your FXML file 'main_content.fxml'.";
+    final String fxmlName = "server";
 
+    Assert.assertFXElementNotNull(this.mainSplitPane, "mainSplitPane", fxmlName);
+    Assert.assertFXElementNotNull(this.openHideServerPanelMenuItem,
+                                  "openHideServerPanelMenuItem",
+                                  fxmlName);
+
+    //==============================================================================================
     openHideServerPanelMenuItem.setOnAction(new OpenHideServerPanelHandle());
   }
 
@@ -57,9 +71,10 @@ public class MainGUIController {
   /*   End   */
   /***********/
 
-  /*******************/
+  /**
+   * ***************
+   */
   /* Private Methods */
-
   private Parent getServerPanelContent() {
     try {
       return serverPanelController.initContent();
@@ -73,7 +88,9 @@ public class MainGUIController {
   /*       End       */
   /*******************/
 
-  /*****************/
+  /**
+   * *************
+   */
   /* Inner classes */
 
   public enum StatusType {
@@ -92,11 +109,11 @@ public class MainGUIController {
     public void handle(ActionEvent actionEvent) {
       final MenuItem menuItem = (MenuItem) actionEvent.getSource();
 
-      if(serverPanelContent == null)
+      if (serverPanelContent == null)
         serverPanelContent = getServerPanelContent();
 
-      if(serverPanelContent != null) {
-        if(this.open) {
+      if (serverPanelContent != null) {
+        if (this.open) {
           mainSplitPane.getItems().add(0, serverPanelContent);
           menuItem.setText(I18nSupport.getValue(BundleStrings.GUI, "menu.item.hide"));
         } else {
