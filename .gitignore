@@ -12,6 +12,11 @@
 *.iml
 /.project
 
+# Ignore log files
+/**.log
+/**log.*
+/**Log.*
+
 # Ignore generated, binary and library files.
 /gen
 /bin
