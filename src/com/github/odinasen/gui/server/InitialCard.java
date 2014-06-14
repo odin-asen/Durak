@@ -1,5 +1,8 @@
 package com.github.odinasen.gui.server;
 
+import com.github.odinasen.i18n.BundleStrings;
+import com.github.odinasen.i18n.I18nSupport;
+
 /**
  * Diese Klasse repraesentiert die initiale Anzahl der Karten bei einem Spiel.
  * <p/>
@@ -21,5 +24,10 @@ public enum InitialCard {
 
   public int getNumberCards() {
     return mNumberCards;
+  }
+
+  @Override
+  public String toString() {
+    return mNumberCards + " " + I18nSupport.getValue(BundleStrings.GUI, "cards");
   }
 }

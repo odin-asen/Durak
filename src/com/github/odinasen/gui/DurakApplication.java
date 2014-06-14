@@ -1,5 +1,6 @@
 package com.github.odinasen.gui;
 
+import com.github.odinasen.LoggingUtility;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,12 +13,19 @@ import java.util.Observer;
 import java.util.ResourceBundle;
 
 public class DurakApplication extends Application implements Observer {
-
   public static final String BUNDLE_NAME = "com.github.odinasen.i18n.gui";
   private static final String TITLE = "Durak";
   private static final String MAIN_FXML = "main_content.fxml";
 
-  private GUIMode mMode;
+  private GUIMode guiMode;
+
+  public static void main(String[] args) {
+    /* init logging class */
+    LoggingUtility.setFirstTimeLoggingFile(System.getProperty("user.dir")
+        + System.getProperty("file.separator") + "clientLog.txt");
+
+    launch(args);
+  }
 
   /****************/
   /* Constructors */
@@ -34,10 +42,6 @@ public class DurakApplication extends Application implements Observer {
     primaryStage.setTitle(TITLE);
     primaryStage.setScene(new Scene(root, 500, 500));
     primaryStage.show();
-  }
-
-  public static void main(String[] args) {
-    launch(args);
   }
 
   @Override
@@ -72,7 +76,7 @@ public class DurakApplication extends Application implements Observer {
   /** Setzt den Modus fuer die Oberflache.
    * Moegliche Werte sind statische Felder dieser Klasse. */
   public void setMode(GUIMode mode) {
-    mMode = mode;
+    this.guiMode = mode;
   }
 
   /*        End        */

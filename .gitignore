@@ -37,3 +37,8 @@ unicode-zeichen
 *.log
 *.swp
 .DS_Store
+
+#Ignore log and text files
+*.txt
+*.log
+*.txt.*

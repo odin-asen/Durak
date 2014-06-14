@@ -25,12 +25,12 @@
         </Label>
     </SplitPane>
     <HBox maxWidth="-1.0" VBox.vgrow="NEVER">
-        <Label text="Left Status">
+        <Label fx:id="leftStatus">
             <HBox.margin>
                 <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" fx:id="x1"/>
             </HBox.margin>
         </Label>
         <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS"/>
-        <Label text="Right Status" HBox.margin="$x1"/>
+        <Label fx:id="rightStatus" HBox.margin="$x1"/>
     </HBox>
 </VBox>
