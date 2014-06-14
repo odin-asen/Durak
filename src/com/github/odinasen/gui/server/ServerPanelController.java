@@ -62,27 +62,35 @@ public class ServerPanelController {
   /***********/
   /* Methods */
 
-  public Parent getContent() throws IOException {
-    return FXMLLoader.load(getClass().getResource("server.fxml"),
-          ResourceBundle.getBundle(DurakApplication.BUNDLE_NAME, Locale.getDefault()));
+  /**
+   * Laedt die server.fxml Datei und initialisiert Objektvariablen.
+   * @return
+   *      Den Wurzelknoten der fxml.
+   * @throws IOException
+   */
+  public Parent initContent() throws IOException {
+    /* fxml laden, initialize() wird dadurch auch aufgerufen. */
+    ResourceBundle resourceBundle =
+        ResourceBundle.getBundle(DurakApplication.BUNDLE_NAME, Locale.getDefault());
+    Parent root = FXMLLoader.load(getClass().getResource("server.fxml"), resourceBundle);
+
+    return root;
   }
 
   @FXML
   void initialize() {
-    assert buttonLaunchGame != null : getInjectionAssertMessage("buttonLaunchGame");
-    assert buttonLaunchServer != null : getInjectionAssertMessage("buttonLaunchServer");
-    assert hBoxPortCards != null : getInjectionAssertMessage("hBoxPortCards");
-    assert fieldServerPort != null : getInjectionAssertMessage("fieldServerPort");
-    assert boxInitialCards != null : getInjectionAssertMessage("boxInitialCards");
-    assert listLoggedClients != null : getInjectionAssertMessage("listLoggedClients");
+    this.assertFXElementNotNull(this.buttonLaunchGame, "buttonLaunchGame");
+    this.assertFXElementNotNull(this.buttonLaunchServer, "buttonLaunchServer");
+    this.assertFXElementNotNull(this.hBoxPortCards, "hBoxPortCards");
+    this.assertFXElementNotNull(this.fieldServerPort, "fieldServerPort");
+    this.assertFXElementNotNull(this.boxInitialCards, "boxInitialCards");
+    this.assertFXElementNotNull(this.listLoggedClients, "listLoggedClients");
 
     initListView();
-    changeButton(buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
-    changeButton(buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
+    changeButton(this.buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
+    changeButton(this.buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
     initInitialCardsComponents();
-    fieldServerPort.setText(DEFAULT_PORT_STRING);
-
-    mainWindow = buttonLaunchGame.getScene().getWindow();
+    this.fieldServerPort.setText(DEFAULT_PORT_STRING);
   }
 
   private void initListView() {
@@ -106,7 +114,14 @@ public class ServerPanelController {
         });
   }
 
+  /**
+   * Startet den Server, wenn er noch nicht gestartet ist.
+   * Stoppt den Server, wenn dieser laeuft.
+   * Bei Fehlern werden Dialoge angezeigt.
+   */
   public void startStopServer() {
+    this.initMainWindow();
+
     if(isServerRunning()) {
       if(isGameRunning()) {
         DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
@@ -127,8 +142,16 @@ public class ServerPanelController {
     }
   }
 
+  /**
+   * Startet das Spiel, wenn es noch nicht gestartet wurde und alle Kriterien dafuer erfuellt sind.
+   * Stoppt das Spiel, wenn dieses laeuft.
+   * Bei Fehlern werden Dialoge angezeigt.
+   * Der Server muss gestartet sein, bevor diese Methode aufgerufen wird.
+   */
   public void startStopGame() {
     assert isServerRunning() : ASSERT_SERVER_RUN_BEFORE_GAME;
+
+    this.initMainWindow();
 
     if(isGameRunning()) {
       stopGame();
@@ -136,12 +159,15 @@ public class ServerPanelController {
     } else {
       if(!startGame()) {
         /* Fehlerpopup, da das Spiel nicht gestartet werden konnte */
-        DialogPopupFactory.getFactory().showErrorPopup(
-            buttonLaunchGame.getScene().getWindow(),
-            GAME_NOT_STARTED_MESSAGE, DialogPopupFactory.LOCATION_CENTRE, 8.0);
-        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Das Spiel konnte nicht gestartet werden!");
+        DialogPopupFactory.getFactory().showErrorPopup(this.mainWindow,
+                                                       GAME_NOT_STARTED_MESSAGE,
+                                                       DialogPopupFactory.LOCATION_CENTRE,
+                                                       8.0);
+        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
+                                    "Das Spiel konnte nicht gestartet werden!");
       } else {
-        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Das Spiel wurde gestartet!");
+        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
+                                    "Das Spiel wurde gestartet!");
       }
     }
   }
@@ -151,6 +177,16 @@ public class ServerPanelController {
 
   /*******************/
   /* Private Methods */
+
+  /**
+   * Initialisiert das Hauptfenster, falls dies noch nicht gesetzt wurde und falls die Scene schon
+   * geladen ist.
+   */
+  private void initMainWindow() {
+    if (this.mainWindow == null)
+      if (buttonLaunchGame.getScene() != null)
+        this.mainWindow = buttonLaunchGame.getScene().getWindow();
+  }
 
   /** Initialisiert das ChoiceBox- und Label-Objekt für die Anzahl der Karten */
   private void initInitialCardsComponents() {
@@ -195,8 +231,8 @@ public class ServerPanelController {
     }
   }
 
-  private String getInjectionAssertMessage(String name) {
-    return "fx:id=\""+name+"\" was not injected: check your FXML file 'server.fxml'.";
+  private void assertFXElementNotNull(Object fxElement, String name) {
+    assert fxElement != null : "fx:id=\""+name+"\" was not injected: check your FXML file 'server.fxml'.";
   }
 
   private String getAssertMessage(String methodName, String parameter, String mustNotBe) {
@@ -220,6 +256,11 @@ public class ServerPanelController {
     return before - loggedClients.size();
   }
 
+  /**
+   * Startet das Spiel und passt die Toolbar an.
+   * @return
+   *    True, wenn das Spiel gestartet wurde, andernfalls false.
+   */
   private boolean startGame() {
     boolean started = true;
 
@@ -232,6 +273,11 @@ public class ServerPanelController {
     return started;
   }
 
+  /**
+   * Startet den Server und passt die Toolbar an.
+   * @return
+   *    True, wenn der Server gestartet wurde, andernfalls false.
+   */
   private boolean startServer() {
     boolean started = true;
     if(started) {
@@ -244,12 +290,14 @@ public class ServerPanelController {
     return started;
   }
 
+  /** Stoppt das Spiel und passt die Toolbar an. */
   private void stopGame() {
     setGameRunning(false);
     changeButton(buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
     setBoxEditable(true);
   }
 
+  /** Stoppt den Server und passt die Toolbar an. */
   private void stopServer() {
     setServerRunning(false);
     buttonLaunchGame.setVisible(false);
@@ -257,6 +305,7 @@ public class ServerPanelController {
     fieldServerPort.setEditable(true);
   }
 
+  /** Aendert die Eigenschaften eines Buttons. */
   private void changeButton(Button button, String iconKey, String tooltipKey) {
     button.setGraphic(new ImageView(ResourceGetter.getToolbarIcon(iconKey)));
     Tooltip tooltip = button.getTooltip();

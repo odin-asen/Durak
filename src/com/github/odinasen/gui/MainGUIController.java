@@ -14,6 +14,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -61,9 +62,9 @@ public class MainGUIController {
 
   private Parent getServerPanelContent() {
     try {
-      return serverPanelController.getContent();
+      return serverPanelController.initContent();
     } catch (IOException e) {
-      LOGGER.warning("Cannot open server panel!\n"+e.getMessage());
+      LOGGER.log(Level.WARNING, "Cannot open server panel!\n", e);
     }
 
     return null;
@@ -84,25 +85,25 @@ public class MainGUIController {
     private boolean open;
 
     OpenHideServerPanelHandle() {
-      open = true;
+      this.open = true;
     }
 
     @Override
     public void handle(ActionEvent actionEvent) {
-      MenuItem menuItem = (MenuItem) actionEvent.getSource();
+      final MenuItem menuItem = (MenuItem) actionEvent.getSource();
 
       if(serverPanelContent == null)
         serverPanelContent = getServerPanelContent();
 
       if(serverPanelContent != null) {
-        if(open) {
+        if(this.open) {
           mainSplitPane.getItems().add(0, serverPanelContent);
           menuItem.setText(I18nSupport.getValue(BundleStrings.GUI, "menu.item.hide"));
         } else {
           mainSplitPane.getItems().remove(serverPanelContent);
           menuItem.setText(I18nSupport.getValue(BundleStrings.GUI, "menu.item.open"));
         }
-        open = !open;
+        this.open = !this.open;
       }
     }
   }
