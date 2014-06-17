@@ -9,12 +9,15 @@ import com.github.odinasen.resources.ResourceGetter;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,7 +56,7 @@ public class MainGUIController {
    */
   @FXML
   void initialize() {
-    final String fxmlName = "server";
+    final String fxmlName = "main_content";
 
     Assert.assertFXElementNotNull(this.mainSplitPane, "mainSplitPane", fxmlName);
     Assert.assertFXElementNotNull(this.openHideServerPanelMenuItem,
@@ -68,12 +71,20 @@ public class MainGUIController {
     MAIN_CONTROLLER.leftStatus.setText(status);
   }
 
+  public void reloadGUI() {
+    ResourceBundle resourceBundle =
+        ResourceBundle.getBundle(DurakApplication.BUNDLE_NAME, Locale.getDefault());
+
+    try {
+      FXMLLoader.load(getClass().getResource("main_content.fxml"), resourceBundle);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
   /*   End   */
   /***********/
 
-  /**
-   * ***************
-   */
+  /*******************/
   /* Private Methods */
   private Parent getServerPanelContent() {
     try {
@@ -88,9 +99,7 @@ public class MainGUIController {
   /*       End       */
   /*******************/
 
-  /**
-   * *************
-   */
+  /*****************/
   /* Inner classes */
 
   public enum StatusType {

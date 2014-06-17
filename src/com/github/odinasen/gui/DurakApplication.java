@@ -40,7 +40,9 @@ public class DurakApplication extends Application implements Observer {
     ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_NAME, Locale.getDefault());
     Parent root = FXMLLoader.load(getClass().getResource(MAIN_FXML), bundle);
     primaryStage.setTitle(TITLE);
-    primaryStage.setScene(new Scene(root, 500, 500));
+    Scene scene = new Scene(root, 500, 500);
+    scene.getStylesheets().add(this.getClass().getResource("../common.css").toExternalForm());
+    primaryStage.setScene(scene);
     primaryStage.show();
   }
 
@@ -91,7 +93,7 @@ public class DurakApplication extends Application implements Observer {
     /** Oberflaeche ist im Spielmodus. */
     PLAYER,
     /** Oberflaeche ist im Beobachtungsmodus. */
-    OBSERVER;
+    OBSERVER
   }
 
   /*      End      */

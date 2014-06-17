@@ -3,8 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/javafx/2.2"
+<VBox xmlns:fx="http://javafx.com/javafx/2.2"
       fx:controller="com.github.odinasen.gui.MainGUIController">
     <MenuBar xmlns:fx="http://javafx.com/javafx/2.2" >
         <Menu text="%menu.server">
@@ -14,23 +13,20 @@
         <Menu text="%menu.settings"/>
     </MenuBar>
     <ToolBar maxWidth="1.7976931348623157E308">
-        <Button text="%button.button"/>
+        <Button text="%button.button" onAction="#reloadGUI"/>
+        <Button text="karten nehmen"/>
+        <Button text="Nächste Runde"/>
     </ToolBar>
     <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS">
-        <Label alignment="CENTER" minWidth="-1.0" prefWidth="-1.0" style="&#10;" text="Stapel/Tisch/Gegner/Handkarten"
-               textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
-            <font>
-                <Font size="18.0"/>
-            </font>
-        </Label>
+        <fx:include source="game_stack_opponents_panel.fxml"/>
     </SplitPane>
-    <HBox maxWidth="-1.0" VBox.vgrow="NEVER">
+    <HBox VBox.vgrow="NEVER">
         <Label fx:id="leftStatus">
             <HBox.margin>
                 <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" fx:id="x1"/>
             </HBox.margin>
         </Label>
-        <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS"/>
+        <Pane HBox.hgrow="ALWAYS"/>
         <Label fx:id="rightStatus" HBox.margin="$x1"/>
     </HBox>
 </VBox>

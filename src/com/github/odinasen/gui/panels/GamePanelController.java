@@ -1,26 +1,13 @@
 package com.github.odinasen.gui.panels;
 
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-
 /**
- * Das ist das Panel fuer die Hand und Tischkarten. Der Benutzer kann ueber dieses Panel das
- * Spielgeschehen steuern (Karten nehmen, etc...).
  * <p/>
  * Author: Timm Herrmann<br/>
- * Date: 06.01.14
+ * Date: 15.06.14
  */
-public class GamePanel extends Pane {
+public class GamePanelController {
   /****************/
   /* Constructors */
-  public GamePanel() {
-    final GridPane tablePanel = new GridPane();
-    final HBox handCardPanel = new HBox();
-
-    this.getChildren().add(tablePanel);
-    this.getChildren().add(handCardPanel);
-  }
   /*     End      */
   /****************/
 
