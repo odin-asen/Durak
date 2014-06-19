@@ -41,7 +41,7 @@ public class DurakApplication extends Application implements Observer {
     Parent root = FXMLLoader.load(getClass().getResource(MAIN_FXML), bundle);
     primaryStage.setTitle(TITLE);
     Scene scene = new Scene(root, 500, 500);
-    scene.getStylesheets().add(this.getClass().getResource("../common.css").toExternalForm());
+    scene.getStylesheets().add(this.getClass().getResource("/resources/common.css").toExternalForm());
     primaryStage.setScene(scene);
     primaryStage.show();
   }
