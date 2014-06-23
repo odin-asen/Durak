@@ -19,6 +19,15 @@ public class GameRunningException extends Exception {
     super(REMOVE_PLAYERS_WHILE_RUNNING);
   }
 
+  /**
+   * Ruft super(String) auf.
+   * @param message
+   *    siehe {@link #Exception(String)}
+   */
+  public GameRunningException(String message) {
+    super(message);
+  }
+
   /*     End      */
   /****************/
 

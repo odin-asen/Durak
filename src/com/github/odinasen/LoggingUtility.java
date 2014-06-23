@@ -55,7 +55,7 @@ public class LoggingUtility {
   /**
    * Returns or creates a logger for the specified name. The handler,
    * specified by the {@link #setFirstTimeLoggingFile} method, will be added to the
-   * logger if it does not exist already.
+   * logger if it does not already exist.
    * @param name A name for the logger. This should be a dot-separated name and
    *             should normally be based on the package name or class name of
    *             the subsystem, such as java.net or javax.swing
