@@ -77,8 +77,9 @@ public class GameServer {
   /* Methods */
 
   /**
-   * Startet den Server.
-   * @throws com.github.odinasen.business.network.GameRunningException
+   * Startet den Server. Kann der Server aus einem Grund nicht gestartet werden, wird eine
+   * {@link GameServerException} geworfen.
+   * @throws GameServerException
    *    <ol> als <b>praesentierbare Nachricht</b> wenn,
    *      <li>der Service schon einmal registriert wurde, also die Methode schon einmal ausgefuehrt
    *      wurde, ohne {@link #stopServer()} aufzurufen.</li>
@@ -87,7 +88,7 @@ public class GameServer {
    *    </ol>
    */
   public void startServer()
-    throws GameRunningException {
+    throws GameServerException {
     serverService = new DurakServerService();
 
     try {
@@ -96,13 +97,13 @@ public class GameServer {
       LOGGER.info(LoggingUtility.STARS+" Server is running "+LoggingUtility.STARS);
     } catch (NameBindingException e) {
       LOGGER.warning("Name \"" + this.registryServerName + "\"already bound: " + e.getMessage());
-      throw new GameRunningException(I18nSupport.getValue(USER_MESSAGES, "service.already.running"));
+      throw new GameServerException(I18nSupport.getValue(USER_MESSAGES, "service.already.running"));
     } catch (UnknownHostException e) {
       LOGGER.warning("Could not find ip address: "+e.getMessage());
-      throw new GameRunningException(I18nSupport.getValue(USER_MESSAGES, "network.error"));
+      throw new GameServerException(I18nSupport.getValue(USER_MESSAGES, "network.error"));
     } catch (IOException e) {
       LOGGER.warning("I/O exception: " + e.getMessage());
-      throw new GameRunningException(I18nSupport.getValue(USER_MESSAGES, "network.error"));
+      throw new GameServerException(I18nSupport.getValue(USER_MESSAGES, "port.might.be.used"));
     }
   }
 
@@ -119,7 +120,7 @@ public class GameServer {
   public void stopServer() {
     try {
       this.removeAllClients();
-    } catch (GameRunningException e) {
+    } catch (GameServerException e) {
       final String message =
           "Attempt of stopping non running server caused exception with following message\n"
           + e.getMessage();
@@ -151,7 +152,7 @@ public class GameServer {
    * @return
    *    Die Anzahl der Clients, die entfernt wurden.
    */
-  public int removeAllPlayers() throws GameRunningException {
+  public int removeAllPlayers() throws GameServerException {
     return 0;
   }
 
@@ -160,10 +161,17 @@ public class GameServer {
    * @return
    *    Die Anzahl der Clients, die entfernt wurden.
    */
-  public int removeAllClients() throws GameRunningException {
+  public int removeAllClients() throws GameServerException {
     int removedClients = removeAllSpectators();
     removedClients = removedClients + removeAllPlayers();
     return removedClients;
+  }
+
+  /**
+   * Gibt an, ob der Server laueft oder nicht.
+   */
+  public boolean isRunning() {
+    return (this.registry != null) && this.registry.isRunning();
   }
 
   /*   End   */

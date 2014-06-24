@@ -1,4 +1,4 @@
-package com.github.odinasen.business.network;
+package com.github.odinasen.business.network.simon;
 
 import com.github.odinasen.dto.DTOClient;
 

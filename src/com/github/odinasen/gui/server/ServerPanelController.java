@@ -1,6 +1,8 @@
 package com.github.odinasen.gui.server;
 
 import com.github.odinasen.Assert;
+import com.github.odinasen.business.network.GameServer;
+import com.github.odinasen.business.network.GameServerException;
 import com.github.odinasen.dto.DTOClient;
 import com.github.odinasen.gui.DurakApplication;
 import com.github.odinasen.gui.MainGUIController;
@@ -35,11 +37,9 @@ import java.util.ResourceBundle;
  * Date: 06.01.14
  */
 public class ServerPanelController {
-  private static final String ASSERT_SERVER_GAME_IMPLICATION = "Game is running while server doesn't!";
   private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
   private static final String DEFAULT_PORT_STRING = "10000";
   private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
-  private static final String SERVER_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
   @FXML private HBox hBoxPortCards;
   @FXML private TextField fieldServerPort;
@@ -49,8 +49,6 @@ public class ServerPanelController {
   @FXML private Button buttonLaunchGame;
   @FXML private ListView<DTOClient> listLoggedClients;
 
-  /* Loeschen, wenn Server implementiert ist und information von Server holen */
-  private boolean serverRunning;
   private boolean gameRunning;
 
   private Window mainWindow;
@@ -130,24 +128,33 @@ public class ServerPanelController {
   public void startStopServer() {
     this.initMainWindow();
 
-    if(isServerRunning()) {
-      if(isGameRunning()) {
+    String serverStatus;
+
+    /* Laueft der Server? */
+    if(this.isServerRunning()) {
+
+      /* Ja, also Server stoppen. */
+      if(this.isGameRunning()) {
         DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
-        stopGame();
+        this.stopGame();
       }
-      stopServer();
-      MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Server wurde angehalten!");
+      this.stopServer();
+      serverStatus = "Server wurde angehalten!";
     } else {
-      if(!startServer()) {
+
+      /* Nein, also Server starten. */
+      try {
+        this.startServer();
+        serverStatus = "Server läuft!";
+      } catch (GameServerException e) {
         /* Fehlerpopup, da der Server nicht gestartet werden konnte */
         DialogPopupFactory.getFactory().showErrorPopup(
-            mainWindow, SERVER_NOT_STARTED_MESSAGE, DialogPopupFactory.LOCATION_CENTRE, 8.0);
-        MainGUIController.
-            setStatus(MainGUIController.StatusType.DEFAULT, "Serverstart ist fehlgeschlagen!");
-      } else {
-        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Server läuft!");
+            mainWindow, e.getMessage(), DialogPopupFactory.LOCATION_CENTRE, 8.0);
+        serverStatus = "Serverstart ist fehlgeschlagen!";
       }
     }
+
+    MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, serverStatus);
   }
 
   /**
@@ -274,34 +281,40 @@ public class ServerPanelController {
   }
 
   /**
-   * Startet den Server und passt die Toolbar an.
-   * @return
-   *    True, wenn der Server gestartet wurde, andernfalls false.
+   * Startet den Server und passt die Toolbar an. Kann der Server nicht gestartet werden, wird eine
+   * Exception geworfen.
+   * @see com.github.odinasen.business.network.GameServer#startServer()
    */
-  private boolean startServer() {
-    boolean started = true;
-    if(started) {
-      setServerRunning(started);
-      fieldServerPort.setEditable(false);
-      changeButton(buttonLaunchServer, "toolbar.server.stop", "tooltip.stop.server");
-      buttonLaunchGame.setVisible(true);
-    }
+  private void startServer()
+      throws GameServerException {
+    /* Server starten */
+    GameServer server = GameServer.getInstance();
 
-    return started;
+    int port = Integer.parseInt(this.fieldServerPort.getText());
+    server.setPort(port);
+    server.startServer();
+
+    /* GUI veraendern */
+    fieldServerPort.setEditable(false);
+    this.changeButton(buttonLaunchServer, "toolbar.server.stop", "tooltip.stop.server");
+    buttonLaunchGame.setVisible(true);
   }
 
   /** Stoppt das Spiel und passt die Toolbar an. */
   private void stopGame() {
-    setGameRunning(false);
-    changeButton(buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
-    setBoxEditable(true);
+    this.setGameRunning(false);
+    this.changeButton(buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
+    this.setBoxEditable(true);
   }
 
-  /** Stoppt den Server und passt die Toolbar an. */
+  /** Stoppt den Server und passt die Toolbar und ein paar Komponenten der Oberflaeche an. */
   private void stopServer() {
-    setServerRunning(false);
+    /* Server stoppen */
+    GameServer.getInstance().stopServer();
+
+    /* GUI anpassen */
     buttonLaunchGame.setVisible(false);
-    changeButton(buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
+    this.changeButton(buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
     fieldServerPort.setEditable(true);
   }
 
@@ -322,20 +335,12 @@ public class ServerPanelController {
   /*********************/
   /* Getter and Setter */
 
-  public void setServerRunning(boolean running) {
-    serverRunning = running;
-    if(!serverRunning)
-      setGameRunning(false);
-
-    assert (serverRunning || !gameRunning) : ASSERT_SERVER_GAME_IMPLICATION;
-  }
-
   public void setGameRunning(boolean running) {
-    gameRunning = serverRunning && running;
+    gameRunning = this.isServerRunning() && running;
   }
 
   public boolean isServerRunning() {
-    return serverRunning;
+    return GameServer.getInstance().isRunning();
   }
 
   public boolean isGameRunning() {

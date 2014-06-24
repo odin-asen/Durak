@@ -1,4 +1,4 @@
-package com.github.odinasen.business.network;
+package com.github.odinasen.business.network.simon;
 
 /**
  * Enthaehlt nur eine Callback-Methode. Implementierte Klassen werden vorzugsweise als
