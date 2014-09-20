@@ -2,6 +2,7 @@ package com.github.odinasen.gui;
 
 import com.github.odinasen.Assert;
 import com.github.odinasen.LoggingUtility;
+import com.github.odinasen.gui.client.ClientPanelController;
 import com.github.odinasen.gui.server.ServerPanelController;
 import com.github.odinasen.i18n.BundleStrings;
 import com.github.odinasen.i18n.I18nSupport;
@@ -34,15 +35,21 @@ public class MainGUIController {
   @FXML
   private MenuItem openHideServerPanelMenuItem;
   @FXML
+  private MenuItem openConnectToServerMenuItem;
+
+  @FXML
   private Label leftStatus;
   @FXML
   private Label rightStatus;
 
   private ServerPanelController serverPanelController;
-  private Parent serverPanelContent;
+
+  private ClientPanelController clientPanelController;
 
   public MainGUIController() {
     serverPanelController = new ServerPanelController();
+    clientPanelController = new ClientPanelController();
+
     if (MAIN_CONTROLLER == null)
       MAIN_CONTROLLER = this;
   }
@@ -62,9 +69,12 @@ public class MainGUIController {
     Assert.assertFXElementNotNull(this.openHideServerPanelMenuItem,
                                   "openHideServerPanelMenuItem",
                                   fxmlName);
-
+    Assert.assertFXElementNotNull(this.openConnectToServerMenuItem,
+                                  "openConnectToServerMenuItem",
+                                  fxmlName);
     //==============================================================================================
     openHideServerPanelMenuItem.setOnAction(new OpenHideServerPanelHandle());
+    openConnectToServerMenuItem.setOnAction(new OpenConnectToServerHandle());
   }
 
   public static void setStatus(StatusType type, String status) {
@@ -86,11 +96,22 @@ public class MainGUIController {
 
   /*******************/
   /* Private Methods */
+
   private Parent getServerPanelContent() {
     try {
       return serverPanelController.initContent();
     } catch (IOException e) {
       LOGGER.log(Level.WARNING, "Cannot open server panel!\n", e);
+    }
+
+    return null;
+  }
+
+  private Parent getClientPanelContent() {
+    try {
+      return clientPanelController.initContent();
+    } catch (IOException e) {
+      LOGGER.log(Level.WARNING, "Cannot open client panel!\n", e);
     }
 
     return null;
@@ -107,31 +128,112 @@ public class MainGUIController {
   }
 
   /* MenuItem-Event Handles */
-  private class OpenHideServerPanelHandle implements EventHandler<ActionEvent> {
-    private boolean open;
+
+  /**
+   * Oeffnet und schliesst das Panel mit der ein Server gestartet und gestoppt werden kann.
+   */
+  private class OpenHideServerPanelHandle
+    extends OpenHidePanelHandle {
 
     OpenHideServerPanelHandle() {
-      this.open = true;
+      super(OpenHidePanelHandle.POSITION_BEGIN, "menu.item.hide.server.panel", "menu.item.open.server.panel");
+    }
+
+    @Override
+    protected Parent getPanel() {
+      return getServerPanelContent();
+    }
+  }
+
+  /**
+   * Oeffnet und schliesst das Panel mit der sich ein Client mit einem Server verbinden kann.
+   */
+  private class OpenConnectToServerHandle
+    extends OpenHidePanelHandle {
+
+    OpenConnectToServerHandle() {
+      super(OpenHidePanelHandle.POSITION_END, "menu.item.hide.client.panel", "menu.item.open.client.panel");
+    }
+
+    @Override
+    protected Parent getPanel() {
+      return getClientPanelContent();
+    }
+  }
+
+  /**
+   * Fuegt ein Panel dem mainSplitPane hinzu bzw. entfernt es. Die Beschriftung des MenuItems, dass
+   * diesen Handler verwendet, wird entsprechend geaendert.
+   */
+  private abstract class OpenHidePanelHandle
+      implements EventHandler<ActionEvent> {
+
+    private static final String POSITION_BEGIN = "BEGIN";
+    private static final String POSITION_END = "END";
+
+    private boolean panelOpen;
+    private Parent panel;
+    private String panelPosition;
+    private String i18nHideText;
+    private String i18nOpenText;
+
+    protected OpenHidePanelHandle(String position, String i18nHideText, String i18nOpenText) {
+      this.panelOpen = true;
+      this.panelPosition = position;
+      this.i18nHideText = i18nHideText;
+      this.i18nOpenText = i18nOpenText;
     }
 
     @Override
     public void handle(ActionEvent actionEvent) {
       final MenuItem menuItem = (MenuItem) actionEvent.getSource();
 
-      if (serverPanelContent == null)
-        serverPanelContent = getServerPanelContent();
+      if (this.panel == null)
+        this.panel = this.getPanel();
 
-      if (serverPanelContent != null) {
-        if (this.open) {
-          mainSplitPane.getItems().add(0, serverPanelContent);
-          menuItem.setText(I18nSupport.getValue(BundleStrings.GUI, "menu.item.hide"));
+      boolean switchPanel;
+
+      if (this.panel != null) {
+        if (this.panelOpen) {
+          Integer posNumber;
+
+          if (this.panelPosition.equals(POSITION_BEGIN)) {
+            posNumber = 0;
+            switchPanel = true;
+          } else if (this.panelPosition.equals(POSITION_END)) {
+            posNumber = mainSplitPane.getItems().size();
+            switchPanel = true;
+          } else {
+            try {
+              posNumber = Integer.parseInt(this.panelPosition);
+              switchPanel = true;
+            } catch (NumberFormatException ex) {
+              LOGGER.warning("GUI Position wurde nicht interpretierbar übergeben.");
+              switchPanel = false;
+              posNumber = null;
+            }
+          }
+
+          if (switchPanel) {
+            mainSplitPane.getItems().add(posNumber, this.panel);
+            menuItem.setText(I18nSupport.getValue(BundleStrings.JAVAFX, this.i18nHideText));
+          }
         } else {
-          mainSplitPane.getItems().remove(serverPanelContent);
-          menuItem.setText(I18nSupport.getValue(BundleStrings.GUI, "menu.item.open"));
+          switchPanel = true;
+          mainSplitPane.getItems().remove(this.panel);
+          menuItem.setText(I18nSupport.getValue(BundleStrings.JAVAFX, this.i18nOpenText));
         }
-        this.open = !this.open;
+
+        if (switchPanel)
+          this.panelOpen = !this.panelOpen;
       }
     }
+
+    /**
+     * @return
+     *    Das Panel, welches geoffnet und geschlossen wird.
+     */
+    abstract protected Parent getPanel();
   }
 
   /*     End       */

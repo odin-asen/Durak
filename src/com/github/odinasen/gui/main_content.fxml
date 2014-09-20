@@ -6,9 +6,9 @@
 <VBox xmlns:fx="http://javafx.com/javafx/2.2"
       fx:controller="com.github.odinasen.gui.MainGUIController">
     <MenuBar xmlns:fx="http://javafx.com/javafx/2.2" >
-        <Menu text="%menu.server">
-            <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open"/>
-            <MenuItem fx:id="closeServerenuItem" text="%menu.item.close"/>
+        <Menu text="%menu.connections">
+            <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open.server.panel"/>
+            <MenuItem fx:id="openConnectToServerMenuItem" text="%menu.item.open.client.panel"/>
         </Menu>
         <Menu text="%menu.settings"/>
     </MenuBar>

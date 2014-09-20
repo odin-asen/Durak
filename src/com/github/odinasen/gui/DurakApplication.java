@@ -13,7 +13,7 @@ import java.util.Observer;
 import java.util.ResourceBundle;
 
 public class DurakApplication extends Application implements Observer {
-  public static final String BUNDLE_NAME = "com.github.odinasen.i18n.gui";
+  public static final String BUNDLE_NAME = "com.github.odinasen.i18n.javafx";
   private static final String TITLE = "Durak";
   private static final String MAIN_FXML = "main_content.fxml";
 

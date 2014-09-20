@@ -10,6 +10,7 @@ import java.util.logging.*;
  */
 public class LoggingUtility {
   public static final String STARS = "********************";
+  public static final String HASHES = "####################";
   public static final String SHORT_STARS = "*****";
   private static final String DEFAULT_NAME = "defaultLog.txt"; //NON-NLS
   private static Handler handler = null;
@@ -81,5 +82,21 @@ public class LoggingUtility {
       text = text + element.toString();
 
     logger.log(level, text);
+  }
+
+  /**
+   * Loggt eine Nachricht auf {@link java.util.logging.Level#INFO}. Ein uebergebener String wird
+   * vor und nach der Nachricht gesetzt. Zwischen dem uebergenen String und der Info wird ein
+   * Leerzeichen gesetzt.<br/>
+   * z.B. 12345 Das Ist die INFO 12345
+   * @param logger
+   *    loggt die Info.
+   * @param embedIn
+   *    wird vor und nach der Info gesetzt.
+   * @param info
+   *    ist die zu loggende Info.
+   */
+  public static void embedInfo(Logger logger, String embedIn, String info) {
+    logger.info(embedIn + " " + info + " " + embedIn);
   }
 }

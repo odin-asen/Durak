@@ -1,5 +1,6 @@
 package com.github.odinasen.business.network;
 
+import com.github.odinasen.Assert;
 import com.github.odinasen.LoggingUtility;
 import com.github.odinasen.i18n.I18nSupport;
 import de.root1.simon.Registry;
@@ -35,11 +36,6 @@ public class GameServer {
   private static GameServer instance;
 
   /**
-   * Registrierungsname des Servers. (Fuer SIMON verwendet)
-   */
-  private String registryServerName;
-
-  /**
    * Ist das Registry-Objekt fuer die SIMON-Verbindung.
    */
   private Registry registry;
@@ -60,7 +56,6 @@ public class GameServer {
   private GameServer() {
     this.password = "";
     this.port = 10000;
-    this.registryServerName = "durakServer";
   }
 
   public static GameServer getInstance() {
@@ -93,10 +88,11 @@ public class GameServer {
 
     try {
       this.registry = Simon.createRegistry(port);
-      this.registry.bind(this.registryServerName, this.serverService);
-      LOGGER.info(LoggingUtility.STARS+" Server is running "+LoggingUtility.STARS);
+      this.registry.bind(SIMONConfiguration.REGISTRY_NAME_SERVER, this.serverService);
+
+      LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Server is running");
     } catch (NameBindingException e) {
-      LOGGER.warning("Name \"" + this.registryServerName + "\"already bound: " + e.getMessage());
+      LOGGER.warning("Name \"" + SIMONConfiguration.REGISTRY_NAME_SERVER + "\"already bound: " + e.getMessage());
       throw new GameServerException(I18nSupport.getValue(USER_MESSAGES, "service.already.running"));
     } catch (UnknownHostException e) {
       LOGGER.warning("Could not find ip address: "+e.getMessage());
@@ -126,7 +122,7 @@ public class GameServer {
           + e.getMessage();
       LOGGER.info(message);
     }
-    this.registry.unbind(this.registryServerName);
+    this.registry.unbind(SIMONConfiguration.REGISTRY_NAME_SERVER);
     this.registry.stop();
     LOGGER.info(LoggingUtility.STARS+" Server shut down "+LoggingUtility.STARS);
   }
@@ -162,9 +158,10 @@ public class GameServer {
    *    Die Anzahl der Clients, die entfernt wurden.
    */
   public int removeAllClients() throws GameServerException {
-    int removedClients = removeAllSpectators();
-    removedClients = removedClients + removeAllPlayers();
-    return removedClients;
+    int removedSpectators = this.removeAllSpectators();
+    int removedPlayers = this.removeAllPlayers();
+
+    return removedSpectators + removedPlayers;
   }
 
   /**
@@ -215,6 +212,18 @@ public class GameServer {
    */
   public void setPassword(String password) {
     this.password = password;
+  }
+
+  /**
+   * Schickt eine Nachricht an alle verbundenen Clients.
+   *
+   * @param clientMessageType
+   *      Der Nachrichtentyp, der an die Clients gesendet wird. Darf nicht null sein.
+   */
+  public void sendClientMessage(ClientMessageType clientMessageType) {
+    Assert.assertNotNull(clientMessageType, ClientMessageType.class);
+
+
   }
 
   /*        End        */

@@ -33,6 +33,14 @@ public class Assert {
     assert fxElement != null : errorMessage;
   }
 
+  /**
+   * Prueft ein Objekt auf null und wirft eventuell eine assertation.
+   */
+  public static void assertNotNull(Object object, Class clazz) {
+    final String errorMessage = "The Object of class " + clazz.getName() + " must not be null.";
+    assert object != null : errorMessage;
+  }
+
   /*   End   */
   /***********/
 

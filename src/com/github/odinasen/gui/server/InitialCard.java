@@ -28,6 +28,6 @@ public enum InitialCard {
 
   @Override
   public String toString() {
-    return mNumberCards + " " + I18nSupport.getValue(BundleStrings.GUI, "cards");
+    return mNumberCards + " " + I18nSupport.getValue(BundleStrings.JAVAFX, "cards");
   }
 }

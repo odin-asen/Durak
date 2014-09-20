@@ -1,7 +1,9 @@
 package com.github.odinasen.business.network.simon;
 
+import com.github.odinasen.business.network.ClientMessageType;
+
 /**
- * Enthaehlt nur eine Callback-Methode. Implementierte Klassen werden vorzugsweise als
+ * Enthaehlt nur Callback-Methoden. Implementierte Klassen werden vorzugsweise als
  * Remote-Objekte verwendet.
  * <p/>
  * Author: Timm Herrmann<br/>
@@ -9,9 +11,9 @@ package com.github.odinasen.business.network.simon;
  */
 public interface Callable {
   /**
-   * Ist eine Callback-Methode, die je nach Implementierung etwas anderes ausfuehrt.
+   * Ist eine Callback-Methode, mit der eine Nachricht fuer den Client uebertragen werden kann.
    * @param parameter
-   *    Ist ein Parameter-Objekt, der der Methode uebergeben werden kann.
+   *    Ist der Typ der Nachricht.
    */
-  public void callback(Object parameter);
+  public void sendClientMessage(ClientMessageType parameter);
 }

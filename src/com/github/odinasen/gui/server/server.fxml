@@ -2,11 +2,13 @@
 
 <?scenebuilder-classpath-element ../../../../../../out/production/Durak?>
 
-<?import com.github.odinasen.gui.server.IntegerTextField?>
+<?import com.github.odinasen.gui.components.IntegerTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.github.odinasen.gui.server.ServerPanelController">
+<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0"
+      xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+      fx:controller="com.github.odinasen.gui.server.ServerPanelController">
   <ToolBar>
     <Button fx:id="buttonLaunchServer" onAction="#startStopServer" />
     <Button fx:id="buttonLaunchGame" onAction="#startStopGame" visible="false" />

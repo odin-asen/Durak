@@ -1,4 +1,4 @@
-package com.github.odinasen.gui.server;
+package com.github.odinasen.gui.components;
 
 import javafx.scene.control.TextField;
 

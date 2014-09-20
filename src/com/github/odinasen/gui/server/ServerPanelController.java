@@ -1,6 +1,7 @@
 package com.github.odinasen.gui.server;
 
 import com.github.odinasen.Assert;
+import com.github.odinasen.business.network.ClientMessageType;
 import com.github.odinasen.business.network.GameServer;
 import com.github.odinasen.business.network.GameServerException;
 import com.github.odinasen.dto.DTOClient;
@@ -94,7 +95,7 @@ public class ServerPanelController {
     //==============================================================================================
     initListView();
     changeButton(this.buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
-    changeButton(this.buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
+    changeButton(this.buttonLaunchServer, "toolbar.start.server", "tooltip.server.start.server");
     initInitialCardsComponents();
     this.fieldServerPort.setText(DEFAULT_PORT_STRING);
   }
@@ -251,13 +252,15 @@ public class ServerPanelController {
    * der geloeschten Clients zurueck.
    */
   private int removeSelectedClients() {
-    ObservableList<DTOClient> loggedClients = listLoggedClients.getItems();
+    ObservableList<DTOClient> loggedClients =
+        this.listLoggedClients.getItems();
     int before = loggedClients.size();
 
-    final List<DTOClient> selectedClients = listLoggedClients.getSelectionModel().getSelectedItems();
+    final List<DTOClient> selectedClients =
+        this.listLoggedClients.getSelectionModel().getSelectedItems();
 
     for (int i = selectedClients.size() - 1; i >= 0; i--) {
-      listLoggedClients.getItems().remove(selectedClients.get(i));
+      this.listLoggedClients.getItems().remove(selectedClients.get(i));
     }
 
     return before - loggedClients.size();
@@ -271,10 +274,10 @@ public class ServerPanelController {
   private boolean startGame() {
     boolean started = true;
 
-    if(listLoggedClients.getItems().size() > 52) {
-      setGameRunning(true);
-      setBoxEditable(false);
-      changeButton(buttonLaunchGame, "toolbar.stop.game", "tooltip.stop.game");
+    if(this.listLoggedClients.getItems().size() > 52) {
+      this.setGameRunning(true);
+      this.setBoxEditable(false);
+      this.changeButton(this.buttonLaunchGame, "toolbar.stop.game", "tooltip.stop.game");
     } else started = false;
 
     return started;
@@ -307,14 +310,20 @@ public class ServerPanelController {
     this.setBoxEditable(true);
   }
 
-  /** Stoppt den Server und passt die Toolbar und ein paar Komponenten der Oberflaeche an. */
+  /**
+   * Benachrichtigt angemeldete Clients, stoppt den Server und passt die Toolbar und ein paar
+   * Komponenten der Oberflaeche an.
+   */
   private void stopServer() {
+    /* Clients benachrichtigen */
+    GameServer.getInstance().sendClientMessage(ClientMessageType.SERVER_SHUTDOWN);
+
     /* Server stoppen */
     GameServer.getInstance().stopServer();
 
     /* GUI anpassen */
     buttonLaunchGame.setVisible(false);
-    this.changeButton(buttonLaunchServer, "toolbar.start.server", "tooltip.start.server");
+    this.changeButton(buttonLaunchServer, "toolbar.start.server", "tooltip.server.start.server");
     fieldServerPort.setEditable(true);
   }
 
@@ -326,7 +335,7 @@ public class ServerPanelController {
       tooltip = new Tooltip();
       button.setTooltip(tooltip);
     }
-    tooltip.setText(I18nSupport.getValue(BundleStrings.GUI, tooltipKey));
+    tooltip.setText(I18nSupport.getValue(BundleStrings.JAVAFX, tooltipKey));
   }
 
   /*       End       */
