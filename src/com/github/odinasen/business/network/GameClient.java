@@ -1,6 +1,8 @@
 package com.github.odinasen.business.network;
 
 import com.github.odinasen.LoggingUtility;
+import com.github.odinasen.business.exception.GameClientCode;
+import com.github.odinasen.business.exception.SystemException;
 import com.github.odinasen.business.network.simon.Callable;
 import com.github.odinasen.business.network.simon.ServerInterface;
 import com.github.odinasen.dto.DTOClient;
@@ -68,14 +70,14 @@ public class GameClient implements ClosedListener {
    * @return
    *    True, wenn der Client mit dem Server verbunden ist, andernfalls false.
    *
-   * @throws GameClientException
+   * @throws com.github.odinasen.business.exception.SystemException
    *    Wird geworfen, wenn eine Verbindung nicht aufgebaut werden konnte.
    */
   public boolean connect(String serverAddress,
                          Integer serverPort,
                          String password,
                          DTOClient dtoClient)
-    throws GameClientException {
+    throws SystemException {
 
     if (connected)
       return true;
@@ -100,17 +102,13 @@ public class GameClient implements ClosedListener {
       }
     } catch (UnknownHostException e) {
       LOGGER.warning("Failed connection try to " + failedSocketAddress);
-      throw new GameClientException(I18nSupport.getValue(USER_MESSAGES,
-                                                         "server.0.not.found",
-                                                         failedSocketAddress));
+      throw new SystemException(GameClientCode.SERVER_NOT_FOUND);
     } catch (EstablishConnectionFailed e) {
       LOGGER.warning("EstablishConnectionFailed occurred while connecting: " + e.getMessage());
-      throw new GameClientException(I18nSupport.getValue(USER_MESSAGES,
-                                                         "server.0.not.found",
-                                                         failedSocketAddress));
+      throw new SystemException(GameClientCode.SERVER_NOT_FOUND);
     } catch (LookupFailedException e) {
       LOGGER.warning("LookupFailedException occurred while connection: "+e.getMessage());
-      throw new GameClientException(I18nSupport.getValue(USER_MESSAGES, "could.not.find.service"));
+      throw new SystemException(GameClientCode.SERVICE_NOT_FOUND);
     }
 
     return connected;
@@ -126,7 +124,7 @@ public class GameClient implements ClosedListener {
                            Integer serverPort,
                            String password,
                            DTOClient dtoClient)
-    throws GameClientException {
+    throws SystemException {
 
     if(connected) {
       disconnect();

@@ -12,7 +12,7 @@
   <ToolBar>
     <Button fx:id="buttonConnectDisconnect" onAction="#connectDisconnect" />
   </ToolBar>
-  <TitledPane collapsible="false" text="%title.login.name" VBox.vgrow="NEVER">
+  <TitledPane collapsible="false" text="%title.login.name" VBox.vgrow="ALWAYS">
       <TextField fx:id="fieldLoginName" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0">
         <tooltip>
           <Tooltip text="%tooltip.client.login.name" />
@@ -20,35 +20,29 @@
       </TextField>
   </TitledPane>
   <TitledPane collapsible="false" text="%title.server.settings" VBox.vgrow="ALWAYS">
-    <HBox fx:id="hBoxPassword" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
-      <Label text="%label.password" />
-      <TextField fx:id="fieldPassword" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+    <GridPane>
+      <Label text="%label.password" GridPane.rowIndex="0" GridPane.columnIndex="0">
+        <GridPane.margin>
+          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
+        </GridPane.margin>
+      </Label>
+      <PasswordField fx:id="fieldPassword" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="0" GridPane.columnIndex="1">
         <tooltip>
           <Tooltip text="%tooltip.client.server.password" />
         </tooltip>
-      </TextField>
-      <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="hBoxInsets"/>
-      </padding>
-    </HBox>
-    <HBox fx:id="hBoxServerAddress" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" padding="$hBoxInsets">
-      <Label text="%label.server.address" />
-      <TextField fx:id="fieldServerAddress" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" HBox.hgrow="ALWAYS">
-        <tooltip>
-          <Tooltip text="%tooltip.client.server.address" />
-        </tooltip>
-      </TextField>
-    </HBox>
-    <HBox fx:id="hBoxServerPort" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0" padding="$hBoxInsets">
-      <Label text="%label.port" />
-      <IntegerTextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+      </PasswordField>
+      <Label text="%label.port" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+      <IntegerTextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="1">
         <tooltip>
           <Tooltip text="%tooltip.client.server.port" />
         </tooltip>
       </IntegerTextField>
-    </HBox>
-    <VBox.margin>
-      <Insets />
-    </VBox.margin>
+      <Label text="%label.server.address" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+      <TextField fx:id="fieldServerAddress" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2" GridPane.columnIndex="1">
+        <tooltip>
+          <Tooltip text="%tooltip.client.server.address" />
+        </tooltip>
+      </TextField>
+    </GridPane>
   </TitledPane>
 </VBox>

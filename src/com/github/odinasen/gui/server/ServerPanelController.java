@@ -1,9 +1,9 @@
 package com.github.odinasen.gui.server;
 
 import com.github.odinasen.Assert;
+import com.github.odinasen.business.exception.SystemException;
 import com.github.odinasen.business.network.ClientMessageType;
 import com.github.odinasen.business.network.GameServer;
-import com.github.odinasen.business.network.GameServerException;
 import com.github.odinasen.dto.DTOClient;
 import com.github.odinasen.gui.DurakApplication;
 import com.github.odinasen.gui.MainGUIController;
@@ -147,7 +147,7 @@ public class ServerPanelController {
       try {
         this.startServer();
         serverStatus = "Server läuft!";
-      } catch (GameServerException e) {
+      } catch (SystemException e) {
         /* Fehlerpopup, da der Server nicht gestartet werden konnte */
         DialogPopupFactory.getFactory().showErrorPopup(
             mainWindow, e.getMessage(), DialogPopupFactory.LOCATION_CENTRE, 8.0);
@@ -289,7 +289,7 @@ public class ServerPanelController {
    * @see com.github.odinasen.business.network.GameServer#startServer()
    */
   private void startServer()
-      throws GameServerException {
+      throws SystemException {
     /* Server starten */
     GameServer server = GameServer.getInstance();
 

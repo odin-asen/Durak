@@ -1,9 +1,9 @@
 package com.github.odinasen.gui.client;
 
 import com.github.odinasen.Assert;
+import com.github.odinasen.business.exception.SystemException;
 import com.github.odinasen.business.network.ClientMessageType;
 import com.github.odinasen.business.network.GameServer;
-import com.github.odinasen.business.network.GameServerException;
 import com.github.odinasen.gui.DurakApplication;
 import com.github.odinasen.gui.MainGUIController;
 import com.github.odinasen.gui.notification.DialogPopupFactory;
@@ -12,6 +12,7 @@ import com.github.odinasen.i18n.I18nSupport;
 import com.github.odinasen.resources.ResourceGetter;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -30,6 +31,7 @@ import java.util.ResourceBundle;
  * Date: 06.01.14
  */
 public class ClientPanelController {
+  public Insets hBoxInsets;
 //  private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
 //  private static final String DEFAULT_PORT_STRING = "10000";
 //  private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
@@ -129,7 +131,7 @@ public class ClientPanelController {
       try {
         this.startServer();
         serverStatus = "Server läuft!";
-      } catch (GameServerException e) {
+      } catch (SystemException e) {
         /* Fehlerpopup, da der Server nicht gestartet werden konnte */
         DialogPopupFactory.getFactory().showErrorPopup(
             mainWindow, e.getMessage(), DialogPopupFactory.LOCATION_CENTRE, 8.0);
@@ -212,7 +214,7 @@ public class ClientPanelController {
    * @see com.github.odinasen.business.network.GameServer#startServer()
    */
   private void startServer()
-      throws GameServerException {
+      throws SystemException {
 //    /* Server starten */
 //    GameServer server = GameServer.getInstance();
 //

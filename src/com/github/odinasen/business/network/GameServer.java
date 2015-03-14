@@ -2,6 +2,8 @@ package com.github.odinasen.business.network;
 
 import com.github.odinasen.Assert;
 import com.github.odinasen.LoggingUtility;
+import com.github.odinasen.business.exception.GameServerCode;
+import com.github.odinasen.business.exception.SystemException;
 import com.github.odinasen.i18n.I18nSupport;
 import de.root1.simon.Registry;
 import de.root1.simon.Simon;
@@ -10,8 +12,6 @@ import de.root1.simon.exceptions.NameBindingException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.logging.Logger;
-
-import static com.github.odinasen.i18n.BundleStrings.USER_MESSAGES;
 
 /**
  * Das ist der Spieleserver. Er verwaltet ein laufendes Spiel und wertet Aktionen aus, um Sie dann
@@ -73,17 +73,18 @@ public class GameServer {
 
   /**
    * Startet den Server. Kann der Server aus einem Grund nicht gestartet werden, wird eine
-   * {@link GameServerException} geworfen.
-   * @throws GameServerException
+   * {@link SystemException} geworfen.
+   * @throws SystemException
    *    <ol> als <b>praesentierbare Nachricht</b> wenn,
    *      <li>der Service schon einmal registriert wurde, also die Methode schon einmal ausgefuehrt
    *      wurde, ohne {@link #stopServer()} aufzurufen.</li>
    *      <li>die IP-Adresse des Servers nicht gefunden werden konnte.</li>
    *      <li>es ein Problem mit dem Netzwerklayer gibt.</li>
    *    </ol>
+   *    Als Exception Attribut wird "port" gesetzt.
    */
   public void startServer()
-    throws GameServerException {
+    throws SystemException {
     serverService = new DurakServerService();
 
     try {
@@ -92,14 +93,14 @@ public class GameServer {
 
       LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Server is running");
     } catch (NameBindingException e) {
-      LOGGER.warning("Name \"" + SIMONConfiguration.REGISTRY_NAME_SERVER + "\"already bound: " + e.getMessage());
-      throw new GameServerException(I18nSupport.getValue(USER_MESSAGES, "service.already.running"));
+      throw SystemException.wrap(e, GameServerCode.SERVICE_ALREADY_RUNNING)
+                           .set("port", port);
     } catch (UnknownHostException e) {
-      LOGGER.warning("Could not find ip address: "+e.getMessage());
-      throw new GameServerException(I18nSupport.getValue(USER_MESSAGES, "network.error"));
+      throw SystemException.wrap(e, GameServerCode.NETWORK_ERROR)
+                           .set("port", port);
     } catch (IOException e) {
-      LOGGER.warning("I/O exception: " + e.getMessage());
-      throw new GameServerException(I18nSupport.getValue(USER_MESSAGES, "port.might.be.used"));
+      throw SystemException.wrap(e, GameServerCode.PORT_USED)
+                           .set("port", port);
     }
   }
 
@@ -116,11 +117,8 @@ public class GameServer {
   public void stopServer() {
     try {
       this.removeAllClients();
-    } catch (GameServerException e) {
-      final String message =
-          "Attempt of stopping non running server caused exception with following message\n"
-          + e.getMessage();
-      LOGGER.info(message);
+    } catch (SystemException e) {
+      LOGGER.info(I18nSupport.getException(e.getErrorCode()));
     }
     this.registry.unbind(SIMONConfiguration.REGISTRY_NAME_SERVER);
     this.registry.stop();
@@ -148,7 +146,7 @@ public class GameServer {
    * @return
    *    Die Anzahl der Clients, die entfernt wurden.
    */
-  public int removeAllPlayers() throws GameServerException {
+  public int removeAllPlayers() throws SystemException {
     return 0;
   }
 
@@ -157,7 +155,7 @@ public class GameServer {
    * @return
    *    Die Anzahl der Clients, die entfernt wurden.
    */
-  public int removeAllClients() throws GameServerException {
+  public int removeAllClients() throws SystemException {
     int removedSpectators = this.removeAllSpectators();
     int removedPlayers = this.removeAllPlayers();
 
