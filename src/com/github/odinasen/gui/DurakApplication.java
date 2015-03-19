@@ -1,11 +1,14 @@
 package com.github.odinasen.gui;
 
 import com.github.odinasen.LoggingUtility;
+import com.github.odinasen.business.network.GameServer;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.util.Locale;
 import java.util.Observable;
@@ -44,6 +47,16 @@ public class DurakApplication extends Application implements Observer {
     scene.getStylesheets().add(this.getClass().getResource("/resources/common.css").toExternalForm());
     primaryStage.setScene(scene);
     primaryStage.show();
+
+    primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+      @Override
+      public void handle(WindowEvent windowEvent) {
+        /* Server stoppen */
+        GameServer server = GameServer.getInstance();
+        if (server.isRunning())
+          server.stopServer();
+      }
+    });
   }
 
   @Override
