@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="root"
+    xmlns:fx="http://javafx.com/javafx/2.2"
+      fx:controller="com.github.odinasen.durak.gui.MainGUIController">
+    <MenuBar xmlns:fx="http://javafx.com/javafx/2.2" >
+        <Menu text="%menu.connections">
+            <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open.server.panel"/>
+            <MenuItem fx:id="openConnectToServerMenuItem" text="%menu.item.open.client.panel"/>
+            <MenuItem fx:id="closeMenuItem" text="%menu.item.close"/>
+        </Menu>
+        <Menu text="%menu.settings"/>
+    </MenuBar>
+    <ToolBar maxWidth="1.7976931348623157E308">
+        <Button text="%button.button" onAction="#reloadGUI"/>
+        <Button text="karten nehmen"/>
+        <Button text="Nächste Runde"/>
+    </ToolBar>
+    <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS">
+        <fx:include source="game_stack_opponents_panel.fxml"/>
+    </SplitPane>
+    <HBox VBox.vgrow="NEVER">
+        <Label fx:id="leftStatus">
+            <HBox.margin>
+                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" fx:id="x1"/>
+            </HBox.margin>
+        </Label>
+        <Pane HBox.hgrow="ALWAYS"/>
+        <Label fx:id="rightStatus" HBox.margin="$x1"/>
+    </HBox>
+</VBox>

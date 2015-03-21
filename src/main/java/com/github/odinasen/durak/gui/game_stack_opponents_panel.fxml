@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Das ist das Hauptpanel fuer das Spiel selbst. Es enthaehlt die Handkarten, den Tisch,
+den Stapel und die Gegneruebersicht. -->
+<?import javafx.scene.layout.*?>
+<HBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+  <VBox prefWidth="300.0">
+    <Pane styleClass="tablePanel" VBox.vgrow="ALWAYS"/>
+    <Pane styleClass="tablePanel" VBox.vgrow="ALWAYS"/>
+  </VBox>
+  <fx:include source="panels/game_panel.fxml" HBox.hgrow="ALWAYS"/>
+</HBox>

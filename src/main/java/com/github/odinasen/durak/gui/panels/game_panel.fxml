@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Das ist das Panel fuer die Handkarten und den Tisch. -->
+<?import javafx.scene.layout.*?>
+<GridPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+  <rowConstraints>
+    <RowConstraints percentHeight="67"/>
+    <RowConstraints percentHeight="33"/>
+  </rowConstraints>
+  <columnConstraints>
+    <ColumnConstraints hgrow="ALWAYS"/>
+  </columnConstraints>
+  <Pane fx:id="tableCards" styleClass="tablePanel"
+        GridPane.rowIndex="0"/>
+  <Pane fx:id="handCards" styleClass="tablePanel"
+        GridPane.rowIndex="1"/>
+</GridPane>

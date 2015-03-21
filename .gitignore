@@ -24,14 +24,6 @@
 /libs
 unicode-zeichen
 
-# Ignore image, sound and other files.
-*.jp*g
-*.png
-*.wav
-*.ogg
-*.mp3
-/assets
-
 #Ignore temporary and library files
 *~
 *.log
