@@ -8,9 +8,10 @@
 <?import javafx.scene.layout.*?>
 <VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0"
       xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+      stylesheets="/css/server.css"
       fx:controller="com.github.odinasen.durak.gui.server.ServerPanelController">
   <ToolBar>
-    <Button fx:id="buttonLaunchServer" onAction="#startStopServer" />
+    <Button fx:id="buttonLaunchServer" onAction="#startStopServer" styleClass="startServerButton"/>
     <Button fx:id="buttonLaunchGame" onAction="#startStopGame" visible="false" />
   </ToolBar>
   <TitledPane collapsible="false" text="%title.port.number.of.cards" VBox.vgrow="NEVER">

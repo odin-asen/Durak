@@ -1,0 +1,7 @@
+.startServerButton {
+  -fx-background-color: #ac56dc;
+}
+
+.stopServerButton {
+  -fx-background-color: #000;
+}

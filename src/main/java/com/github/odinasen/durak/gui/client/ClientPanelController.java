@@ -4,14 +4,13 @@ import com.github.odinasen.durak.Assert;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.GameServer;
-import com.github.odinasen.durak.gui.DurakApplication;
+import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.gui.MainGUIController;
 import com.github.odinasen.durak.gui.notification.DialogPopupFactory;
 import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.resources.ResourceGetter;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
@@ -70,10 +69,8 @@ public class ClientPanelController {
   public Parent initContent() throws IOException {
     /* fxml laden, initialize() wird dadurch auch aufgerufen. */
     ResourceBundle resourceBundle =
-        ResourceBundle.getBundle(DurakApplication.BUNDLE_NAME, Locale.getDefault());
-    Parent root = FXMLLoader.load(getClass().getResource("client.fxml"), resourceBundle);
-
-    return root;
+        ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault());
+    return ResourceGetter.loadFXMLPanel(FXMLNames.CLIENT_PANEL, resourceBundle);
   }
 
   /**

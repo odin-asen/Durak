@@ -16,7 +16,7 @@ public class I18nSupport {
   private static final Logger LOGGER = LoggingUtility.getLogger(I18nSupport.class.getName());
   private static String BUNDLE_NAME = "";
   private static ResourceBundle BUNDLE;
-  private static final String I18N_POINT = "com.github.odinasen.i18n.";
+  private static final String I18N_POINT = "i18n.";
   private static final String EXCEPTIONS_DIR = "exceptions.";
 
   /**
@@ -37,7 +37,7 @@ public class I18nSupport {
       final StringBuilder builder = new StringBuilder(256);
       builder.append("Exception: ").append(errorCode.getClass().getName()).append('\n');
       for (int index = 0; index < params.length; index++) {
-        builder.append("Parameter:\t" + (index + 1) + " - " + params[index]);
+        builder.append("Parameter:\t").append(index + 1).append(" - ").append(params[index]);
       }
       LOGGER.warning(buildKeyNotFoundMessage(key, bundleName));
       return builder.toString();

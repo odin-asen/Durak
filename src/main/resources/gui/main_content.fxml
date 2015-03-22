@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.*?>
 <VBox fx:id="root"
     xmlns:fx="http://javafx.com/javafx/2.2"
+    stylesheets="/css/common.css"
       fx:controller="com.github.odinasen.durak.gui.MainGUIController">
     <MenuBar xmlns:fx="http://javafx.com/javafx/2.2" >
         <Menu text="%menu.connections">

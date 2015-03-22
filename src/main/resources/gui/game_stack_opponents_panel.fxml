@@ -8,5 +8,5 @@ den Stapel und die Gegneruebersicht. -->
     <Pane styleClass="tablePanel" VBox.vgrow="ALWAYS"/>
     <Pane styleClass="tablePanel" VBox.vgrow="ALWAYS"/>
   </VBox>
-  <fx:include source="panels/game_panel.fxml" HBox.hgrow="ALWAYS"/>
+  <fx:include source="game_panel.fxml" HBox.hgrow="ALWAYS"/>
 </HBox>

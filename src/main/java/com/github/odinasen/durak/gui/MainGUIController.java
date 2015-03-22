@@ -10,7 +10,6 @@ import com.github.odinasen.durak.resources.ResourceGetter;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -109,10 +108,10 @@ public class MainGUIController {
 
   public void reloadGUI() {
     ResourceBundle resourceBundle =
-        ResourceBundle.getBundle(DurakApplication.BUNDLE_NAME, Locale.getDefault());
+        ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault());
 
     try {
-      FXMLLoader.load(getClass().getResource("main_content.fxml"), resourceBundle);
+      ResourceGetter.loadFXMLPanel(FXMLNames.MAIN_PANEL, resourceBundle);
     } catch (Exception e) {
       e.printStackTrace();
     }

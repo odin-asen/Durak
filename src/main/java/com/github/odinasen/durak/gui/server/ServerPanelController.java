@@ -5,7 +5,7 @@ import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.GameServer;
 import com.github.odinasen.durak.dto.DTOClient;
-import com.github.odinasen.durak.gui.DurakApplication;
+import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.gui.MainGUIController;
 import com.github.odinasen.durak.gui.notification.DialogPopupFactory;
 import com.github.odinasen.durak.i18n.BundleStrings;
@@ -16,11 +16,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Window;
@@ -71,10 +69,9 @@ public class ServerPanelController {
   public Parent initContent() throws IOException {
     /* fxml laden, initialize() wird dadurch auch aufgerufen. */
     ResourceBundle resourceBundle =
-        ResourceBundle.getBundle(DurakApplication.BUNDLE_NAME, Locale.getDefault());
-    Parent root = FXMLLoader.load(getClass().getResource("server.fxml"), resourceBundle);
+        ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault());
 
-    return root;
+    return ResourceGetter.loadFXMLPanel(FXMLNames.SERVER_PANEL, resourceBundle);
   }
 
   /**
@@ -94,8 +91,8 @@ public class ServerPanelController {
 
     //==============================================================================================
     initListView();
-    changeButton(this.buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
-    changeButton(this.buttonLaunchServer, "toolbar.start.server", "tooltip.server.start.server");
+    this.changeGameButton("tooltip.start.game");
+    this.changeServerButton("tooltip.server.start.server");
     initInitialCardsComponents();
     this.fieldServerPort.setText(DEFAULT_PORT_STRING);
   }
@@ -277,7 +274,7 @@ public class ServerPanelController {
     if(this.listLoggedClients.getItems().size() > 52) {
       this.setGameRunning(true);
       this.setBoxEditable(false);
-      this.changeButton(this.buttonLaunchGame, "toolbar.stop.game", "tooltip.stop.game");
+      this.changeGameButton("tooltip.stop.game");
     } else started = false;
 
     return started;
@@ -299,14 +296,14 @@ public class ServerPanelController {
 
     /* GUI veraendern */
     fieldServerPort.setEditable(false);
-    this.changeButton(buttonLaunchServer, "toolbar.server.stop", "tooltip.stop.server");
+    this.changeServerButton("tooltip.stop.server");
     buttonLaunchGame.setVisible(true);
   }
 
   /** Stoppt das Spiel und passt die Toolbar an. */
   private void stopGame() {
     this.setGameRunning(false);
-    this.changeButton(buttonLaunchGame, "toolbar.start.game", "tooltip.start.game");
+    this.changeGameButton("tooltip.start.game");
     this.setBoxEditable(true);
   }
 
@@ -323,19 +320,49 @@ public class ServerPanelController {
 
     /* GUI anpassen */
     buttonLaunchGame.setVisible(false);
-    this.changeButton(buttonLaunchServer, "toolbar.start.server", "tooltip.server.start.server");
+    this.changeServerButton("tooltip.server.start.server");
     fieldServerPort.setEditable(true);
   }
 
   /** Aendert die Eigenschaften eines Buttons. */
-  private void changeButton(Button button, String iconKey, String tooltipKey) {
-    button.setGraphic(new ImageView(ResourceGetter.getToolbarIcon(iconKey)));
+  private void changeButton(Button button, String oldStyle, String newStyle, String tooltipKey) {
+    button.getStyleClass().remove(oldStyle);
+    button.getStyleClass().add(newStyle);
+
     Tooltip tooltip = button.getTooltip();
     if(tooltip == null) {
       tooltip = new Tooltip();
       button.setTooltip(tooltip);
     }
     tooltip.setText(I18nSupport.getValue(BundleStrings.JAVAFX, tooltipKey));
+  }
+
+  /** Aendert den {@link #buttonLaunchGame} */
+  private void changeGameButton(String tooltipKey) {
+    final String oldStyle;
+    final String newStyle;
+    if (isGameRunning()) {
+      oldStyle = "startGameButton";
+      newStyle = "stopGameButton";
+    } else {
+      oldStyle = "stopGameButton";
+      newStyle = "startGameButton";
+    }
+    this.changeButton(this.buttonLaunchGame, oldStyle, newStyle, tooltipKey);
+  }
+
+  /** Aendert den {@link #buttonLaunchServer}. */
+  private void changeServerButton(String tooltipKey) {
+    final String oldStyle;
+    final String newStyle;
+    if (isServerRunning()) {
+      oldStyle = "startServerButton";
+      newStyle = "stopServerButton";
+    } else {
+      oldStyle = "stopServerButton";
+      newStyle = "startServerButton";
+    }
+    this.changeButton(this.buttonLaunchServer, oldStyle, newStyle, tooltipKey);
   }
 
   /*       End       */

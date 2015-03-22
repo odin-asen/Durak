@@ -2,8 +2,13 @@ package com.github.odinasen.durak.resources;
 
 import com.github.odinasen.durak.LoggingUtility;
 import com.github.odinasen.durak.i18n.I18nSupport;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.image.Image;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import static com.github.odinasen.durak.i18n.BundleStrings.RESOURCES_IMAGES;
@@ -14,7 +19,7 @@ import static com.github.odinasen.durak.i18n.BundleStrings.RESOURCES_IMAGES;
  * Time: 19:59
  */
 public class ResourceGetter {
-  private static final String RESOURCES_ROOT = "com/github/odinasen/resources/";
+  private static final String RESOURCES_ROOT = "";
   private static final String PICTURES_ROOT = RESOURCES_ROOT + "icons/";
   private static final String TOOLBAR_ROOT = PICTURES_ROOT + "toolbar/";
 
@@ -59,6 +64,34 @@ public class ResourceGetter {
     return extension;
   }
 
+  /**
+   * Ist der Dateiname ohne Endung des zu ladenen Panels. Die zu ladene Datei muss aber fxml als
+   * Endung haben.
+   * @param fileName
+   *          ist der Name der zu ladenen Datei ohne Endung.
+   * @param bundle
+   *          ist das ResourceBundle, das in der FXML-Datei verwendet wird.
+   * @return
+   *          das Panel, das aus der Datei gelesen wird.
+   * @throws IOException
+   */
+  public static Parent loadFXMLPanel(String fxml, ResourceBundle bundle)
+      throws IOException {
+    final String resourcePath = "gui/" + fxml + ".fxml";
+    final ClassLoader classLoader = ResourceGetter.class.getClassLoader();
+    if (classLoader != null) {
+      URL resourceURL = classLoader.getResource(resourcePath);
+
+      if (resourceURL != null)
+        return FXMLLoader.load(resourceURL, bundle);
+      else
+        throw new Error("Could not find resource in path '" + resourcePath + "'." +
+                        "Make sure the file exists in classpath.");
+    }
+    else {
+      throw new Error("ClassLoader is null. Could not load classpath '" + resourcePath + "'.");
+    }
+  }
   /*       End       */
   /*******************/
 }
