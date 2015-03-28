@@ -3,7 +3,7 @@ package com.github.odinasen.durak.gui.client;
 import com.github.odinasen.durak.Assert;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
-import com.github.odinasen.durak.business.network.GameServer;
+import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.gui.MainGUIController;
 import com.github.odinasen.durak.gui.notification.DialogPopupFactory;
@@ -208,7 +208,7 @@ public class ClientPanelController {
   /**
    * Startet den Server und passt die Toolbar an. Kann der Server nicht gestartet werden, wird eine
    * Exception geworfen.
-   * @see com.github.odinasen.durak.business.network.GameServer#startServer()
+   * @see com.github.odinasen.durak.business.network.server.GameServer#startServer()
    */
   private void startServer()
       throws SystemException {

@@ -4,7 +4,7 @@ import com.github.odinasen.durak.business.game.GameAction;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
-import com.github.odinasen.durak.dto.DTOClient;
+import com.github.odinasen.durak.dto.ClientDto;
 import de.root1.simon.annotation.SimonRemote;
 
 /**
@@ -26,7 +26,7 @@ public class DurakServerService
   /* Methods */
 
   @Override
-  public boolean login(Callable callable, DTOClient client, String password) {
+  public boolean login(Callable callable, ClientDto client, String password) {
     return false;
   }
 
@@ -46,7 +46,7 @@ public class DurakServerService
   }
 
   @Override
-  public void updateClient(Callable callable, DTOClient client) {
+  public void updateClient(Callable callable, ClientDto client) {
 
   }
 

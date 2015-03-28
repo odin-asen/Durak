@@ -2,7 +2,6 @@
 
 <?scenebuilder-classpath-element ../../../../../../out/production/Durak?>
 
-<?import com.github.odinasen.durak.gui.components.IntegerTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -16,11 +15,11 @@
   </ToolBar>
   <TitledPane collapsible="false" text="%title.port.number.of.cards" VBox.vgrow="NEVER">
     <HBox fx:id="hBoxPortCards" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
-      <IntegerTextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="4" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+      <TextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="4" prefWidth="-1.0" HBox.hgrow="ALWAYS">
         <tooltip>
           <Tooltip text="%tooltip.server.server.port" />
         </tooltip>
-      </IntegerTextField>
+      </TextField>
       <ChoiceBox fx:id="boxInitialCards" maxWidth="+Infinity" minWidth="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
       <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

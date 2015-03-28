@@ -41,6 +41,11 @@ public class Assert {
     assert object != null : errorMessage;
   }
 
+  public static void assertNotNull(Object object) {
+    final String errorMessage = "The Object must not be null.";
+    assert object != null : errorMessage;
+  }
+
   /*   End   */
   /***********/
 

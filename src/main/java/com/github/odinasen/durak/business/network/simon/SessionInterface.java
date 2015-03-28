@@ -1,7 +1,7 @@
 package com.github.odinasen.durak.business.network.simon;
 
 import com.github.odinasen.durak.business.game.GameAction;
-import com.github.odinasen.durak.dto.DTOClient;
+import com.github.odinasen.durak.dto.ClientDto;
 
 /**
  * Dieses Interface enthaehlt Methoden, die ein Client ausfuehren kann, wenn dieser sich ueber
@@ -42,5 +42,5 @@ public interface SessionInterface {
    * @param client
    *    Ist das Informationsobjekt des Clients.
    */
-  public void updateClient(Callable callable, DTOClient client);
+  public void updateClient(Callable callable, ClientDto client);
 }

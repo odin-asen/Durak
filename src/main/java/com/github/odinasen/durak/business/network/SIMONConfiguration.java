@@ -10,5 +10,5 @@ public interface SIMONConfiguration {
   /**
    * Registrierungsname des Servers. (Fuer SIMON verwendet)
    */
-  String REGISTRY_NAME_SERVER = "durakServer";;
+  String REGISTRY_NAME_SERVER = "durakServer";
 }

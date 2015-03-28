@@ -1,6 +1,7 @@
 package com.github.odinasen.durak.business.exception;
 
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,6 +43,7 @@ public class SystemException extends RuntimeException {
     } else {
       this.lastCause = getLastCause(cause);
     }
+    this.properties = new HashMap<String, Object>(4);
   }
   /*     End      */
   /****************/

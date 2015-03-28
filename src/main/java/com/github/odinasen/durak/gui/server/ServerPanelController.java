@@ -3,28 +3,27 @@ package com.github.odinasen.durak.gui.server;
 import com.github.odinasen.durak.Assert;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
-import com.github.odinasen.durak.business.network.GameServer;
-import com.github.odinasen.durak.dto.DTOClient;
+import com.github.odinasen.durak.business.network.server.GameServer;
+import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.gui.MainGUIController;
+import com.github.odinasen.durak.gui.controller.JavaFXController;
 import com.github.odinasen.durak.gui.notification.DialogPopupFactory;
 import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.i18n.I18nSupport;
-import com.github.odinasen.durak.resources.ResourceGetter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Window;
 import javafx.util.Callback;
+import javafx.util.converter.NumberStringConverter;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -35,7 +34,7 @@ import java.util.ResourceBundle;
  * Author: Timm Herrmann<br/>
  * Date: 06.01.14
  */
-public class ServerPanelController {
+public class ServerPanelController extends JavaFXController {
   private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
   private static final String DEFAULT_PORT_STRING = "10000";
   private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
@@ -46,68 +45,56 @@ public class ServerPanelController {
   private Label labelInitialCards;
   @FXML private Button buttonLaunchServer;
   @FXML private Button buttonLaunchGame;
-  @FXML private ListView<DTOClient> listLoggedClients;
+  @FXML private ListView<ClientDto> listLoggedClients;
 
   private boolean gameRunning;
 
   private Window mainWindow;
 
-  /****************/
-  /* Constructors */
-  /*     End      */
-  /****************/
+  //================================================================================================
+  // Constructors
 
-  /***********/
-  /* Methods */
-
-  /**
-   * Laedt die server.fxml Datei und initialisiert Objektvariablen.
-   * @return
-   *      Den Wurzelknoten der fxml.
-   * @throws IOException
-   */
-  public Parent initContent() throws IOException {
-    /* fxml laden, initialize() wird dadurch auch aufgerufen. */
-    ResourceBundle resourceBundle =
-        ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault());
-
-    return ResourceGetter.loadFXMLPanel(FXMLNames.SERVER_PANEL, resourceBundle);
+  public ServerPanelController() {
+    super(FXMLNames.SERVER_PANEL,
+          ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
   }
 
-  /**
-   * Prueft, ob alle Objektvariablen, die in der fxml-Datei definiert sind, geladen wurden.
-   * Initialisiert die Oberflaechen-Komponenten.
-   */
-  @FXML
-  void initialize() {
-    final String fxmlName = "server";
+  //================================================================================================
+  // Methods
 
+  @Override
+  protected void initializePanel() {
+    initListView();
+    this.changeGameButton("tooltip.start.game");
+    this.changeServerButton("tooltip.server.start.server");
+    initInitialCardsComponents();
+
+    this.fieldServerPort.textProperty().bindBidirectional(GameServer.getInstance().getPort(),
+                                                          new NumberStringConverter());
+  }
+
+  @Override
+  protected void assertNotNullComponents() {
+    final String fxmlName = this.getFxmlName();
     Assert.assertFXElementNotNull(this.buttonLaunchGame, "buttonLaunchGame", fxmlName);
     Assert.assertFXElementNotNull(this.buttonLaunchServer, "buttonLaunchServer", fxmlName);
     Assert.assertFXElementNotNull(this.hBoxPortCards, "hBoxPortCards", fxmlName);
     Assert.assertFXElementNotNull(this.fieldServerPort, "fieldServerPort", fxmlName);
     Assert.assertFXElementNotNull(this.boxInitialCards, "boxInitialCards", fxmlName);
     Assert.assertFXElementNotNull(this.listLoggedClients, "listLoggedClients", fxmlName);
-
-    //==============================================================================================
-    initListView();
-    this.changeGameButton("tooltip.start.game");
-    this.changeServerButton("tooltip.server.start.server");
-    initInitialCardsComponents();
-    this.fieldServerPort.setText(DEFAULT_PORT_STRING);
   }
 
   private void initListView() {
-    ObservableList<DTOClient> clients = FXCollections.observableArrayList(new DTOClient(0));
+    ObservableList<ClientDto> clients = FXCollections.observableArrayList(new ClientDto(0));
     for (int i = 0; i < 10; i++) {
-      clients.add(new DTOClient(i+1));
+      clients.add(new ClientDto(i+1));
     }
     listLoggedClients.setItems(clients);
     listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     listLoggedClients.setCellFactory(
-        new Callback<ListView<DTOClient>, ListCell<DTOClient>>() {
+        new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
           @Override
-          public ListCell<DTOClient> call(ListView<DTOClient> listView) {
+          public ListCell<ClientDto> call(ListView<ClientDto> listView) {
             return new ClientListCell(new EventHandler<ActionEvent>() {
               @Override
               public void handle(ActionEvent actionEvent) {
@@ -249,11 +236,11 @@ public class ServerPanelController {
    * der geloeschten Clients zurueck.
    */
   private int removeSelectedClients() {
-    ObservableList<DTOClient> loggedClients =
+    ObservableList<ClientDto> loggedClients =
         this.listLoggedClients.getItems();
     int before = loggedClients.size();
 
-    final List<DTOClient> selectedClients =
+    final List<ClientDto> selectedClients =
         this.listLoggedClients.getSelectionModel().getSelectedItems();
 
     for (int i = selectedClients.size() - 1; i >= 0; i--) {
@@ -283,15 +270,14 @@ public class ServerPanelController {
   /**
    * Startet den Server und passt die Toolbar an. Kann der Server nicht gestartet werden, wird eine
    * Exception geworfen.
-   * @see com.github.odinasen.durak.business.network.GameServer#startServer()
+   * @see com.github.odinasen.durak.business.network.server.GameServer#startServer()
    */
   private void startServer()
       throws SystemException {
     /* Server starten */
     GameServer server = GameServer.getInstance();
 
-    int port = Integer.parseInt(this.fieldServerPort.getText());
-    server.setPort(port);
+    // Der Port wird ueber Databinding im Textfeld gesetzt
     server.startServer();
 
     /* GUI veraendern */

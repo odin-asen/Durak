@@ -6,13 +6,13 @@ package com.github.odinasen.durak.dto;
  * Author: Timm Herrmann<br/>
  * Date: 06.01.14
  */
-public class DTOClient {
+public class ClientDto {
   public int id;
 
   /****************/
   /* Constructors */
 
-  public DTOClient(int id) {
+  public ClientDto(int id) {
     this.id = id;
   }
 

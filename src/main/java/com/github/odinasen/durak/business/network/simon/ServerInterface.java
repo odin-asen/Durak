@@ -1,6 +1,6 @@
 package com.github.odinasen.durak.business.network.simon;
 
-import com.github.odinasen.durak.dto.DTOClient;
+import com.github.odinasen.durak.dto.ClientDto;
 
 /**
  * Enthaelt Methoden, die von Clients auch ohne Authentifizierung aufgerufen werden koennen.
@@ -23,7 +23,7 @@ public interface ServerInterface {
    *    False, wenn der Client nicht angemeldet werden konnte
    *    (falsches Passwort oder schon angemeldet).
    */
-  public boolean login(Callable callable, DTOClient client, String password);
+  public boolean login(Callable callable, ClientDto client, String password);
 
   /**
    * Meldet einen Client vom Server ab. Wurde ein Client abgemeldet, kann dieser keine Methoden

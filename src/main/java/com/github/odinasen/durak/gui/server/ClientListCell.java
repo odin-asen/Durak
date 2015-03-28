@@ -1,6 +1,6 @@
 package com.github.odinasen.durak.gui.server;
 
-import com.github.odinasen.durak.dto.DTOClient;
+import com.github.odinasen.durak.dto.ClientDto;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
@@ -12,7 +12,7 @@ import javafx.scene.control.MenuItem;
  * Author: Timm Herrmann<br/>
  * Date: 11.02.14
  */
-public class ClientListCell extends ListCell<DTOClient> {
+public class ClientListCell extends ListCell<ClientDto> {
 
   private MenuItem removeMenuItem = new MenuItem("Remove");
   private ContextMenu contextMenu = new ContextMenu(removeMenuItem);
@@ -31,7 +31,7 @@ public class ClientListCell extends ListCell<DTOClient> {
   /* Methods */
 
   @Override
-  public void updateItem(DTOClient item, boolean empty) {
+  public void updateItem(ClientDto item, boolean empty) {
     super.updateItem(item, empty);
     if (item != null) {
       setText(Integer.toString(item.id));

@@ -75,9 +75,9 @@ public class ResourceGetter {
    *          das Panel, das aus der Datei gelesen wird.
    * @throws IOException
    */
-  public static Parent loadFXMLPanel(String fxml, ResourceBundle bundle)
+  public static Parent loadFXMLPanel(String fileName, ResourceBundle bundle)
       throws IOException {
-    final String resourcePath = "gui/" + fxml + ".fxml";
+    final String resourcePath = "gui/" + fileName + ".fxml";
     final ClassLoader classLoader = ResourceGetter.class.getClassLoader();
     if (classLoader != null) {
       URL resourceURL = classLoader.getResource(resourcePath);

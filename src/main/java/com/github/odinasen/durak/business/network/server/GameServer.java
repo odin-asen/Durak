@@ -1,13 +1,19 @@
-package com.github.odinasen.durak.business.network;
+package com.github.odinasen.durak.business.network.server;
 
 import com.github.odinasen.durak.Assert;
 import com.github.odinasen.durak.LoggingUtility;
 import com.github.odinasen.durak.business.exception.GameServerCode;
 import com.github.odinasen.durak.business.exception.SystemException;
+import com.github.odinasen.durak.business.network.ClientMessageType;
+import com.github.odinasen.durak.business.network.DurakServerService;
+import com.github.odinasen.durak.business.network.SIMONConfiguration;
+import com.github.odinasen.durak.data.model.server.GameServerModel;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import de.root1.simon.Registry;
 import de.root1.simon.Simon;
 import de.root1.simon.exceptions.NameBindingException;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.StringProperty;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -41,21 +47,15 @@ public class GameServer {
   private Registry registry;
 
   /**
-   * Ist der Port auf dem der Server laueft.
+   * Model mit allen Attributen zum Server, wie Clients, Port, Passwort, etc...
    */
-  private int port;
-
-  /**
-   * Ist das Passwort des Servers.
-   */
-  private String password;
+  private GameServerModel gameServerModel;
 
   /****************/
   /* Constructors */
 
   private GameServer() {
-    this.password = "";
-    this.port = 10000;
+    this.gameServerModel = new GameServerModel();
   }
 
   public static GameServer getInstance() {
@@ -86,6 +86,8 @@ public class GameServer {
   public void startServer()
     throws SystemException {
     serverService = new DurakServerService();
+
+    final int port = this.gameServerModel.getPort().getValue();
 
     try {
       this.registry = Simon.createRegistry(port);
@@ -120,9 +122,11 @@ public class GameServer {
     } catch (SystemException e) {
       LOGGER.info(I18nSupport.getException(e.getErrorCode()));
     }
-    this.registry.unbind(SIMONConfiguration.REGISTRY_NAME_SERVER);
-    this.registry.stop();
-    LOGGER.info(LoggingUtility.STARS+" Server shut down "+LoggingUtility.STARS);
+    if (this.registry != null) {
+      this.registry.unbind(SIMONConfiguration.REGISTRY_NAME_SERVER);
+      this.registry.stop();
+      LOGGER.info(LoggingUtility.STARS+" Server shut down "+LoggingUtility.STARS);
+    }
   }
 
   /**
@@ -138,6 +142,7 @@ public class GameServer {
    *    Die Anzahl der Clients, die entfernt wurden.
    */
   public int removeAllSpectators() {
+    // TODO Alle Beobachter entfernen, dazu müssen SPieler erst hinzugefügt werden
     return 0;
   }
 
@@ -147,6 +152,7 @@ public class GameServer {
    *    Die Anzahl der Clients, die entfernt wurden.
    */
   public int removeAllPlayers() throws SystemException {
+    // TODO Alle Spieler entfernen, dazu müssen SPieler erst hinzugefügt werden
     return 0;
   }
 
@@ -156,8 +162,8 @@ public class GameServer {
    *    Die Anzahl der Clients, die entfernt wurden.
    */
   public int removeAllClients() throws SystemException {
-    int removedSpectators = this.removeAllSpectators();
     int removedPlayers = this.removeAllPlayers();
+    int removedSpectators = this.removeAllSpectators();
 
     return removedSpectators + removedPlayers;
   }
@@ -182,34 +188,18 @@ public class GameServer {
 
   /**
    * @return
-   *    den {@link #port}.
+   *    den Port des Servers als JavaFX-Property.
    */
-  public int getPort() {
-    return port;
-  }
-
-  /**
-   * @param port
-   *    ist der {@link #port}.
-   */
-  public void setPort(int port) {
-    this.port = port;
+  public IntegerProperty getPort() {
+    return this.gameServerModel.getPort();
   }
 
   /**
    * @return
-   *    das {@link #password}.
+   *    das Passwort des Servers als JavaFX-Property.
    */
-  public String getPassword() {
-    return password;
-  }
-
-  /**
-   * @param password
-   *    ist der {@link #password}.
-   */
-  public void setPassword(String password) {
-    this.password = password;
+  public StringProperty getPassword() {
+    return this.gameServerModel.getPassword();
   }
 
   /**
@@ -220,8 +210,7 @@ public class GameServer {
    */
   public void sendClientMessage(ClientMessageType clientMessageType) {
     Assert.assertNotNull(clientMessageType, ClientMessageType.class);
-
-
+    //----------------------------------------------------------------------------------------------
   }
 
   /*        End        */

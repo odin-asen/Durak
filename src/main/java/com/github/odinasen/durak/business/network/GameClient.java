@@ -5,7 +5,7 @@ import com.github.odinasen.durak.business.exception.GameClientCode;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
-import com.github.odinasen.durak.dto.DTOClient;
+import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import de.root1.simon.ClosedListener;
 import de.root1.simon.Lookup;
@@ -64,7 +64,7 @@ public class GameClient implements ClosedListener {
    *    Port des des Servers.
    * @param password
    *    Passwort des Servers.
-   * @param dtoClient
+   * @param clientDto
    *    Client Repraesentation fuer den Login am Server.
    *
    * @return
@@ -76,7 +76,7 @@ public class GameClient implements ClosedListener {
   public boolean connect(String serverAddress,
                          Integer serverPort,
                          String password,
-                         DTOClient dtoClient)
+                         ClientDto clientDto)
     throws SystemException {
 
     if (connected)
@@ -90,7 +90,7 @@ public class GameClient implements ClosedListener {
 
       nameLookup.addClosedListener(server, this);
 
-      connected = server.login(messageReceiver, dtoClient, password);
+      connected = server.login(messageReceiver, clientDto, password);
 
       final String socketAddress = this.getSocketAddress();
 
@@ -118,12 +118,12 @@ public class GameClient implements ClosedListener {
    * Trennt den Client vom Server falls notwendig und baut die Verbindung zum eingegebenen Server
    * auf.
    *
-   * @see #connect(String, Integer, String, com.github.odinasen.durak.dto.DTOClient)
+   * @see #connect(String, Integer, String, com.github.odinasen.durak.dto.ClientDto)
    */
   public boolean reconnect(String serverAddress,
                            Integer serverPort,
                            String password,
-                           DTOClient dtoClient)
+                           ClientDto clientDto)
     throws SystemException {
 
     if(connected) {
@@ -135,7 +135,7 @@ public class GameClient implements ClosedListener {
       }
     }
     /* setup a new connection */
-    return connect(serverAddress, serverPort, password, dtoClient);
+    return connect(serverAddress, serverPort, password, clientDto);
   }
 
   /**

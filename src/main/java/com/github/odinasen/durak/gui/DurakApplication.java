@@ -1,7 +1,7 @@
 package com.github.odinasen.durak.gui;
 
 import com.github.odinasen.durak.LoggingUtility;
-import com.github.odinasen.durak.business.network.GameServer;
+import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.resources.ResourceGetter;
 import javafx.application.Application;
