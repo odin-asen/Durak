@@ -11,10 +11,12 @@ import java.net.ServerSocket;
 
 public class GameServerTest {
 
-  GameServer server;
+  private int testPort;
+  private GameServer server;
   @Before
   public void setUp() throws Exception {
-    server = GameServer.getInstance();
+    this.server = GameServer.getInstance();
+    this.testPort = 10000;
   }
 
   @After
@@ -31,9 +33,10 @@ public class GameServerTest {
   @Test(expected = IOException.class)
   public void testStartServer() throws Exception {
     Assert.assertFalse(server.isRunning());
-    server.startServer();
+
+    server.startServer(this.testPort);
     Assert.assertTrue(server.isRunning());
-    new ServerSocket(server.getPort().getValue());
+    new ServerSocket(this.testPort);
   }
 
   @Test
@@ -62,9 +65,9 @@ public class GameServerTest {
 
   @Test
   public void testIsRunning() throws Exception {
-    Assert.assertFalse(server.isRunning());
-    server.startServer();
-    Assert.assertTrue(server.isRunning());
+    Assert.assertFalse(this.server.isRunning());
+    server.startServer(this.testPort);
+    Assert.assertTrue(this.server.isRunning());
   }
 
   @Test

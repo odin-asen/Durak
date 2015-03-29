@@ -7,13 +7,10 @@ import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.DurakServerService;
 import com.github.odinasen.durak.business.network.SIMONConfiguration;
-import com.github.odinasen.durak.data.model.server.GameServerModel;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import de.root1.simon.Registry;
 import de.root1.simon.Simon;
 import de.root1.simon.exceptions.NameBindingException;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.StringProperty;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -46,16 +43,10 @@ public class GameServer {
    */
   private Registry registry;
 
-  /**
-   * Model mit allen Attributen zum Server, wie Clients, Port, Passwort, etc...
-   */
-  private GameServerModel gameServerModel;
-
   /****************/
   /* Constructors */
 
   private GameServer() {
-    this.gameServerModel = new GameServerModel();
   }
 
   public static GameServer getInstance() {
@@ -74,6 +65,9 @@ public class GameServer {
   /**
    * Startet den Server. Kann der Server aus einem Grund nicht gestartet werden, wird eine
    * {@link com.github.odinasen.durak.business.exception.SystemException} geworfen.
+   *
+   * @param port ist der Port auf dem der Server gestartet wird.
+   *
    * @throws com.github.odinasen.durak.business.exception.SystemException
    *    <ol> als <b>praesentierbare Nachricht</b> wenn,
    *      <li>der Service schon einmal registriert wurde, also die Methode schon einmal ausgefuehrt
@@ -81,13 +75,11 @@ public class GameServer {
    *      <li>die IP-Adresse des Servers nicht gefunden werden konnte.</li>
    *      <li>es ein Problem mit dem Netzwerklayer gibt.</li>
    *    </ol>
-   *    Als Exception Attribut wird "port" gesetzt.
+   *    Als Exception-Attribut wird "port" gesetzt.
    */
-  public void startServer()
+  public void startServer(int port)
     throws SystemException {
     serverService = new DurakServerService();
-
-    final int port = this.gameServerModel.getPort().getValue();
 
     try {
       this.registry = Simon.createRegistry(port);
@@ -183,25 +175,6 @@ public class GameServer {
   /*       End       */
   /*******************/
 
-  /*********************/
-  /* Getter and Setter */
-
-  /**
-   * @return
-   *    den Port des Servers als JavaFX-Property.
-   */
-  public IntegerProperty getPort() {
-    return this.gameServerModel.getPort();
-  }
-
-  /**
-   * @return
-   *    das Passwort des Servers als JavaFX-Property.
-   */
-  public StringProperty getPassword() {
-    return this.gameServerModel.getPassword();
-  }
-
   /**
    * Schickt eine Nachricht an alle verbundenen Clients.
    *
@@ -212,9 +185,6 @@ public class GameServer {
     Assert.assertNotNull(clientMessageType, ClientMessageType.class);
     //----------------------------------------------------------------------------------------------
   }
-
-  /*        End        */
-  /*********************/
 
   /*****************/
   /* Inner classes */

@@ -37,6 +37,11 @@ public class GameServerModel {
    */
   private StringProperty password;
 
+  /**
+   * Gibt an, ob das Spiel laeuft oder nicht.
+   */
+  private boolean gameRunning;
+
   //================================================================================================
   // Constructors
 
@@ -86,6 +91,21 @@ public class GameServerModel {
     return this.password;
   }
 
+  /**
+   * Setzt das {@link #gameRunning}-Objekt.
+   *
+   * @param gameRunning das {@link #gameRunning}-Objekt
+   */
+  public void setGameRunning(boolean gameRunning) {
+    this.gameRunning = gameRunning;
+  }
+
+  /**
+   * @return das {@link #gameRunning}-Objekt
+   */
+  public boolean isGameRunning() {
+    return gameRunning;
+  }
   //================================================================================================
   // Inner classes
 }

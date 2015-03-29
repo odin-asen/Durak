@@ -4,6 +4,7 @@ import com.github.odinasen.durak.Assert;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.server.GameServer;
+import com.github.odinasen.durak.data.model.server.GameServerModel;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.gui.MainGUIController;
@@ -36,7 +37,7 @@ import java.util.ResourceBundle;
  */
 public class ServerPanelController extends JavaFXController {
   private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
-  private static final String DEFAULT_PORT_STRING = "10000";
+
   private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
   @FXML private HBox hBoxPortCards;
@@ -47,9 +48,12 @@ public class ServerPanelController extends JavaFXController {
   @FXML private Button buttonLaunchGame;
   @FXML private ListView<ClientDto> listLoggedClients;
 
-  private boolean gameRunning;
-
   private Window mainWindow;
+
+  /**
+   * Model mit allen Attributen zum Server, wie Clients, Port, Passwort, etc...
+   */
+  private GameServerModel gameServerModel;
 
   //================================================================================================
   // Constructors
@@ -57,6 +61,7 @@ public class ServerPanelController extends JavaFXController {
   public ServerPanelController() {
     super(FXMLNames.SERVER_PANEL,
           ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
+    this.gameServerModel = new GameServerModel();
   }
 
   //================================================================================================
@@ -69,7 +74,7 @@ public class ServerPanelController extends JavaFXController {
     this.changeServerButton("tooltip.server.start.server");
     initInitialCardsComponents();
 
-    this.fieldServerPort.textProperty().bindBidirectional(GameServer.getInstance().getPort(),
+    this.fieldServerPort.textProperty().bindBidirectional(this.gameServerModel.getPort(),
                                                           new NumberStringConverter());
   }
 
@@ -119,7 +124,7 @@ public class ServerPanelController extends JavaFXController {
     if(this.isServerRunning()) {
 
       /* Ja, also Server stoppen. */
-      if(this.isGameRunning()) {
+      if(this.gameServerModel.isGameRunning()) {
         DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
         this.stopGame();
       }
@@ -153,7 +158,7 @@ public class ServerPanelController extends JavaFXController {
 
     this.initMainWindow();
 
-    if(isGameRunning()) {
+    if(gameServerModel.isGameRunning()) {
       stopGame();
       MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Das Spiel wurde beendet!");
     } else {
@@ -270,7 +275,7 @@ public class ServerPanelController extends JavaFXController {
   /**
    * Startet den Server und passt die Toolbar an. Kann der Server nicht gestartet werden, wird eine
    * Exception geworfen.
-   * @see com.github.odinasen.durak.business.network.server.GameServer#startServer()
+   * @see com.github.odinasen.durak.business.network.server.GameServer#startServer(int)
    */
   private void startServer()
       throws SystemException {
@@ -278,7 +283,7 @@ public class ServerPanelController extends JavaFXController {
     GameServer server = GameServer.getInstance();
 
     // Der Port wird ueber Databinding im Textfeld gesetzt
-    server.startServer();
+    server.startServer(this.gameServerModel.getPort().getValue());
 
     /* GUI veraendern */
     fieldServerPort.setEditable(false);
@@ -327,7 +332,7 @@ public class ServerPanelController extends JavaFXController {
   private void changeGameButton(String tooltipKey) {
     final String oldStyle;
     final String newStyle;
-    if (isGameRunning()) {
+    if (gameServerModel.isGameRunning()) {
       oldStyle = "startGameButton";
       newStyle = "stopGameButton";
     } else {
@@ -358,15 +363,11 @@ public class ServerPanelController extends JavaFXController {
   /* Getter and Setter */
 
   public void setGameRunning(boolean running) {
-    gameRunning = this.isServerRunning() && running;
+    this.gameServerModel.setGameRunning(this.isServerRunning() && running);
   }
 
   public boolean isServerRunning() {
     return GameServer.getInstance().isRunning();
-  }
-
-  public boolean isGameRunning() {
-    return gameRunning;
   }
 
   /*        End        */
