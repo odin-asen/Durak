@@ -2,12 +2,11 @@
 
 <?scenebuilder-classpath-element ../../../../../../out/production/Durak?>
 
-<?import com.github.odinasen.durak.gui.components.IntegerTextField?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0"
-      xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+      xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.github.odinasen.durak.gui.client.ClientPanelController">
   <ToolBar>
     <Button fx:id="buttonConnectDisconnect" onAction="#connectDisconnect" />
@@ -32,11 +31,11 @@
         </tooltip>
       </PasswordField>
       <Label text="%label.port" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-      <IntegerTextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="1">
+      <TextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="1">
         <tooltip>
           <Tooltip text="%tooltip.client.server.port" />
         </tooltip>
-      </IntegerTextField>
+      </TextField>
       <Label text="%label.server.address" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
       <TextField fx:id="fieldServerAddress" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2" GridPane.columnIndex="1">
         <tooltip>

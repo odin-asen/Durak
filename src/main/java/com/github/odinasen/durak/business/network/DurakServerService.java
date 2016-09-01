@@ -13,17 +13,9 @@ import de.root1.simon.annotation.SimonRemote;
  * Author: Timm Herrmann<br/>
  * Date: 23.06.14
  */
-@SimonRemote
+@SimonRemote(value={ServerInterface.class, SessionInterface.class})
 public class DurakServerService
     implements ServerInterface, SessionInterface {
-
-  /****************/
-  /* Constructors */
-  /*     End      */
-  /****************/
-
-  /***********/
-  /* Methods */
 
   @Override
   public boolean login(Callable callable, ClientDto client, String password) {
@@ -49,22 +41,4 @@ public class DurakServerService
   public void updateClient(Callable callable, ClientDto client) {
 
   }
-
-  /*   End   */
-  /***********/
-
-  /*******************/
-  /* Private Methods */
-  /*       End       */
-  /*******************/
-
-  /*********************/
-  /* Getter and Setter */
-  /*        End        */
-  /*********************/
-
-  /*****************/
-  /* Inner classes */
-  /*      End      */
-  /*****************/
 }

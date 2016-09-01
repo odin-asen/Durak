@@ -5,12 +5,12 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/javafx/2.2">
+<VBox maxWidth="1.7976931348623157E308" xmlns:fx="http://javafx.com/fxml">
   <HBox maxWidth="-1.0" VBox.vgrow="NEVER">
     <ImageView fx:id="message_icon" />
     <Label fx:id="messageContainer" />
   </HBox>
-  <HBox maxWidth="-1.0" VBox.vgrow="NEVER" xmlns:fx="http://javafx.com/javafx/2.2">
+  <HBox maxWidth="-1.0" VBox.vgrow="NEVER">
     <fx:define>
       <Insets fx:id="defInset" bottom="2" top="2" left="4" right="4"/>
     </fx:define>

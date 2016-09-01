@@ -2,7 +2,7 @@
 
 <!-- Das ist das Panel fuer die Handkarten und den Tisch. -->
 <?import javafx.scene.layout.*?>
-<GridPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+<GridPane xmlns:fx="http://javafx.com/fxml">
   <rowConstraints>
     <RowConstraints percentHeight="67"/>
     <RowConstraints percentHeight="33"/>

@@ -4,10 +4,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox fx:id="root"
-    xmlns:fx="http://javafx.com/javafx/2.2"
+    xmlns:fx="http://fxml.com/fxml"
     stylesheets="/css/common.css"
       fx:controller="com.github.odinasen.durak.gui.MainGUIController">
-    <MenuBar xmlns:fx="http://javafx.com/javafx/2.2" >
+    <MenuBar xmlns:fx="http://javafx.com/fxml" >
         <Menu text="%menu.connections">
             <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open.server.panel"/>
             <MenuItem fx:id="openConnectToServerMenuItem" text="%menu.item.open.client.panel"/>

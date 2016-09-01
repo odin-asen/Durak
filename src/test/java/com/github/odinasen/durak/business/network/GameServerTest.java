@@ -9,6 +9,9 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import static com.sun.xml.internal.ws.dump.LoggingDumpTube.Position.After;
+import static com.sun.xml.internal.ws.dump.LoggingDumpTube.Position.Before;
+
 public class GameServerTest {
 
   private int testPort;

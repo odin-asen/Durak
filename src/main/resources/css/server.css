@@ -1,7 +1,15 @@
 .startServerButton {
-  -fx-background-color: #ac56dc;
+    -fx-graphic: "icons/toolbar/Play.png"
 }
 
 .stopServerButton {
-  -fx-background-color: #000;
+    -fx-graphic: "icons/toolbar/Stop Player.png";
+}
+
+.startGameButton {
+    -fx-graphic: "icons/toolbar/Games.png";
+}
+
+.stopGameButton {
+    -fx-graphic: "icons/toolbar/Games_Stop.png";
 }
