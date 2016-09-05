@@ -5,43 +5,52 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0"
+<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0" minWidth="218.0"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.github.odinasen.durak.gui.client.ClientPanelController">
   <ToolBar>
-    <Button fx:id="buttonConnectDisconnect" onAction="#connectDisconnect" />
+    <Button fx:id="buttonConnectDisconnect" onAction="#connectDisconnect"/>
   </ToolBar>
   <TitledPane collapsible="false" text="%title.login.name" VBox.vgrow="ALWAYS">
-      <TextField fx:id="fieldLoginName" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0">
+    <TextField fx:id="fieldLoginName" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0">
+      <tooltip>
+        <Tooltip text="%tooltip.client.login.name"/>
+      </tooltip>
+    </TextField>
+  </TitledPane>
+  <TitledPane collapsible="false" text="%title.server.settings" VBox.vgrow="ALWAYS" >
+    <GridPane>
+      <GridPane.margin>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
+      </GridPane.margin>
+      <Label text="%label.server.address" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="0"
+             GridPane.columnIndex="0"/>
+      <TextField fx:id="fieldServerAddress" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0"
+                 GridPane.margin="$gridPaneMargin" GridPane.rowIndex="0" GridPane.columnIndex="1">
         <tooltip>
-          <Tooltip text="%tooltip.client.login.name" />
+          <Tooltip text="%tooltip.client.server.address"/>
         </tooltip>
       </TextField>
-  </TitledPane>
-  <TitledPane collapsible="false" text="%title.server.settings" VBox.vgrow="ALWAYS">
-    <GridPane>
-      <Label text="%label.password" GridPane.rowIndex="0" GridPane.columnIndex="0">
-        <GridPane.margin>
-          <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
-        </GridPane.margin>
-      </Label>
-      <PasswordField fx:id="fieldPassword" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="0" GridPane.columnIndex="1">
+      <Label text="%label.port" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1"
+             GridPane.columnIndex="0"/>
+      <TextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0"
+                 GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="1">
         <tooltip>
-          <Tooltip text="%tooltip.client.server.password" />
+          <Tooltip text="%tooltip.client.server.port"/>
+        </tooltip>
+      </TextField>
+      <Label text="%label.password"
+             GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
+      <PasswordField fx:id="fieldPassword"
+                     GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2"
+                     GridPane.columnIndex="1">
+        <tooltip>
+          <Tooltip text="%tooltip.client.server.password"/>
         </tooltip>
       </PasswordField>
-      <Label text="%label.port" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-      <TextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="1">
-        <tooltip>
-          <Tooltip text="%tooltip.client.server.port" />
-        </tooltip>
-      </TextField>
-      <Label text="%label.server.address" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-      <TextField fx:id="fieldServerAddress" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2" GridPane.columnIndex="1">
-        <tooltip>
-          <Tooltip text="%tooltip.client.server.address" />
-        </tooltip>
-      </TextField>
+      <columnConstraints>
+        <ColumnConstraints fillWidth="true" hgrow="ALWAYS" minWidth="85.0"/>
+      </columnConstraints>
     </GridPane>
   </TitledPane>
 </VBox>

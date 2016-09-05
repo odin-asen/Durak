@@ -4,23 +4,21 @@ import com.github.odinasen.durak.Assert;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.server.GameServer;
-import com.github.odinasen.durak.data.model.server.GameServerModel;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.gui.MainGUIController;
 import com.github.odinasen.durak.gui.controller.JavaFXController;
 import com.github.odinasen.durak.gui.notification.DialogPopupFactory;
+import com.github.odinasen.durak.gui.server.model.GameServerModel;
 import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.i18n.I18nSupport;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
@@ -36,345 +34,348 @@ import java.util.ResourceBundle;
  * Date: 06.01.14
  */
 public class ServerPanelController extends JavaFXController {
-  private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
+	private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
 
-  private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
+	private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
-  @FXML private HBox hBoxPortCards;
-  @FXML private TextField fieldServerPort;
-  @FXML private ChoiceBox<InitialCard> boxInitialCards;
-  private Label labelInitialCards;
-  @FXML private Button buttonLaunchServer;
-  @FXML private Button buttonLaunchGame;
-  @FXML private ListView<ClientDto> listLoggedClients;
+	@FXML
+	private GridPane serverConfigPanel;
+	@FXML
+	private TextField fieldServerPort;
+	@FXML
+	private ChoiceBox<InitialCard> boxInitialCards;
+	private Label labelInitialCards;
+	@FXML
+	private TextField fieldPassword;
+	@FXML
+	private Button buttonLaunchServer;
+	@FXML
+	private Button buttonLaunchGame;
+	@FXML
+	private ListView<ClientDto> listLoggedClients;
 
-  private Window mainWindow;
+	private Window mainWindow;
 
-  /**
-   * Model mit allen Attributen zum Server, wie Clients, Port, Passwort, etc...
-   */
-  private GameServerModel gameServerModel;
+	/**
+	 * Model mit allen Attributen zum Server, wie Clients, Port, Passwort, etc...
+	 */
+	private GameServerModel gameServerModel;
 
-  //================================================================================================
-  // Constructors
+	//================================================================================================
+	// Constructors
 
-  public ServerPanelController() {
-    super(FXMLNames.SERVER_PANEL,
-          ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
-    this.gameServerModel = new GameServerModel();
-  }
+	public ServerPanelController() {
+		super(FXMLNames.SERVER_PANEL,
+			  ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
+		this.gameServerModel = new GameServerModel();
+	}
 
-  //================================================================================================
-  // Methods
+	//================================================================================================
+	// Methods
 
-  @Override
-  protected void initializePanel() {
-    initListView();
-    this.changeGameButton("tooltip.start.game");
-    this.changeServerButton("tooltip.server.start.server");
-    initInitialCardsComponents();
+	@Override
+	protected void initializePanel() {
+		initListView();
+		this.changeGameButton("tooltip.start.game");
+		this.changeServerButton("tooltip.server.start.server");
+		initInitialCardsComponents();
 
-    this.fieldServerPort.textProperty().bindBidirectional(this.gameServerModel.getPort(),
-                                                          new NumberStringConverter());
-  }
+		this.fieldServerPort.textProperty().bindBidirectional(this.gameServerModel.getPort(),
+															  new NumberStringConverter());
+		this.fieldPassword.textProperty().bindBidirectional(this.gameServerModel.getPassword());
+	}
 
-  @Override
-  protected void assertNotNullComponents() {
-    final String fxmlName = this.getFxmlName();
-    Assert.assertFXElementNotNull(this.buttonLaunchGame, "buttonLaunchGame", fxmlName);
-    Assert.assertFXElementNotNull(this.buttonLaunchServer, "buttonLaunchServer", fxmlName);
-    Assert.assertFXElementNotNull(this.hBoxPortCards, "hBoxPortCards", fxmlName);
-    Assert.assertFXElementNotNull(this.fieldServerPort, "fieldServerPort", fxmlName);
-    Assert.assertFXElementNotNull(this.boxInitialCards, "boxInitialCards", fxmlName);
-    Assert.assertFXElementNotNull(this.listLoggedClients, "listLoggedClients", fxmlName);
-  }
+	@Override
+	protected void assertNotNullComponents() {
+		final String fxmlName = this.getFxmlName();
+		Assert.assertFXElementNotNull(this.buttonLaunchGame, "buttonLaunchGame", fxmlName);
+		Assert.assertFXElementNotNull(this.buttonLaunchServer, "buttonLaunchServer", fxmlName);
+		Assert.assertFXElementNotNull(this.serverConfigPanel, "serverConfigPanel", fxmlName);
+		Assert.assertFXElementNotNull(this.fieldServerPort, "fieldServerPort", fxmlName);
+		Assert.assertFXElementNotNull(this.boxInitialCards, "boxInitialCards", fxmlName);
+		Assert.assertFXElementNotNull(this.fieldPassword, "fieldPassword", fxmlName);
+		Assert.assertFXElementNotNull(this.listLoggedClients, "listLoggedClients", fxmlName);
+	}
 
-  private void initListView() {
-    ObservableList<ClientDto> clients = FXCollections.observableArrayList(new ClientDto(0));
-    for (int i = 0; i < 10; i++) {
-      clients.add(new ClientDto(i+1));
-    }
-    listLoggedClients.setItems(clients);
-    listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-    listLoggedClients.setCellFactory(
-        new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
-          @Override
-          public ListCell<ClientDto> call(ListView<ClientDto> listView) {
-            return new ClientListCell(new EventHandler<ActionEvent>() {
-              @Override
-              public void handle(ActionEvent actionEvent) {
-                removeSelectedClients();
-              }
-            });
-          }
-        });
-  }
+	private void initListView() {
+		listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		listLoggedClients.setCellFactory(
+				new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
+					@Override
+					public ListCell<ClientDto> call(ListView<ClientDto> listView) {
+						return new ClientListCell(new EventHandler<ActionEvent>() {
+							@Override
+							public void handle(ActionEvent actionEvent) {
+								removeSelectedClients();
+							}
+						});
+					}
+				});
+	}
 
-  /**
-   * Startet den Server, wenn er noch nicht gestartet ist.
-   * Stoppt den Server, wenn dieser laeuft.
-   * Bei Fehlern werden Dialoge angezeigt.
-   */
-  public void startStopServer() {
-    this.initMainWindow();
+	/**
+	 * Startet den Server, wenn er noch nicht gestartet ist.
+	 * Stoppt den Server, wenn dieser laeuft.
+	 * Bei Fehlern werden Dialoge angezeigt.
+	 */
+	public void startStopServer() {
+		this.initMainWindow();
 
-    String serverStatus;
+		String serverStatus;
 
-    /* Laueft der Server? */
-    if(this.isServerRunning()) {
+    	// Laueft der Server?
+		if (this.isServerRunning()) {
 
-      /* Ja, also Server stoppen. */
-      if(this.gameServerModel.isGameRunning()) {
-        DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
-        this.stopGame();
-      }
-      this.stopServer();
-      serverStatus = "Server wurde angehalten!";
-    } else {
+      		// Ja, also Server stoppen
+			if (this.gameServerModel.isGameRunning()) {
+				DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
+				this.stopGame();
+			}
+			this.stopServer();
+			serverStatus = "Server wurde angehalten!";
+		} else {
 
-      /* Nein, also Server starten. */
-      try {
-        this.startServer();
-        serverStatus = "Server läuft!";
-      } catch (SystemException e) {
-        /* Fehlerpopup, da der Server nicht gestartet werden konnte */
-        DialogPopupFactory.getFactory().showErrorPopup(
-            mainWindow, e.getMessage(), DialogPopupFactory.LOCATION_CENTRE, 8.0);
-        serverStatus = "Serverstart ist fehlgeschlagen!";
-      }
-    }
+      		// Nein, also Server starten
+			try {
+				this.startServer();
+				serverStatus = "Server läuft!";
+			} catch (SystemException e) {
+				// Fehlerpopup, da der Server nicht gestartet werden konnte
+				DialogPopupFactory.getFactory().showErrorPopup(
+						mainWindow, e.getMessage(), DialogPopupFactory.LOCATION_CENTRE, 8.0);
+				serverStatus = "Serverstart ist fehlgeschlagen!";
+			}
+		}
 
-    MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, serverStatus);
-  }
+		MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, serverStatus);
+	}
 
-  /**
-   * Startet das Spiel, wenn es noch nicht gestartet wurde und alle Kriterien dafuer erfuellt sind.
-   * Stoppt das Spiel, wenn dieses laeuft.
-   * Bei Fehlern werden Dialoge angezeigt.
-   * Der Server muss gestartet sein, bevor diese Methode aufgerufen wird.
-   */
-  public void startStopGame() {
-    assert isServerRunning() : ASSERT_SERVER_RUN_BEFORE_GAME;
+	/**
+	 * Startet das Spiel, wenn es noch nicht gestartet wurde und alle Kriterien dafuer erfuellt sind.
+	 * Stoppt das Spiel, wenn dieses laeuft.
+	 * Bei Fehlern werden Dialoge angezeigt.
+	 * Der Server muss gestartet sein, bevor diese Methode aufgerufen wird.
+	 */
+	public void startStopGame() {
+		assert isServerRunning() : ASSERT_SERVER_RUN_BEFORE_GAME;
 
-    this.initMainWindow();
+		this.initMainWindow();
 
-    if(gameServerModel.isGameRunning()) {
-      stopGame();
-      MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Das Spiel wurde beendet!");
-    } else {
-      if(!startGame()) {
-        /* Fehlerpopup, da das Spiel nicht gestartet werden konnte */
-        DialogPopupFactory.getFactory().showErrorPopup(this.mainWindow,
-                                                       GAME_NOT_STARTED_MESSAGE,
-                                                       DialogPopupFactory.LOCATION_CENTRE,
-                                                       8.0);
-        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
-                                    "Das Spiel konnte nicht gestartet werden!");
-      } else {
-        MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
-                                    "Das Spiel wurde gestartet!");
-      }
-    }
-  }
+		if (gameServerModel.isGameRunning()) {
+			stopGame();
+			MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
+										"Das Spiel wurde beendet!");
+		} else {
+			if (!startGame()) {
+        		// Fehlerpopup, da das Spiel nicht gestartet werden konnte
+				DialogPopupFactory.getFactory().showErrorPopup(this.mainWindow,
+															   GAME_NOT_STARTED_MESSAGE,
+															   DialogPopupFactory.LOCATION_CENTRE,
+															   8.0);
+				MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
+											"Das Spiel konnte nicht gestartet werden!");
+			} else {
+				MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
+											"Das Spiel wurde gestartet!");
+			}
+		}
+	}
 
-  /*   End   */
-  /***********/
+	/**
+	 * Initialisiert das Hauptfenster, falls dies noch nicht gesetzt wurde und falls die Scene schon
+	 * geladen ist.
+	 */
+	private void initMainWindow() {
+		if (this.mainWindow == null)
+			if (buttonLaunchGame.getScene() != null)
+				this.mainWindow = buttonLaunchGame.getScene().getWindow();
+	}
 
-  /*******************/
-  /* Private Methods */
+	/**
+	 * Initialisiert das ChoiceBox- und Label-Objekt für die Anzahl der Karten
+	 */
+	private void initInitialCardsComponents() {
+		ObservableList<InitialCard> cards = boxInitialCards.getItems();
+		Collections.addAll(cards, InitialCard.values());
+		boxInitialCards.setValue(cards.get(0));
 
-  /**
-   * Initialisiert das Hauptfenster, falls dies noch nicht gesetzt wurde und falls die Scene schon
-   * geladen ist.
-   */
-  private void initMainWindow() {
-    if (this.mainWindow == null)
-      if (buttonLaunchGame.getScene() != null)
-        this.mainWindow = buttonLaunchGame.getScene().getWindow();
-  }
+    	// Nicht editierbares Feld initialisieren
+		labelInitialCards = new Label();
+		copyHeightsAndWidths(boxInitialCards, labelInitialCards);
+		GridPane.setMargin(labelInitialCards, GridPane.getMargin(boxInitialCards));
+		GridPane.setColumnIndex(labelInitialCards, GridPane.getColumnIndex(boxInitialCards));
+		GridPane.setRowIndex(labelInitialCards, GridPane.getRowIndex(boxInitialCards));
+	}
 
-  /** Initialisiert das ChoiceBox- und Label-Objekt für die Anzahl der Karten */
-  private void initInitialCardsComponents() {
-    ObservableList<InitialCard> cards = boxInitialCards.getItems();
-    Collections.addAll(cards, InitialCard.values());
-    boxInitialCards.setValue(cards.get(0));
+	/**
+	 * Kopiert die Werte maxHeight, maxWidth, minHeight, minWidth,
+	 * prefHeight und preifWidth von einem Control-Objekt zum anderen.
+	 */
+	private void copyHeightsAndWidths(Control from, Control to) {
+		to.setMaxWidth(from.getMaxWidth());
+		to.setMinWidth(from.getMinWidth());
+		to.setMaxHeight(from.getMaxHeight());
+		to.setMinHeight(from.getMinHeight());
+		to.setPrefHeight(from.getPrefHeight());
+		to.setPrefWidth(from.getPrefWidth());
+	}
 
-    /* Nicht editierbares Feld initialisieren */
-    labelInitialCards = new Label();
-    copyHeightsAndWidths(boxInitialCards, labelInitialCards);
-    HBox.setHgrow(labelInitialCards, Priority.ALWAYS);
-  }
+	/**
+	 * Label und Choicebox tauschen Plaetze.
+	 */
+	private void setBoxEditable(boolean editable) {
+		final ObservableList<Node> children = serverConfigPanel.getChildren();
 
-  /**
-   * Kopiert die Werte maxHeight, maxWidth, minHeight, minWidth,
-   * prefHeight und preifWidth von einem Control-Objekt zum anderen.
-   */
-  private void copyHeightsAndWidths(Control from, Control to) {
-    to.setMaxWidth(from.getMaxWidth());
-    to.setMinWidth(from.getMinWidth());
-    to.setMaxHeight(from.getMaxHeight());
-    to.setMinHeight(from.getMinHeight());
-    to.setPrefHeight(from.getPrefHeight());
-    to.setPrefWidth(from.getPrefWidth());
-  }
+		if (editable) {
+			children.remove(labelInitialCards);
+			if (!children.contains(boxInitialCards)) {
+				children.add(boxInitialCards);
+			}
+		} else {
+			children.remove(boxInitialCards);
+			if (!children.contains(labelInitialCards)) {
+				children.add(labelInitialCards);
+				labelInitialCards.setText(boxInitialCards.getValue().toString());
+			}
+		}
+	}
 
-  /** Label und Choicebox tauschen Plaetze. */
-  private void setBoxEditable(boolean editable) {
-    final ObservableList<Node> children = hBoxPortCards.getChildren();
+	/**
+	 * Loescht die uebergebenen Clients und gibt die Anzahl
+	 * der geloeschten Clients zurueck.
+	 */
+	private int removeSelectedClients() {
+		ObservableList<ClientDto> loggedClients =
+				this.listLoggedClients.getItems();
+		int before = loggedClients.size();
 
-    if(editable) {
-      children.remove(labelInitialCards);
-      if(!children.contains(boxInitialCards)) {
-        children.add(boxInitialCards);
-      }
-    } else {
-      children.remove(boxInitialCards);
-      if(!children.contains(labelInitialCards)) {
-        children.add(labelInitialCards);
-        labelInitialCards.setText(boxInitialCards.getValue().toString());
-      }
-    }
-  }
+		final List<ClientDto> selectedClients =
+				this.listLoggedClients.getSelectionModel().getSelectedItems();
 
-  /**
-   * Loescht die uebergebenen Clients und gibt die Anzahl
-   * der geloeschten Clients zurueck.
-   */
-  private int removeSelectedClients() {
-    ObservableList<ClientDto> loggedClients =
-        this.listLoggedClients.getItems();
-    int before = loggedClients.size();
+		for (int i = selectedClients.size() - 1; i >= 0; i--) {
+			this.listLoggedClients.getItems().remove(selectedClients.get(i));
+		}
 
-    final List<ClientDto> selectedClients =
-        this.listLoggedClients.getSelectionModel().getSelectedItems();
+		return before - loggedClients.size();
+	}
 
-    for (int i = selectedClients.size() - 1; i >= 0; i--) {
-      this.listLoggedClients.getItems().remove(selectedClients.get(i));
-    }
+	/**
+	 * Startet das Spiel und passt die Toolbar an.
+	 *
+	 * @return True, wenn das Spiel gestartet wurde, andernfalls false.
+	 */
+	private boolean startGame() {
+		boolean started = true;
 
-    return before - loggedClients.size();
-  }
+		//TODO Kriterium hängt eigentlich von der ANzahl der Karten ab und jeder sollte mindestens
+		// 6 Karten bekommen
+		if (this.listLoggedClients.getItems().size() > 52) {
+			this.setGameRunning(true);
+			this.setBoxEditable(false);
+			this.changeGameButton("tooltip.stop.game");
+		} else started = false;
 
-  /**
-   * Startet das Spiel und passt die Toolbar an.
-   * @return
-   *    True, wenn das Spiel gestartet wurde, andernfalls false.
-   */
-  private boolean startGame() {
-    boolean started = true;
+		return started;
+	}
 
-    if(this.listLoggedClients.getItems().size() > 52) {
-      this.setGameRunning(true);
-      this.setBoxEditable(false);
-      this.changeGameButton("tooltip.stop.game");
-    } else started = false;
+	/**
+	 * Startet den Server und passt die Toolbar an. Kann der Server nicht gestartet werden, wird eine
+	 * Exception geworfen.
+	 *
+	 * @see com.github.odinasen.durak.business.network.server.GameServer#startServer(int)
+	 */
+	private void startServer()
+			throws SystemException {
+    	// Server starten
+		GameServer server = GameServer.getInstance();
 
-    return started;
-  }
+		// Der Port wird ueber Databinding im Textfeld gesetzt
+		server.startServer(this.gameServerModel.getPort().getValue());
 
-  /**
-   * Startet den Server und passt die Toolbar an. Kann der Server nicht gestartet werden, wird eine
-   * Exception geworfen.
-   * @see com.github.odinasen.durak.business.network.server.GameServer#startServer(int)
-   */
-  private void startServer()
-      throws SystemException {
-    /* Server starten */
-    GameServer server = GameServer.getInstance();
+    	// GUI veraendern
+		fieldServerPort.setEditable(false);
+		this.changeServerButton("tooltip.stop.server");
+		buttonLaunchGame.setVisible(true);
+	}
 
-    // Der Port wird ueber Databinding im Textfeld gesetzt
-    server.startServer(this.gameServerModel.getPort().getValue());
+	/**
+	 * Stoppt das Spiel und passt die Toolbar an.
+	 */
+	private void stopGame() {
+		this.setGameRunning(false);
+		this.changeGameButton("tooltip.start.game");
+		this.setBoxEditable(true);
+	}
 
-    /* GUI veraendern */
-    fieldServerPort.setEditable(false);
-    this.changeServerButton("tooltip.stop.server");
-    buttonLaunchGame.setVisible(true);
-  }
+	/**
+	 * Benachrichtigt angemeldete Clients, stoppt den Server und passt die Toolbar und ein paar
+	 * Komponenten der Oberflaeche an.
+	 */
+	private void stopServer() {
+		// Clients benachrichtigen
+		GameServer.getInstance().sendClientMessage(ClientMessageType.SERVER_SHUTDOWN);
 
-  /** Stoppt das Spiel und passt die Toolbar an. */
-  private void stopGame() {
-    this.setGameRunning(false);
-    this.changeGameButton("tooltip.start.game");
-    this.setBoxEditable(true);
-  }
+    	// Server stoppen
+		GameServer.getInstance().stopServer();
 
-  /**
-   * Benachrichtigt angemeldete Clients, stoppt den Server und passt die Toolbar und ein paar
-   * Komponenten der Oberflaeche an.
-   */
-  private void stopServer() {
-    /* Clients benachrichtigen */
-    GameServer.getInstance().sendClientMessage(ClientMessageType.SERVER_SHUTDOWN);
+    	// GUI anpassen
+		buttonLaunchGame.setVisible(false);
+		this.changeServerButton("tooltip.server.start.server");
+		fieldServerPort.setEditable(true);
+	}
 
-    /* Server stoppen */
-    GameServer.getInstance().stopServer();
+	/**
+	 * Aendert die Eigenschaften eines Buttons.
+	 */
+	private void changeButton(Button button, String oldStyle, String newStyle, String tooltipKey) {
+		button.getStyleClass().remove(oldStyle);
+		button.getStyleClass().add(newStyle);
 
-    /* GUI anpassen */
-    buttonLaunchGame.setVisible(false);
-    this.changeServerButton("tooltip.server.start.server");
-    fieldServerPort.setEditable(true);
-  }
+		Tooltip tooltip = button.getTooltip();
+		if (tooltip == null) {
+			tooltip = new Tooltip();
+			button.setTooltip(tooltip);
+		}
+		tooltip.setText(I18nSupport.getValue(BundleStrings.JAVAFX, tooltipKey));
+	}
 
-  /** Aendert die Eigenschaften eines Buttons. */
-  private void changeButton(Button button, String oldStyle, String newStyle, String tooltipKey) {
-    button.getStyleClass().remove(oldStyle);
-    button.getStyleClass().add(newStyle);
+	/**
+	 * Aendert den {@link #buttonLaunchGame}
+	 */
+	private void changeGameButton(String tooltipKey) {
+		final String oldStyle;
+		final String newStyle;
+		if (gameServerModel.isGameRunning()) {
+			oldStyle = "startGameButton";
+			newStyle = "stopGameButton";
+		} else {
+			oldStyle = "stopGameButton";
+			newStyle = "startGameButton";
+		}
+		this.changeButton(this.buttonLaunchGame, oldStyle, newStyle, tooltipKey);
+	}
 
-    Tooltip tooltip = button.getTooltip();
-    if(tooltip == null) {
-      tooltip = new Tooltip();
-      button.setTooltip(tooltip);
-    }
-    tooltip.setText(I18nSupport.getValue(BundleStrings.JAVAFX, tooltipKey));
-  }
+	/**
+	 * Aendert den {@link #buttonLaunchServer}.
+	 */
+	private void changeServerButton(String tooltipKey) {
+		final String oldStyle;
+		final String newStyle;
+		if (isServerRunning()) {
+			oldStyle = "startServerButton";
+			newStyle = "stopServerButton";
+		} else {
+			oldStyle = "stopServerButton";
+			newStyle = "startServerButton";
+		}
+		this.changeButton(this.buttonLaunchServer, oldStyle, newStyle, tooltipKey);
+	}
 
-  /** Aendert den {@link #buttonLaunchGame} */
-  private void changeGameButton(String tooltipKey) {
-    final String oldStyle;
-    final String newStyle;
-    if (gameServerModel.isGameRunning()) {
-      oldStyle = "startGameButton";
-      newStyle = "stopGameButton";
-    } else {
-      oldStyle = "stopGameButton";
-      newStyle = "startGameButton";
-    }
-    this.changeButton(this.buttonLaunchGame, oldStyle, newStyle, tooltipKey);
-  }
+	public void setGameRunning(boolean running) {
+		this.gameServerModel.setGameRunning(this.isServerRunning() && running);
+	}
 
-  /** Aendert den {@link #buttonLaunchServer}. */
-  private void changeServerButton(String tooltipKey) {
-    final String oldStyle;
-    final String newStyle;
-    if (isServerRunning()) {
-      oldStyle = "startServerButton";
-      newStyle = "stopServerButton";
-    } else {
-      oldStyle = "stopServerButton";
-      newStyle = "startServerButton";
-    }
-    this.changeButton(this.buttonLaunchServer, oldStyle, newStyle, tooltipKey);
-  }
-
-  /*       End       */
-  /*******************/
-
-  /*********************/
-  /* Getter and Setter */
-
-  public void setGameRunning(boolean running) {
-    this.gameServerModel.setGameRunning(this.isServerRunning() && running);
-  }
-
-  public boolean isServerRunning() {
-    return GameServer.getInstance().isRunning();
-  }
-
-  /*        End        */
-  /*********************/
-
-  /*****************/
-  /* Inner classes */
-  /*      End      */
-  /*****************/
+	public boolean isServerRunning() {
+		return GameServer.getInstance().isRunning();
+	}
 }
