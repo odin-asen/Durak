@@ -8,34 +8,43 @@ package com.github.odinasen.durak.dto;
  */
 public class ClientDto {
   public int id;
+  public String name;
 
-  /****************/
-  /* Constructors */
+  public ClientDto(int id, String name) {
+    this.id = id;
+    this.name = name;
+  }
 
-  public ClientDto(int id) {
+
+  /**
+   * Setzt das {@link #id}-Objekt.
+   *
+   * @param id das {@link #id}-Objekt
+   */
+  public void setId(int id) {
     this.id = id;
   }
 
-  /*     End      */
-  /****************/
+  /**
+   * @return das {@link #id}-Objekt
+   */
+  public int getId() {
+    return id;
+  }
 
-  /***********/
-  /* Methods */
-  /*   End   */
-  /***********/
+  /**
+   * Setzt das {@link #name}-Objekt.
+   *
+   * @param name das {@link #name}-Objekt
+   */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-  /*******************/
-  /* Private Methods */
-  /*       End       */
-  /*******************/
-
-  /*********************/
-  /* Getter and Setter */
-  /*        End        */
-  /*********************/
-
-  /*****************/
-  /* Inner classes */
-  /*      End      */
-  /*****************/
+  /**
+   * @return das {@link #name}-Objekt
+   */
+  public String getName() {
+    return name;
+  }
 }

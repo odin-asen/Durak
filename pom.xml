@@ -50,5 +50,11 @@
             <id>maven.root1.de-snapshots</id>
             <url>http://maven.root1.de/snapshots/</url>
         </repository>
+        <repository>
+            <id>repo.maven.org-releases</id>
+            <url>https://repo1.maven.org/maven2/</url>
+            <name>Maven Zentral</name>
+        </repository>
+
     </repositories>
 </project>

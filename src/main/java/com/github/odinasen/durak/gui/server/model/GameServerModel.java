@@ -1,4 +1,4 @@
-package com.github.odinasen.durak.data.model.server;
+package com.github.odinasen.durak.gui.server.model;
 
 import com.github.odinasen.durak.Assert;
 import com.github.odinasen.durak.dto.ClientDto;

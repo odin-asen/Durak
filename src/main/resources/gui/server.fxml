@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?scenebuilder-classpath-element ../../../../../../out/production/Durak?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -13,21 +11,35 @@
     <Button fx:id="buttonLaunchServer" onAction="#startStopServer" styleClass="startServerButton"/>
     <Button fx:id="buttonLaunchGame" onAction="#startStopGame" visible="false" styleClass="startGameButton" />
   </ToolBar>
-  <TitledPane collapsible="false" text="%title.port.number.of.cards" VBox.vgrow="NEVER">
-    <HBox fx:id="hBoxPortCards" prefHeight="-1.0" prefWidth="-1.0" spacing="5.0">
-      <TextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="4" prefWidth="-1.0" HBox.hgrow="ALWAYS">
+  <TitledPane collapsible="true" text="%title.server.configuration" VBox.vgrow="NEVER">
+    <GridPane fx:id="serverConfigPanel">
+      <GridPane.margin>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
+      </GridPane.margin>
+      <Label text="%label.deque" GridPane.rowIndex="0" GridPane.columnIndex="0"
+             GridPane.margin="$gridPaneMargin"/>
+      <ChoiceBox fx:id="boxInitialCards" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                 GridPane.margin="$gridPaneMargin"/>
+      <Label text="%label.port"
+             GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
+      <TextField fx:id="fieldServerPort" prefColumnCount="4"
+                 GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.margin="$gridPaneMargin">
         <tooltip>
           <Tooltip text="%tooltip.server.server.port" />
         </tooltip>
       </TextField>
-      <ChoiceBox fx:id="boxInitialCards" maxWidth="+Infinity" minWidth="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
-      <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-      </padding>
-    </HBox>
-    <VBox.margin>
-      <Insets />
-    </VBox.margin>
+      <Label text="%label.password" GridPane.rowIndex="2" GridPane.columnIndex="0"
+             GridPane.margin="$gridPaneMargin"/>
+      <TextField fx:id="fieldPassword"
+                 GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2" GridPane.columnIndex="1">
+        <tooltip>
+          <Tooltip text="%tooltip.client.server.password"/>
+        </tooltip>
+      </TextField>
+      <columnConstraints>
+        <ColumnConstraints fillWidth="true" hgrow="ALWAYS" minWidth="80.0"/>
+      </columnConstraints>
+    </GridPane>
   </TitledPane>
   <TitledPane collapsible="false" maxHeight="+Infinity" text="%title.logged.in" VBox.vgrow="ALWAYS">
     <ListView fx:id="listLoggedClients" orientation="VERTICAL" prefHeight="182.0" prefWidth="148.0" />

@@ -42,7 +42,7 @@ public abstract class JavaFXController {
   // Methods
 
   /**
-   * Laedt die server.fxml Datei und initialisiert Objektvariablen.
+   * Laedt {@link #fxmlName} mit dem ResourceBundle.
    *
    * @return Den Wurzelknoten der fxml.
    * @throws java.io.IOException
