@@ -1,6 +1,6 @@
 package com.github.odinasen.durak.i18n;
 
-import com.github.odinasen.durak.LoggingUtility;
+import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.business.exception.ErrorCode;
 
 import java.text.MessageFormat;

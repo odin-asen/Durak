@@ -1,6 +1,6 @@
 package com.github.odinasen.durak.resources;
 
-import com.github.odinasen.durak.LoggingUtility;
+import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -27,19 +27,10 @@ public class ResourceGetter {
 
   private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
 
-  /***********/
-  /* Methods */
-
   public static Image getToolbarIcon(String toolbarBundleKey, Object... params) {
     return getImage(
         TOOLBAR_ROOT+ I18nSupport.getValue(RESOURCES_IMAGES, toolbarBundleKey, params), PNG);
   }
-
-  /*   End   */
-  /***********/
-
-  /*******************/
-  /* Private Methods */
 
   /* Loads an image from the specified path and adds the */
   /* surpassed extension if it is not null */
@@ -92,6 +83,4 @@ public class ResourceGetter {
       throw new Error("ClassLoader is null. Could not load classpath '" + resourcePath + "'.");
     }
   }
-  /*       End       */
-  /*******************/
 }

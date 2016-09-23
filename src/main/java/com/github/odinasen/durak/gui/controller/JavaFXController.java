@@ -1,6 +1,6 @@
 package com.github.odinasen.durak.gui.controller;
 
-import com.github.odinasen.durak.Assert;
+import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.resources.ResourceGetter;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;

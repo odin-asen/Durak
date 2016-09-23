@@ -1,27 +1,36 @@
 package com.github.odinasen.durak.gui;
 
-import com.github.odinasen.durak.Assert;
-import com.github.odinasen.durak.LoggingUtility;
+import com.github.odinasen.durak.ApplicationStartParameter;
+import com.github.odinasen.durak.util.Assert;
+import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.gui.client.ClientPanelController;
 import com.github.odinasen.durak.gui.server.ServerPanelController;
 import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.resources.ResourceGetter;
+import com.sun.javaws.jnl.JavaFXAppDesc;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -31,7 +40,7 @@ import java.util.logging.Logger;
  */
 public class MainGUIController {
     private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
-    private static MainGUIController MAIN_CONTROLLER;
+    private static MainGUIController mainController;
 
     /**
      * Das Hauptpanel der Anwendung.
@@ -61,8 +70,8 @@ public class MainGUIController {
         serverPanelController = new ServerPanelController();
         clientPanelController = new ClientPanelController();
 
-        if (MAIN_CONTROLLER == null)
-            MAIN_CONTROLLER = this;
+        if (mainController == null)
+            mainController = this;
     }
 
     /**
@@ -83,6 +92,23 @@ public class MainGUIController {
                 stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
             }
         });
+
+        // Die Anwendung wird mit Startparametern initalisiert
+        // TODO soll das irgendwie in ein Interface ausgelagert werden? checkFXMLElements, dann initialise und dann initStartByParameters?
+        initByStartParameters();
+    }
+
+    /**
+     * Setzt Panel-Werte anhand der Start-Parameter der Anwendung
+     */
+    private void initByStartParameters() {
+        ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance();
+
+        if (startParameter.canInitialStartServer()) {
+            if (this.openHideServerPanelMenuItem != null) {
+                this.openHideServerPanelMenuItem.fire();
+            }
+        }
     }
 
     /**
@@ -102,7 +128,7 @@ public class MainGUIController {
     }
 
     public static void setStatus(StatusType type, String status) {
-        MAIN_CONTROLLER.leftStatus.setText(status);
+        mainController.leftStatus.setText(status);
     }
 
     public void reloadGUI() {
@@ -131,6 +157,20 @@ public class MainGUIController {
             return clientPanelController.initContent();
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Cannot open client panel!\n", e);
+        }
+
+        return null;
+    }
+
+    /**
+     * Liefert das Window-Objekt der Anwendung per Scene-Objekt eines GUI Elements ({@link #root})
+     */
+    public static Window getMainWindow() {
+        if (mainController.root != null) {
+            Scene scene = mainController.root.getScene();
+            if (scene != null) {
+                return scene.getWindow();
+            }
         }
 
         return null;

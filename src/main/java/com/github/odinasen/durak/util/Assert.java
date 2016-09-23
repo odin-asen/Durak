@@ -1,4 +1,4 @@
-package com.github.odinasen.durak;
+package com.github.odinasen.durak.util;
 
 /**
  * Eine Klasse fuer statische Assertation-Methoden.
@@ -7,13 +7,6 @@ package com.github.odinasen.durak;
  * Date: 15.06.14
  */
 public class Assert {
-  /****************/
-  /* Constructors */
-  /*     End      */
-  /****************/
-
-  /***********/
-  /* Methods */
 
   /**
    * Prueft ein Objekt auf null und gibt im Fehlerfall eine entsprechende Meldung fuer ein
@@ -45,22 +38,4 @@ public class Assert {
     final String errorMessage = "The Object must not be null.";
     assert object != null : errorMessage;
   }
-
-  /*   End   */
-  /***********/
-
-  /*******************/
-  /* Private Methods */
-  /*       End       */
-  /*******************/
-
-  /*********************/
-  /* Getter and Setter */
-  /*        End        */
-  /*********************/
-
-  /*****************/
-  /* Inner classes */
-  /*      End      */
-  /*****************/
 }

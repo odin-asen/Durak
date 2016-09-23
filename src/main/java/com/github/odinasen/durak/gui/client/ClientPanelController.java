@@ -1,6 +1,6 @@
 package com.github.odinasen.durak.gui.client;
 
-import com.github.odinasen.durak.Assert;
+import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.server.GameServer;
@@ -154,12 +154,6 @@ public class ClientPanelController extends JavaFXController {
 //      }
 		}
 	}
-
-  /*   End   */
-	/***********/
-
-	/*******************/
-  /* Private Methods */
 
 	/**
 	 * Initialisiert das Hauptfenster, falls dies noch nicht gesetzt wurde und falls die Scene schon

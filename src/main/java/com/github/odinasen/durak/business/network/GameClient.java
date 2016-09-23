@@ -1,6 +1,6 @@
 package com.github.odinasen.durak.business.network;
 
-import com.github.odinasen.durak.LoggingUtility;
+import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.business.exception.GameClientCode;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.simon.Callable;
