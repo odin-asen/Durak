@@ -16,6 +16,13 @@ public class ApplicationStartParameterTest {
     private static final String SERVER_PASSWORD_PARAM = "sPwd";
     private static final String SERVER_PASSWORD = "bla";
 
+    private static final String CLIENT_PORT_PARAM = "cPort";
+    private static final String CLIENT_PASSWORD_PARAM = "cPwd";
+    private static final String CLIENT_NAME_PARAM = "cName";
+    private static final String CLIENT_NAME = "testName";
+    private static final String CLIENT_PASSWORD = "bla";
+
+
     /**
      * Testet getInstance-Methoden und dass die Werte der Singletonvariablen nicht durch erneute Parameter
      * veraendert werden.
@@ -56,6 +63,7 @@ public class ApplicationStartParameterTest {
 
     }
 
+    // Der Serverport wird auf 0 gesetzt, wenn ein Wert nicht geparst werden kann
     @Test
     public void getNotParsableServerPort() throws Exception {
         Map<String, String> paramMap = new HashMap<>();
@@ -63,6 +71,16 @@ public class ApplicationStartParameterTest {
         ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance(paramMap, true);
 
         Assert.assertSame("String value should not be parsable and deliver zero.", startParameter.getServerPort(), 0);
+    }
+
+    // Der Clientport wird auf 0 gesetzt, wenn ein Wert nicht geparst werden kann
+    @Test
+    public void getNotParsableClientPort() throws Exception {
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put(CLIENT_PORT_PARAM, "eintext");
+        ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance(paramMap, true);
+
+        Assert.assertSame("String value should not be parsable and deliver zero.", startParameter.getClientPort(), 0);
     }
 
     @Test
@@ -75,12 +93,39 @@ public class ApplicationStartParameterTest {
     }
 
     @Test
+    public void getClientPort() throws Exception {
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put(CLIENT_PORT_PARAM, "1000");
+        ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance(paramMap, true);
+
+        Assert.assertEquals(1000, startParameter.getClientPort());
+    }
+
+    @Test
     public void getServerPwd() throws Exception {
         Map<String, String> paramMap = new HashMap<>();
         paramMap.put(SERVER_PASSWORD_PARAM, SERVER_PASSWORD);
         ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance(paramMap, true);
 
         Assert.assertSame(SERVER_PASSWORD, startParameter.getServerPwd());
+    }
+
+    @Test
+    public void getClientPwd() throws Exception {
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put(CLIENT_PASSWORD_PARAM, CLIENT_PASSWORD);
+        ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance(paramMap, true);
+
+        Assert.assertSame(CLIENT_PASSWORD, startParameter.getClientPwd());
+    }
+
+    @Test
+    public void getClientName() throws Exception {
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put(CLIENT_NAME_PARAM, CLIENT_NAME);
+        ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance(paramMap, true);
+
+        Assert.assertSame(CLIENT_NAME, startParameter.getClientName());
     }
 
 }

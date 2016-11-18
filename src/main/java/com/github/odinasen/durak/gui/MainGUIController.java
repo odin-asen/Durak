@@ -21,6 +21,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
+
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
@@ -41,7 +42,7 @@ import java.util.logging.Logger;
 public class MainGUIController {
     private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
     private static MainGUIController mainController;
-
+//TODO alle fx:uuid umbenennen in fx:id in allen fxml.
     /**
      * Das Hauptpanel der Anwendung.
      */
@@ -70,8 +71,32 @@ public class MainGUIController {
         serverPanelController = new ServerPanelController();
         clientPanelController = new ClientPanelController();
 
-        if (mainController == null)
+        if (mainController == null) {
             mainController = this;
+        }
+    }
+
+    public static void setStatus(StatusType type, final String status) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                mainController.leftStatus.setText(status);
+            }
+        });
+    }
+
+    /**
+     * Liefert das Window-Objekt der Anwendung per Scene-Objekt eines GUI Elements ({@link #root})
+     */
+    public static Window getMainWindow() {
+        if (mainController.root != null) {
+            Scene scene = mainController.root.getScene();
+            if (scene != null) {
+                return scene.getWindow();
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -94,7 +119,8 @@ public class MainGUIController {
         });
 
         // Die Anwendung wird mit Startparametern initalisiert
-        // TODO soll das irgendwie in ein Interface ausgelagert werden? checkFXMLElements, dann initialise und dann initStartByParameters?
+        // TODO soll das irgendwie in ein Interface ausgelagert werden? checkFXMLElements, dann initialise und dann
+        // initStartByParameters?
         initByStartParameters();
     }
 
@@ -109,6 +135,12 @@ public class MainGUIController {
                 this.openHideServerPanelMenuItem.fire();
             }
         }
+
+        if (startParameter.canInitialConnectToServer()) {
+            if (this.openConnectToServerMenuItem != null) {
+                this.openConnectToServerMenuItem.fire();
+            }
+        }
     }
 
     /**
@@ -119,21 +151,12 @@ public class MainGUIController {
 
         Assert.assertFXElementNotNull(this.mainSplitPane, "mainSplitPane", fxmlName);
         Assert.assertFXElementNotNull(this.closeMenuItem, "closeMenuItem", fxmlName);
-        Assert.assertFXElementNotNull(this.openHideServerPanelMenuItem,
-                "openHideServerPanelMenuItem",
-                fxmlName);
-        Assert.assertFXElementNotNull(this.openConnectToServerMenuItem,
-                "openConnectToServerMenuItem",
-                fxmlName);
-    }
-
-    public static void setStatus(StatusType type, String status) {
-        mainController.leftStatus.setText(status);
+        Assert.assertFXElementNotNull(this.openHideServerPanelMenuItem, "openHideServerPanelMenuItem", fxmlName);
+        Assert.assertFXElementNotNull(this.openConnectToServerMenuItem, "openConnectToServerMenuItem", fxmlName);
     }
 
     public void reloadGUI() {
-        ResourceBundle resourceBundle =
-                ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault());
+        ResourceBundle resourceBundle = ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault());
 
         try {
             ResourceGetter.loadFXMLPanel(FXMLNames.MAIN_PANEL, resourceBundle);
@@ -157,20 +180,6 @@ public class MainGUIController {
             return clientPanelController.initContent();
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Cannot open client panel!\n", e);
-        }
-
-        return null;
-    }
-
-    /**
-     * Liefert das Window-Objekt der Anwendung per Scene-Objekt eines GUI Elements ({@link #root})
-     */
-    public static Window getMainWindow() {
-        if (mainController.root != null) {
-            Scene scene = mainController.root.getScene();
-            if (scene != null) {
-                return scene.getWindow();
-            }
         }
 
         return null;
@@ -261,8 +270,9 @@ public class MainGUIController {
         public void handle(ActionEvent actionEvent) {
             final MenuItem menuItem = (MenuItem) actionEvent.getSource();
 
-            if (this.panel == null)
+            if (this.panel == null) {
                 this.panel = this.getPanel();
+            }
 
             boolean switchPanel;
 
@@ -297,15 +307,20 @@ public class MainGUIController {
                     menuItem.setText(I18nSupport.getValue(BundleStrings.JAVAFX, this.getI18nOpenText()));
                 }
 
-                if (switchPanel)
+                if (switchPanel) {
                     this.panelOpen = !this.panelOpen;
+                }
             }
         }
 
-        /** i18n Key fuer den Menuetext bei ausgeblendetem Panel */
+        /**
+         * i18n Key fuer den Menuetext bei ausgeblendetem Panel
+         */
         abstract protected String getI18nHideText();
 
-        /** i18n Key fuer den Menuetext bei angezeigtem Panel */
+        /**
+         * i18n Key fuer den Menuetext bei angezeigtem Panel
+         */
         abstract protected String getI18nOpenText();
 
         /**

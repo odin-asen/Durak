@@ -54,11 +54,17 @@ public class GameServer {
         return instance;
     }
 
+    /** Ueberladung von {@link #startServer(int, String)}. Startet den Server mit leerem Passwort. */
+    public void startServer(int port) throws SystemException {
+        startServer(port, "");
+    }
+
     /**
      * Startet den Server. Kann der Server aus einem Grund nicht gestartet werden, wird eine
      * {@link com.github.odinasen.durak.business.exception.SystemException} geworfen.
      *
      * @param port ist der Port auf dem der Server gestartet wird.
+     * @param password Passwort des Servers.
      * @throws com.github.odinasen.durak.business.exception.SystemException <ol> als <b>praesentierbare Nachricht</b> wenn,
      *                                                                      <li>der Service schon einmal registriert wurde, also die Methode schon einmal ausgefuehrt
      *                                                                      wurde, ohne {@link #stopServer()} aufzurufen.</li>
@@ -67,9 +73,9 @@ public class GameServer {
      *                                                                      </ol>
      *                                                                      Als Exception-Attribut wird "port" gesetzt.
      */
-    public void startServer(int port)
+    public void startServer(int port, String password)
             throws SystemException {
-        serverService = new DurakServerService();
+        serverService = new DurakServerService(password);
 
         try {
             this.registry = Simon.createRegistry(port);

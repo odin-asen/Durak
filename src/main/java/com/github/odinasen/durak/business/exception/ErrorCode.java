@@ -7,5 +7,5 @@ package com.github.odinasen.durak.business.exception;
  * Date: 18.10.14
  */
 public interface ErrorCode {
-  int getNumber();
+    int getNumber();
 }

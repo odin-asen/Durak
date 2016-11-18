@@ -12,7 +12,7 @@
     <Button fx:id="buttonConnectDisconnect" onAction="#connectDisconnect"/>
   </ToolBar>
   <TitledPane collapsible="false" text="%title.login.name" VBox.vgrow="ALWAYS">
-    <TextField fx:id="fieldLoginName" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0">
+    <TextField fx:id="fieldLoginName" prefColumnCount="20">
       <tooltip>
         <Tooltip text="%tooltip.client.login.name"/>
       </tooltip>
@@ -25,7 +25,7 @@
       </GridPane.margin>
       <Label text="%label.server.address" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="0"
              GridPane.columnIndex="0"/>
-      <TextField fx:id="fieldServerAddress" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0"
+      <TextField fx:id="fieldServerAddress" prefColumnCount="20"
                  GridPane.margin="$gridPaneMargin" GridPane.rowIndex="0" GridPane.columnIndex="1">
         <tooltip>
           <Tooltip text="%tooltip.client.server.address"/>
@@ -33,7 +33,7 @@
       </TextField>
       <Label text="%label.port" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1"
              GridPane.columnIndex="0"/>
-      <TextField fx:id="fieldServerPort" minHeight="-1.0" prefColumnCount="20" prefWidth="-1.0"
+      <TextField fx:id="fieldServerPort" prefColumnCount="20"
                  GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="1">
         <tooltip>
           <Tooltip text="%tooltip.client.server.port"/>
@@ -49,7 +49,7 @@
         </tooltip>
       </PasswordField>
       <columnConstraints>
-        <ColumnConstraints fillWidth="true" hgrow="ALWAYS" minWidth="85.0"/>
+        <ColumnConstraints hgrow="ALWAYS" minWidth="85.0"/>
       </columnConstraints>
     </GridPane>
   </TitledPane>

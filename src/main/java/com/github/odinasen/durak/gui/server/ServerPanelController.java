@@ -299,7 +299,7 @@ public class ServerPanelController extends JavaFXController {
         GameServer server = GameServer.getInstance();
 
         // Der Port wird ueber Databinding im Textfeld gesetzt
-        server.startServer(this.gameServerModel.getPort().getValue());
+        server.startServer(this.gameServerModel.getPort().getValue(), this.gameServerModel.getPassword().getValue());
 
         // GUI veraendern
         fieldServerPort.setEditable(false);

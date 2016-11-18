@@ -12,48 +12,23 @@ import javafx.scene.control.MenuItem;
  * Author: Timm Herrmann<br/>
  * Date: 11.02.14
  */
-public class ClientListCell extends ListCell<ClientDto> {
+public class ClientListCell
+        extends ListCell<ClientDto> {
 
-  private MenuItem removeMenuItem = new MenuItem("Remove");
-  private ContextMenu contextMenu = new ContextMenu(removeMenuItem);
+    private MenuItem removeMenuItem = new MenuItem("Remove");
+    private ContextMenu contextMenu = new ContextMenu(removeMenuItem);
 
-  /****************/
-  /* Constructors */
 
-  public ClientListCell(EventHandler<ActionEvent> removeItemHandler) {
-    removeMenuItem.setOnAction(removeItemHandler);
-  }
-
-  /*     End      */
-  /****************/
-
-  /***********/
-  /* Methods */
-
-  @Override
-  public void updateItem(ClientDto item, boolean empty) {
-    super.updateItem(item, empty);
-    if (item != null) {
-      setText(Integer.toString(item.id));
-      setContextMenu(contextMenu);
+    public ClientListCell(EventHandler<ActionEvent> removeItemHandler) {
+        removeMenuItem.setOnAction(removeItemHandler);
     }
-  }
 
-  /*   End   */
-  /***********/
-
-  /*******************/
-  /* Private Methods */
-  /*       End       */
-  /*******************/
-
-  /*********************/
-  /* Getter and Setter */
-  /*        End        */
-  /*********************/
-
-  /*****************/
-  /* Inner classes */
-  /*      End      */
-  /*****************/
+    @Override
+    public void updateItem(ClientDto item, boolean empty) {
+        super.updateItem(item, empty);
+        if (item != null) {
+            setText(item.uuid);
+            setContextMenu(contextMenu);
+        }
+    }
 }

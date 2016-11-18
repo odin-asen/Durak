@@ -1,5 +1,7 @@
 package com.github.odinasen.durak;
 
+import com.github.odinasen.durak.business.exception.ApplicationParameterCode;
+import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.util.LoggingUtility;
 
 import java.util.Map;
@@ -19,11 +21,33 @@ public class ApplicationStartParameter {
      * Start-Parameter fuer das Server-Passwort beim initialen Start des Servers.
      */
     public static final String PARAM_SERVER_PW = "sPwd";
+    /**
+     * Start-Parameter fuer die Adresse des Servers, mit der sich ein Client verbindet.
+     */
+    public static final String PARAM_CLIENT_ADDRESS = "cAddress";
+    /**
+     * Start-Parameter fuer den Port beim initalen Start des Clients.
+     */
+    public static final String PARAM_CLIENT_PORT = "cPort";
+    /**
+     * Start-Parameter fuer das Server-Passwort beim initialen Start des Clients.
+     */
+    public static final String PARAM_CLIENT_PW = "cPwd";
+    /**
+     * Start-Parameter fuer den Client-Namen beim initalen Start des Clients.
+     */
+    public static final String PARAM_CLIENT_NAME = "cName";
+
     private static final Logger LOGGER = LoggingUtility.getLogger(ApplicationStartParameter.class);
     private static ApplicationStartParameter instance = null;
 
     private Integer serverPort;
     private String serverPwd;
+
+    private String clientConnectionAddress;
+    private Integer clientPort;
+    private String clientPwd;
+    private String clientName;
 
     private ApplicationStartParameter() {
         this(null);
@@ -31,11 +55,39 @@ public class ApplicationStartParameter {
 
     private ApplicationStartParameter(Map<String, String> paramMap) {
         if (paramMap != null) {
-            this.serverPort = parseIntegerParameter(paramMap, PARAM_SERVER_PORT);
-            if (!this.isServerPortOkay()) {
-                LOGGER.warning(String.format("Port is smaller or equal to zero or not parsable. Port: %s", this.serverPort));
+            try {
+                this.serverPort = parseIntegerParameter(paramMap, PARAM_SERVER_PORT);
+
+                if (!this.isPortOkay(this.serverPort)) {
+                    LOGGER.warning(String.format("Server port is smaller or equal to zero or not parsable. Port: %s",
+                                                 this.serverPort));
+                }
+            } catch (SystemException ex) {
+                if (ex.getErrorCode() == ApplicationParameterCode.PARAMETER_NOT_SET) {
+                    LOGGER.fine("Parameter '" + ex.get(ApplicationParameterCode.PN_PARAM_NAME) +
+                                "' not set in start parameter.");
+                }
             }
+
             this.serverPwd = paramMap.get(PARAM_SERVER_PW);
+
+            this.clientConnectionAddress = paramMap.get(PARAM_CLIENT_ADDRESS);
+            this.clientName = paramMap.get(PARAM_CLIENT_NAME);
+            try {
+                this.clientPort = parseIntegerParameter(paramMap, PARAM_CLIENT_PORT);
+
+                if (!this.isPortOkay(this.clientPort)) {
+                    LOGGER.warning(String.format("Client port is smaller or equal to zero or not parsable. Port: %s",
+                                                 this.clientPort));
+                }
+            } catch (SystemException ex) {
+                if (ex.getErrorCode() == ApplicationParameterCode.PARAMETER_NOT_SET) {
+                    LOGGER.fine("Parameter '" + ex.get(ApplicationParameterCode.PN_PARAM_NAME) +
+                                "' not set in start parameter.");
+                }
+            }
+
+            this.clientPwd = paramMap.get(PARAM_CLIENT_PW);
         }
     }
 
@@ -57,7 +109,8 @@ public class ApplicationStartParameter {
      * @param reinitialise True, Singleton-Objekt wird mit der Parameter-Map neu initialisiert.
      *                     False, das Singleton-Objekt wird nur initialisiert, wenn es noch null ist.
      */
-    public static synchronized ApplicationStartParameter getInstance(Map<String, String> paramMap, boolean reinitialise) {
+    public static synchronized ApplicationStartParameter getInstance(Map<String, String> paramMap,
+                                                                     boolean reinitialise) {
         if (instance == null || reinitialise) {
             instance = new ApplicationStartParameter(paramMap);
         }
@@ -86,8 +139,10 @@ public class ApplicationStartParameter {
      *
      * @param paramMap  Parameter Map aus der ein Wert gelesen wrid
      * @param paramName Key des Parameterwerts
+     * @throws SystemException - setzt {@link com.github.odinasen.durak.business.exception.ApplicationParameterCode}
+     *                         als Errorcode zu Informationszwecken, wenn der Parameter gar nicht gesetzt wurde.
      */
-    private Integer parseIntegerParameter(Map<String, String> paramMap, String paramName) {
+    private Integer parseIntegerParameter(Map<String, String> paramMap, String paramName) throws SystemException {
         String value = paramMap.get(paramName);
         if (value != null) {
             try {
@@ -95,16 +150,19 @@ public class ApplicationStartParameter {
             } catch (NumberFormatException ex) {
                 LOGGER.warning(String.format("Could not parse '%s' as Integer", value));
             }
+        } else {
+            throw new SystemException(ApplicationParameterCode.PARAMETER_NOT_SET)
+                    .set(ApplicationParameterCode.PN_PARAM_NAME, paramName);
         }
 
         return null;
     }
 
     /**
-     * Gibt true zurueck, wenn der Serverport groesser ist als 0 oder geparst wurde. Andernfalls false.
+     * Gibt true zurueck, wenn der uebergebene Port groesser ist als 0 und nich null ist.
      */
-    private boolean isServerPortOkay() {
-        return this.serverPort != null && this.serverPort > 0;
+    private boolean isPortOkay(Integer port) {
+        return port != null && port > 0;
     }
 
     /**
@@ -112,7 +170,7 @@ public class ApplicationStartParameter {
      * wird 0 zurueckgeliefert.
      */
     public int getServerPort() {
-        if (this.isServerPortOkay()) {
+        if (this.isPortOkay(serverPort)) {
             return serverPort;
         } else {
             return 0;
@@ -123,10 +181,44 @@ public class ApplicationStartParameter {
         return serverPwd;
     }
 
-    /** Gibt true zurueck, wenn Parameter uebergeben wurden, mit denen der Server gestartet werden sollte.
+    public String getClientConnectionAddress() {
+        return clientConnectionAddress;
+    }
+
+    /**
+     * @return Liefert den vorkonfigurierten Wert des Clientports zurueck. Wurde dieser nicht, oder falsch konfiguriert,
+     * wird 0 zurueckgeliefert.
+     */
+    public int getClientPort() {
+        if (this.isPortOkay(clientPort)) {
+            return clientPort;
+        } else {
+            return 0;
+        }
+    }
+
+    public String getClientPwd() {
+        return clientPwd;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    /**
+     * Gibt true zurueck, wenn Parameter uebergeben wurden, mit denen der Server gestartet werden sollte.
      * Ansonsten false.
      */
     public boolean canInitialStartServer() {
-        return isServerPortOkay();
+        return isPortOkay(this.serverPort);
+    }
+
+    /**
+     * Gibt true zurueck, wenn Parameter uebergeben wurden, mit denen der Client einen Verbindungsversuch zum Server
+     * starten kann. D.h. Name gesetzt, Port gesetzt, etc...
+     * Ansonsten false.
+     */
+    public boolean canInitialConnectToServer() {
+        return isPortOkay(this.clientPort) && this.clientName != null && this.clientConnectionAddress != null;
     }
 }
