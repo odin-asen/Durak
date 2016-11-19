@@ -37,6 +37,7 @@ public class GameClientTest {
     @After
     public void tearDown() throws Exception {
         server.stopServer();
+        server.setPassword("");
     }
 
     /**
@@ -52,16 +53,20 @@ public class GameClientTest {
     }
 
     /**
-     * Test fuer eine Verbindung, ohne Passwort.
+     * Test fuer eine Verbindung, ohne Passwort. //TODO gehört eigenlicht in die Server-Integrationstests
      */
     @Test
     public void connectWithPassword() throws Exception {
+        this.server.setPassword(SERVER_PWD);
+
         String clientName = "Horst";
         ClientDto clientDto = createNewClientDto(clientName);
 
+        // Verbindung ohne Passwort soll nicht gelingen
         boolean connected = this.client.connect("localhost", this.testPort, "", clientDto);
         Assert.assertFalse(connected);
 
+        // Verbindung mit richtigem Passwort soll gelingen
         connected = this.client.connect("localhost", this.testPort, SERVER_PWD, clientDto);
         Assert.assertTrue(connected);
     }
@@ -107,24 +112,6 @@ public class GameClientTest {
 
         this.client.closed();
         Assert.assertFalse(this.client.isConnected());
-    }
-
-    /**
-     * Teste, ob die Socketadresse in unterschiedlichen Zustaenden (Verbunden, Getrennt) die richtige Meldung zurueck
-     * gibt.
-     */
-    @Test
-    public void getSocketAddress() throws Exception {
-        String host = "localhost";
-        String messageGetrennt = "Keine Adresse verfügbar!";
-        Assert.assertSame("Verbindung getrennt - Socketadresse falsch",
-                          messageGetrennt,
-                          this.client.getSocketAddress());
-
-        String socketAddress = host + ":" + this.testPort;
-        boolean connected = this.client.connect(host, this.testPort, "", null);
-        Assert.assertTrue(connected);
-        Assert.assertSame("Verbindung besteht - Socketadresse falsch", socketAddress, this.client.getSocketAddress());
     }
 
     private ClientDto createNewClientDto(String clientName) {

@@ -8,10 +8,10 @@ import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.util.StringUtils;
 import de.root1.simon.annotation.SimonRemote;
+import de.root1.simon.exceptions.SimonRemoteException;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -38,11 +38,7 @@ public class DurakServerService
     private String password;
 
     public DurakServerService(String password) {
-        if (password != null) {
-            this.password = password;
-        } else {
-            this.password = "";
-        }
+        setPassword(password);
     }
 
     @Override
@@ -82,9 +78,9 @@ public class DurakServerService
      * Registriert bei uebereinstimmenden Passwoertern einen Benutzer. Setzt in das Client-Objekt die UUID, wenn der
      * Benutzer registriert wurde.
      *
-     * @param callable       Das Callable-Objekt des Benutzers.
-     * @param client         Das Client-Objekt.
-     * @param password       Die Benutzereingabe des Passworts.
+     * @param callable Das Callable-Objekt des Benutzers.
+     * @param client   Das Client-Objekt.
+     * @param password Die Benutzereingabe des Passworts.
      * @return true, wenn der Client registriert ist und die UUID gesetzt wurde, andernfalls false.
      */
     private boolean registerNewClient(Callable callable, ClientDto client, String password) {
@@ -105,14 +101,21 @@ public class DurakServerService
     @Override
     public void logoff(Callable callable) {
         if (callable != null) {
-            UUID toRemoveUUID = null;
+            List<UUID> idsToRemove = new ArrayList<>();
             for (Map.Entry<UUID, Callable> entry : clientMap.entrySet()) {
-                if (callable.equals(entry.getValue())) {
-                    toRemoveUUID = entry.getKey();
+                try {
+                    if (callable.equals(entry.getValue())) {
+                        idsToRemove.add(entry.getKey());
+                    }
+                } catch (SimonRemoteException ex) {
+                    final String message = "Remote Object could not properly be processed and will be disconnected " +
+                                           "from server.";
+                    LOGGER.info(message + " " + ex.getMessage());
+                    LOGGER.log(Level.FINE, "", ex);
                 }
             }
 
-            clientMap.remove(toRemoveUUID);
+            clientMap.remove(idsToRemove);
             // Hier koennte man noch alle Clients benachrichtigen
         }
     }
@@ -130,5 +133,16 @@ public class DurakServerService
     @Override
     public void updateClient(Callable callable, ClientDto client) {
 
+    }
+
+    /**
+     * Setzt das Serverpasswort.
+     */
+    public void setPassword(String password) {
+        if (password != null) {
+            this.password = password;
+        } else {
+            this.password = "";
+        }
     }
 }

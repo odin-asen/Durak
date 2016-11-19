@@ -174,4 +174,9 @@ public class GameServer {
         //----------------------------------------------------------------------------------------------
 
     }
+
+    /** Setzt das Serverpasswort. */
+    public void setPassword(String password) {
+        this.serverService.setPassword(password);
+    }
 }
