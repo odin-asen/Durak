@@ -1,5 +1,6 @@
-package com.github.odinasen.durak.business.network.client;
+package com.github.odinasen.durak.business.network;
 
+import com.github.odinasen.durak.business.network.client.GameClient;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.dto.ClientDto;
 import org.junit.After;
@@ -10,10 +11,13 @@ import org.junit.Test;
 import java.util.UUID;
 
 /**
- * Testklasse fuer den GameClient.
- * Created by tih on 23.09.2016.
+ * Integrationstests fuer Client-Server-Verbindungen.
+ * <p/>
+ * Author: tih<br/>
+ * Date: 04.12.2016.
  */
-public class GameClientTest {
+public class ITClientServerConnection {
+    private static final String SERVER_PWD = "bla";
 
     private int testPort;
     private GameServer server;
@@ -28,7 +32,6 @@ public class GameClientTest {
         this.server = GameServer.getInstance();
         this.testPort = 10000;
         this.server.startServer(this.testPort);
-
         Assert.assertTrue(this.server.isRunning());
 
         this.client = GameClient.getInstance();
@@ -41,46 +44,34 @@ public class GameClientTest {
     }
 
     /**
-     * Testet die Wiederverbindung. Ist der Client verbunden
+     * Test fuer eine Verbindung, ohne Passwort.
      */
     @Test
-    public void reconnect() throws Exception {
+    public void connectWithoutPassword() throws Exception {
         String clientName = "Horst";
         ClientDto clientDto = createNewClientDto(clientName);
-
-        // Hier pruefen, ob die connect bzw. disconnect-Methode
-        boolean connected = this.client.reconnect("localhost", this.testPort, "", clientDto);
-        Assert.assertTrue(connected);
-        Assert.assertTrue(this.client.isConnected());
-    }
-
-    @Test
-    public void disconnect() throws Exception {
-        String clientName = "Horst";
-        ClientDto clientDto = createNewClientDto(clientName);
-
-        // Hier pruefen, ob die connect bzw. disconnect-Methode
         boolean connected = this.client.connect("localhost", this.testPort, "", clientDto);
-        Assert.assertTrue(connected);
 
-        this.client.disconnect();
-        Assert.assertFalse(this.client.isConnected());
+        Assert.assertTrue(connected);
     }
 
     /**
-     * Die closed-Methode soll nur den Client trennen.
+     * Test fuer eine Verbindung, ohne Passwort.
      */
     @Test
-    public void closed() throws Exception {
+    public void connectWithPassword() throws Exception {
+        this.server.setPassword(SERVER_PWD);
+
         String clientName = "Horst";
         ClientDto clientDto = createNewClientDto(clientName);
 
-        // Hier pruefen, ob die connect bzw. disconnect-Methode
+        // Verbindung ohne Passwort soll nicht gelingen
         boolean connected = this.client.connect("localhost", this.testPort, "", clientDto);
-        Assert.assertTrue(connected);
+        Assert.assertFalse(connected);
 
-        this.client.closed();
-        Assert.assertFalse(this.client.isConnected());
+        // Verbindung mit richtigem Passwort soll gelingen
+        connected = this.client.connect("localhost", this.testPort, SERVER_PWD, clientDto);
+        Assert.assertTrue(connected);
     }
 
     private ClientDto createNewClientDto(String clientName) {

@@ -9,7 +9,6 @@ import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.gui.FXMLNames;
-import com.github.odinasen.durak.gui.MainGUIController;
 import com.github.odinasen.durak.gui.client.model.ClientPanelModel;
 import com.github.odinasen.durak.gui.controller.JavaFXController;
 import com.github.odinasen.durak.gui.notification.DialogPopupFactory;
@@ -17,9 +16,7 @@ import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.resources.ResourceGetter;
 import com.github.odinasen.durak.util.LoggingUtility;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -97,7 +94,6 @@ public class ClientPanelController
         this.clientModel.getServerAddress().setValue(startParameter.getClientConnectionAddress());
 
         if (startParameter.canInitialConnectToServer()) {
-            //TODO reicht das aus, um das Clientpanel zu oeffnen und zu starten?
             connectDisconnect();
         }
     }

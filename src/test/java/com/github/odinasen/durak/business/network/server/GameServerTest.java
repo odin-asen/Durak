@@ -1,6 +1,7 @@
 package com.github.odinasen.durak.business.network.server;
 
 import com.github.odinasen.durak.business.network.server.GameServer;
+import com.github.odinasen.durak.dto.ClientDto;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,6 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.UUID;
 
 public class GameServerTest {
 

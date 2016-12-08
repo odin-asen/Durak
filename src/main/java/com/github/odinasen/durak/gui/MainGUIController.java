@@ -42,7 +42,7 @@ import java.util.logging.Logger;
 public class MainGUIController {
     private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
     private static MainGUIController mainController;
-//TODO alle fx:uuid umbenennen in fx:id in allen fxml.
+
     /**
      * Das Hauptpanel der Anwendung.
      */
