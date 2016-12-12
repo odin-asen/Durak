@@ -1,17 +1,18 @@
 package com.github.odinasen.durak.gui.server;
 
 import com.github.odinasen.durak.ApplicationStartParameter;
-import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.gui.FXMLNames;
+import com.github.odinasen.durak.gui.MainGUIController;
 import com.github.odinasen.durak.gui.controller.JavaFXController;
 import com.github.odinasen.durak.gui.notification.DialogPopupFactory;
 import com.github.odinasen.durak.gui.server.model.GameServerModel;
 import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.i18n.I18nSupport;
+import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

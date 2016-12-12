@@ -1,27 +1,21 @@
 package com.github.odinasen.durak.gui;
 
 import com.github.odinasen.durak.ApplicationStartParameter;
-import com.github.odinasen.durak.util.Assert;
-import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.gui.client.ClientPanelController;
 import com.github.odinasen.durak.gui.server.ServerPanelController;
 import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.resources.ResourceGetter;
-import com.sun.javaws.jnl.JavaFXAppDesc;
+import com.github.odinasen.durak.util.Assert;
+import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
@@ -31,7 +25,6 @@ import javafx.stage.WindowEvent;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

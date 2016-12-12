@@ -59,7 +59,7 @@ public class DurakServerService
 
             if (callable != null) {
 
-                // Ist der registrierte Client ein anderer wie der uerbergebene?
+                // Ist der registrierte Client ein anderer als der uerbergebene?
                 if (!callable.equals(listCallable)) {
                     // Nein, also mit Passwortpruefung registrieren und UUID aendern
                     return registerNewClient(callable, client, password);

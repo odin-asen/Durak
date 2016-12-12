@@ -10,10 +10,25 @@ package com.github.odinasen.durak.util;
  */
 public class StringUtils {
     /**
-     * Liefet true, wenn beide Strings nicht null sind und die gleiche Zeichenfolge besitzen. (Siehe
-     * String{@link #equals(Object)})
+     * Liefert true, wenn beide Strings nicht null sind und die gleiche Zeichenfolge besitzen. (Siehe
+     * {@link String#equals(Object)})<br/>
+     * Liefert true, wenn beide Strings null bzw. leer sind.
      */
     public static boolean stringsAreSame(String theOne, String theOther) {
-        return (theOne != null) && (theOther != null) && theOne.equals(theOther);
+        // Beide gesetzt
+        if (theOne != null && theOther != null) {
+            if (theOne.equals(theOther)) {
+                return true;
+            }
+        }
+
+        // Beide null oder leer
+        if (theOne == null || theOne.isEmpty()) {
+            if (theOther == null || theOther.isEmpty()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

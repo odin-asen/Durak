@@ -1,6 +1,5 @@
 package com.github.odinasen.durak;
 
-import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.i18n.BundleStrings;
@@ -14,7 +13,10 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.awt.*;
-import java.util.*;
+import java.util.Locale;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 public class DurakApplication extends Application implements Observer {
@@ -24,6 +26,10 @@ public class DurakApplication extends Application implements Observer {
 
     private GUIMode guiMode;
 
+	/**
+	 * @param args Array mit Parametern. Benamte Parameter, die mit -- beginnen, werden in die
+	 *             Oberflaeche als Startparameter uebergeben.
+	 */
     public static void main(String[] args) {
     /* init logging class */
         LoggingUtility.setFirstTimeLoggingFile(System.getProperty("user.dir")
