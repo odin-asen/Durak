@@ -36,10 +36,12 @@ import java.util.logging.Logger;
  * Author: Timm Herrmann<br/>
  * Date: 06.01.14
  */
-public class ServerPanelController extends JavaFXController {
+public class ServerPanelController
+        extends JavaFXController {
     private static final Logger LOGGER = LoggingUtility.getLogger(ServerPanelController.class);
 
-    private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
+    private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying "
+                                                                + "to" + " launch a game!";
 
     private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
@@ -69,7 +71,7 @@ public class ServerPanelController extends JavaFXController {
 
     public ServerPanelController() {
         super(FXMLNames.SERVER_PANEL,
-                ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
+              ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
         this.gameServerModel = new GameServerModel();
     }
 
@@ -84,7 +86,7 @@ public class ServerPanelController extends JavaFXController {
         initInitialCardsComponents();
 
         this.fieldServerPort.textProperty().bindBidirectional(this.gameServerModel.getPort(),
-                new NumberStringConverter());
+                                                              new NumberStringConverter());
         this.fieldPassword.textProperty().bindBidirectional(this.gameServerModel.getPassword());
 
         // Wenn das Panel angezeigt wird, wird es initialisiert mit Startparametern
@@ -118,18 +120,17 @@ public class ServerPanelController extends JavaFXController {
 
     private void initListView() {
         listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        listLoggedClients.setCellFactory(
-                new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
+        listLoggedClients.setCellFactory(new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
+            @Override
+            public ListCell<ClientDto> call(ListView<ClientDto> listView) {
+                return new ClientListCell(new EventHandler<ActionEvent>() {
                     @Override
-                    public ListCell<ClientDto> call(ListView<ClientDto> listView) {
-                        return new ClientListCell(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent actionEvent) {
-                                removeSelectedClients();
-                            }
-                        });
+                    public void handle(ActionEvent actionEvent) {
+                        removeSelectedClients();
                     }
                 });
+            }
+        });
     }
 
     /**
@@ -150,6 +151,7 @@ public class ServerPanelController extends JavaFXController {
                 DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
                 this.stopGame();
             }
+            this.gameServerModel.removeAllClients();
             this.stopServer();
             serverStatus = "Server wurde angehalten!";
         } else {
@@ -158,10 +160,15 @@ public class ServerPanelController extends JavaFXController {
             try {
                 this.startServer();
                 serverStatus = "Server läuft!";
+
+                // Eingabeelemente ausgrauen
+                this.enableInputElements();
             } catch (SystemException e) {
                 // Fehlerpopup, da der Server nicht gestartet werden konnte
-                DialogPopupFactory.getFactory().showErrorPopup(
-                        mainWindow, e.getMessage(), DialogPopupFactory.LOCATION_CENTRE, 8.0);
+                DialogPopupFactory.getFactory().showErrorPopup(mainWindow,
+                                                               e.getMessage(),
+                                                               DialogPopupFactory.LOCATION_CENTRE,
+                                                               8.0);
                 serverStatus = "Serverstart ist fehlgeschlagen!";
             }
         }
@@ -170,7 +177,21 @@ public class ServerPanelController extends JavaFXController {
     }
 
     /**
-     * Startet das Spiel, wenn es noch nicht gestartet wurde und alle Kriterien dafuer erfuellt sind.
+     * Abhaenging von Verbindungszustand und Spielzustand, werden Eingabekomponenten aktiviert
+     * bzw. deaktiviert.
+     */
+    private void enableInputElements() {
+        boolean enableServerFields = !GameServer.getInstance().isRunning();
+        boolean enableGameFields = !this.gameServerModel.isGameRunning();
+
+        this.fieldPassword.setEditable(enableServerFields);
+        this.fieldServerPort.setEditable(enableServerFields);
+        this.setBoxEditable(enableGameFields);
+    }
+
+    /**
+     * Startet das Spiel, wenn es noch nicht gestartet wurde und alle Kriterien dafuer erfuellt
+     * sind.
      * Stoppt das Spiel, wenn dieses laeuft.
      * Bei Fehlern werden Dialoge angezeigt.
      * Der Server muss gestartet sein, bevor diese Methode aufgerufen wird.
@@ -182,19 +203,20 @@ public class ServerPanelController extends JavaFXController {
 
         if (gameServerModel.isGameRunning()) {
             stopGame();
-            MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Das Spiel wurde beendet!");
+            MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
+                                        "Das Spiel wurde beendet!");
         } else {
             if (!startGame()) {
                 // Fehlerpopup, da das Spiel nicht gestartet werden konnte
-                DialogPopupFactory.getFactory().showErrorPopup(
-                        mainWindow,
-                        GAME_NOT_STARTED_MESSAGE,
-                        DialogPopupFactory.LOCATION_CENTRE,
-                        8.0);
+                DialogPopupFactory.getFactory().showErrorPopup(mainWindow,
+                                                               GAME_NOT_STARTED_MESSAGE,
+                                                               DialogPopupFactory.LOCATION_CENTRE,
+                                                               8.0);
                 MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
-                        "Das Spiel konnte nicht gestartet werden!");
+                                            "Das Spiel konnte nicht gestartet werden!");
             } else {
-                MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, "Das Spiel wurde gestartet!");
+                MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
+                                            "Das Spiel wurde gestartet!");
             }
         }
     }
@@ -253,12 +275,11 @@ public class ServerPanelController extends JavaFXController {
      * der geloeschten Clients zurueck.
      */
     private int removeSelectedClients() {
-        ObservableList<ClientDto> loggedClients =
-                this.listLoggedClients.getItems();
+        ObservableList<ClientDto> loggedClients = this.listLoggedClients.getItems();
         int before = loggedClients.size();
 
-        final List<ClientDto> selectedClients =
-                this.listLoggedClients.getSelectionModel().getSelectedItems();
+        final List<ClientDto> selectedClients = this.listLoggedClients.getSelectionModel()
+                                                                      .getSelectedItems();
 
         for (int i = selectedClients.size() - 1; i >= 0; i--) {
             this.listLoggedClients.getItems().remove(selectedClients.get(i));
@@ -279,26 +300,29 @@ public class ServerPanelController extends JavaFXController {
         // 6 Karten bekommen
         if (this.listLoggedClients.getItems().size() > 52) {
             this.setGameRunning(true);
-            this.setBoxEditable(false);
             this.changeGameButton("tooltip.stop.game");
-        } else started = false;
+            this.enableInputElements();
+        } else {
+            started = false;
+        }
 
         return started;
     }
 
     /**
-     * Startet den Server und passt die Toolbar an. Kann der Server nicht gestartet werden, wird eine
+     * Startet den Server und passt die Toolbar an. Kann der Server nicht gestartet werden, wird
+     * eine
      * Exception geworfen.
      *
      * @see com.github.odinasen.durak.business.network.server.GameServer#startServer(int)
      */
-    private void startServer()
-            throws SystemException {
+    private void startServer() throws SystemException {
         // Server starten
         GameServer server = GameServer.getInstance();
 
         // Der Port wird ueber Databinding im Textfeld gesetzt
-        server.startServer(this.gameServerModel.getPort().getValue(), this.gameServerModel.getPassword().getValue());
+        server.startServer(this.gameServerModel.getPort().getValue(),
+                           this.gameServerModel.getPassword().getValue());
 
         // GUI veraendern
         fieldServerPort.setEditable(false);
@@ -312,7 +336,7 @@ public class ServerPanelController extends JavaFXController {
     private void stopGame() {
         this.setGameRunning(false);
         this.changeGameButton("tooltip.start.game");
-        this.setBoxEditable(true);
+        this.enableInputElements();
     }
 
     /**
@@ -327,9 +351,9 @@ public class ServerPanelController extends JavaFXController {
         GameServer.getInstance().stopServer();
 
         // GUI anpassen
-        buttonLaunchGame.setVisible(false);
+        this.buttonLaunchGame.setVisible(false);
         this.changeServerButton("tooltip.server.start.server");
-        fieldServerPort.setEditable(true);
+        this.fieldServerPort.setEditable(true);
     }
 
     /**

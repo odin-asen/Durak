@@ -1,19 +1,23 @@
 package com.github.odinasen.durak.business.network.server;
 
-import com.github.odinasen.durak.util.Assert;
-import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.business.exception.GameServerCode;
 import com.github.odinasen.durak.business.exception.SystemException;
+import com.github.odinasen.durak.business.game.Player;
+import com.github.odinasen.durak.business.game.Spectator;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.DurakServerService;
 import com.github.odinasen.durak.business.network.SIMONConfiguration;
 import com.github.odinasen.durak.i18n.I18nSupport;
+import com.github.odinasen.durak.util.Assert;
+import com.github.odinasen.durak.util.LoggingUtility;
 import de.root1.simon.Registry;
 import de.root1.simon.Simon;
 import de.root1.simon.exceptions.NameBindingException;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -33,6 +37,12 @@ public class GameServer {
      */
     private DurakServerService serverService;
 
+    /** Liste aller Spieler im Server */
+    private List<Player> players;
+
+    /** Liste aller Beobachter im Server */
+    private List<Spectator> spectators;
+
     /**
      * Ist das Singleton-Objekt der Klasse.
      */
@@ -44,6 +54,8 @@ public class GameServer {
     private Registry registry;
 
     private GameServer() {
+        this.players = new ArrayList<>(6);
+        this.spectators = new ArrayList<>(0);
     }
 
     public static GameServer getInstance() {
@@ -54,7 +66,10 @@ public class GameServer {
         return instance;
     }
 
-    /** Ueberladung von {@link #startServer(int, String)}. Startet den Server mit leerem Passwort. */
+    /**
+     * Ueberladung von {@link #startServer(int, String)}. Startet den Server mit leerem Passwort
+     * .
+     */
     public void startServer(int port) throws SystemException {
         startServer(port, "");
     }
@@ -63,18 +78,22 @@ public class GameServer {
      * Startet den Server. Kann der Server aus einem Grund nicht gestartet werden, wird eine
      * {@link com.github.odinasen.durak.business.exception.SystemException} geworfen.
      *
-     * @param port ist der Port auf dem der Server gestartet wird.
-     * @param password Passwort des Servers.
-     * @throws com.github.odinasen.durak.business.exception.SystemException <ol> als <b>praesentierbare Nachricht</b> wenn,
-     *                                                                      <li>der Service schon einmal registriert wurde, also die Methode schon einmal ausgefuehrt
-     *                                                                      wurde, ohne {@link #stopServer()} aufzurufen.</li>
-     *                                                                      <li>die IP-Adresse des Servers nicht gefunden werden konnte.</li>
-     *                                                                      <li>es ein Problem mit dem Netzwerklayer gibt.</li>
-     *                                                                      </ol>
-     *                                                                      Als Exception-Attribut wird "port" gesetzt.
+     * @param port
+     *         ist der Port auf dem der Server gestartet wird.
+     * @param password
+     *         Passwort des Servers.
+     *
+     * @throws com.github.odinasen.durak.business.exception.SystemException
+     *         <ol> als <b>praesentierbare Nachricht</b> wenn,
+     *         <li>der Service schon einmal registriert wurde, also die Methode schon einmal
+     *         ausgefuehrt
+     *         wurde, ohne {@link #stopServer()} aufzurufen.</li>
+     *         <li>die IP-Adresse des Servers nicht gefunden werden konnte.</li>
+     *         <li>es ein Problem mit dem Netzwerklayer gibt.</li>
+     *         </ol>
+     *         Als Exception-Attribut wird "port" gesetzt.
      */
-    public void startServer(int port, String password)
-            throws SystemException {
+    public void startServer(int port, String password) throws SystemException {
         serverService = new DurakServerService(password);
 
         try {
@@ -95,22 +114,19 @@ public class GameServer {
         }
     }
 
-    /**
-     * Startet das Spiel.
-     */
+    /** Startet das Spiel. */
     public void startGame() {
 
     }
 
-    /**
-     * Stoppt den laufenden Server. Laueft ein Spiel, wird dieses auch geschlossen.
-     */
+    /** Stoppt den laufenden Server. Laueft ein Spiel, wird dieses auch geschlossen. */
     public void stopServer() {
         try {
             this.removeAllClients();
         } catch (SystemException e) {
             LOGGER.info(I18nSupport.getException(e.getErrorCode()));
         }
+
         if (this.registry != null) {
             this.registry.unbind(SIMONConfiguration.REGISTRY_NAME_SERVER);
             this.registry.stop();
@@ -118,9 +134,7 @@ public class GameServer {
         }
     }
 
-    /**
-     * Stoppt ein laufendes Spiel.
-     */
+    /** Stoppt ein laufendes Spiel. */
     public void stopGame() {
 
     }
@@ -131,8 +145,11 @@ public class GameServer {
      * @return Die Anzahl der Clients, die entfernt wurden.
      */
     public int removeAllSpectators() {
-        // TODO Alle Beobachter entfernen, dazu müssen SPieler erst hinzugefügt werden
-        return 0;
+        int removed = this.spectators.size();
+
+        this.spectators.clear();
+
+        return removed;
     }
 
     /**
@@ -141,8 +158,11 @@ public class GameServer {
      * @return Die Anzahl der Clients, die entfernt wurden.
      */
     public int removeAllPlayers() throws SystemException {
-        // TODO Alle Spieler entfernen, dazu müssen SPieler erst hinzugefügt werden
-        return 0;
+        int removed = this.players.size();
+
+        this.players.clear();
+
+        return removed;
     }
 
     /**
@@ -157,9 +177,7 @@ public class GameServer {
         return removedSpectators + removedPlayers;
     }
 
-    /**
-     * Gibt an, ob der Server laueft oder nicht.
-     */
+    /** Gibt an, ob der Server laueft oder nicht. */
     public boolean isRunning() {
         return (this.registry != null) && this.registry.isRunning();
     }
@@ -167,7 +185,8 @@ public class GameServer {
     /**
      * Schickt eine Nachricht an alle verbundenen Clients.
      *
-     * @param clientMessageType Der Nachrichtentyp, der an die Clients gesendet wird. Darf nicht null sein.
+     * @param clientMessageType
+     *         Der Nachrichtentyp, der an die Clients gesendet wird. Darf nicht null sein.
      */
     public void sendClientMessage(ClientMessageType clientMessageType) {
         Assert.assertNotNull(clientMessageType, ClientMessageType.class);

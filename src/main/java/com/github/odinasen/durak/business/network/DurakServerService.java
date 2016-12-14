@@ -16,25 +16,26 @@ import java.util.logging.Logger;
 
 /**
  * Eine Klasse, die verschiedene Dienste des Durak-Servers bereitstellt.
- * Diese Klasse haelt Klassenvariablen, um die Kommunikation zwischen verschiedenen Clients gewaehrleisten zu koennen.
+ * Diese Klasse haelt Klassenvariablen, um die Kommunikation zwischen verschiedenen Clients
+ * gewaehrleisten zu koennen.
  * <p/>
  * Author: Timm Herrmann<br/>
  * Date: 23.06.14
  */
 @SimonRemote(value = {ServerInterface.class, SessionInterface.class})
 public class DurakServerService
-        implements ServerInterface, SessionInterface {
+        implements ServerInterface,
+                   SessionInterface {
 
     private static final Logger LOGGER = LoggingUtility.getLogger(DurakServerService.class);
 
     /**
-     * Liste der Clients fuer den gesamten Server. Mappt die ID eines Clients zu seinem zugehoerigen Callable-Objekt.
+     * Liste der Clients fuer den gesamten Server. Mappt die ID eines Clients zu seinem
+     * zugehoerigen Callable-Objekt.
      */
     private static final Map<UUID, Callable> clientMap = new HashMap<>();
 
-    /**
-     * Server des Passworts
-     */
+    /** Server des Passworts */
     private String password;
 
     public DurakServerService(String password) {
@@ -47,8 +48,10 @@ public class DurakServerService
         try {
             clientUUID = UUID.fromString(client.getUuid());
         } catch (Exception ex) {
-            // Hier wird absichtlich nichts gemacht oder geloggt, weil es nicht notwendig ist zu wissen, ob eine
-            // UUID nicht geparst werden konnte. Eine nicht parsbare UUID wird als neuer Client gewertet.
+            // Hier wird absichtlich nichts gemacht oder geloggt, weil es nicht notwendig ist zu
+            // wissen, ob eine
+            // UUID nicht geparst werden konnte. Eine nicht parsbare UUID wird als neuer Client
+            // gewertet.
             clientUUID = null;
         }
 
@@ -70,17 +73,23 @@ public class DurakServerService
             return registerNewClient(callable, client, password);
         }
 
-        // Die Methode muss schon vorher mal true zurueckgeben, ansonsten wurde der Benutzer nie registriert.
+        // Die Methode muss schon vorher mal true zurueckgeben, ansonsten wurde der Benutzer nie
+        // registriert.
         return false;
     }
 
     /**
-     * Registriert bei uebereinstimmenden Passwoertern einen Benutzer. Setzt in das Client-Objekt die UUID, wenn der
+     * Registriert bei uebereinstimmenden Passwoertern einen Benutzer. Setzt in das Client-Objekt
+     * die UUID, wenn der
      * Benutzer registriert wurde.
      *
-     * @param callable Das Callable-Objekt des Benutzers.
-     * @param client   Das Client-Objekt.
-     * @param password Die Benutzereingabe des Passworts.
+     * @param callable
+     *         Das Callable-Objekt des Benutzers.
+     * @param client
+     *         Das Client-Objekt.
+     * @param password
+     *         Die Benutzereingabe des Passworts.
+     *
      * @return true, wenn der Client registriert ist und die UUID gesetzt wurde, andernfalls false.
      */
     private boolean registerNewClient(Callable callable, ClientDto client, String password) {
@@ -108,8 +117,8 @@ public class DurakServerService
                         idsToRemove.add(entry.getKey());
                     }
                 } catch (SimonRemoteException ex) {
-                    final String message = "Remote Object could not properly be processed and will be disconnected " +
-                                           "from server.";
+                    final String message = "Remote Object could not properly be processed and "
+                                           + "will be disconnected from server.";
                     LOGGER.info(message + " " + ex.getMessage());
                     LOGGER.log(Level.FINE, "", ex);
                 }
