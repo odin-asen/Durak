@@ -13,92 +13,92 @@ import javafx.beans.property.StringProperty;
  */
 public class ClientPanelModel {
 
-	/** Ist der Standardport fuer die Verbindung zum Server. */
-	private static final int DEFAULT_SERVER_PORT = 10000;
+    /** Ist der Standardport fuer die Verbindung zum Server. */
+    private static final int DEFAULT_SERVER_PORT = 10000;
 
-	/**
-	 * Ist der Nickname im Spiel
-	 */
-	private StringProperty nickname;
+    /**
+     * Ist der Nickname im Spiel
+     */
+    private StringProperty nickname;
 
-	/**
-	 * Ist die Serveradresse auf die sich der Client verbindet.
-	 */
-	private StringProperty serverAddress;
+    /**
+     * Ist die Serveradresse auf die sich der Client verbindet.
+     */
+    private StringProperty serverAddress;
 
-	/**
-	 * Ist der Port auf dem sich der Client mit dem Server verbinden soll.
-	 */
-	private IntegerProperty port;
+    /** Ist der Port auf dem sich der Client mit dem Server verbinden soll. */
+    private IntegerProperty port;
 
-	/**
-	 * Ist das Passwort, mit dem sich der Client am Server authentifiziert.
-	 */
-	private StringProperty password;
+    /**
+     * Ist das Passwort, mit dem sich der Client am Server authentifiziert.
+     */
+    private StringProperty password;
 
-	/**
-	 * Gibt an, ob der Client mit einem Server verbunden ist.
-	 */
-	private boolean connectedToServer;
+    /**
+     * Gibt an, ob der Client mit einem Server verbunden ist.
+     */
+    private boolean connectedToServer;
 
-	//==============================================================================================
-	// Constructors
-	/**
-	 * Initialisiert alle Variablen
-	 */
-	public ClientPanelModel() {
-		this.nickname =new SimpleStringProperty("");
-		this.serverAddress = new SimpleStringProperty("localhost");
-		this.password = new SimpleStringProperty("");
-		this.port = new SimpleIntegerProperty(DEFAULT_SERVER_PORT);
-	}
-	//==============================================================================================
-	// Methods
+    //==============================================================================================
+    // Constructors
 
-	//==============================================================================================
-	// Getter and Setter
+    /**
+     * Initialisiert alle Variablen
+     */
+    public ClientPanelModel() {
+        this.nickname = new SimpleStringProperty("");
+        this.serverAddress = new SimpleStringProperty("localhost");
+        this.password = new SimpleStringProperty("");
+        this.port = new SimpleIntegerProperty(DEFAULT_SERVER_PORT);
+    }
+    //==============================================================================================
+    // Methods
 
-	/**
-	 * @return das {@link #port}-Objekt
-	 */
-	public IntegerProperty getPort() {
-		return port;
-	}
+    //==============================================================================================
+    // Getter and Setter
 
-	/**
-	 * @return das {@link #nickname}-Objekt
-	 */
-	public StringProperty getNickname() {
-		return nickname;
-	}
+    /**
+     * @return das {@link #port}-Objekt
+     */
+    public IntegerProperty getPort() {
+        return port;
+    }
 
-	/**
-	 * @return das {@link #password}-Objekt
-	 */
-	public StringProperty getPassword() {
-		return password;
-	}
+    /**
+     * @return das {@link #nickname}-Objekt
+     */
+    public StringProperty getNickname() {
+        return nickname;
+    }
 
-	/**
-	 * @return das {@link #serverAddress}-Objekt
-	 */
-	public StringProperty getServerAddress() {
-		return serverAddress;
-	}
+    /**
+     * @return das {@link #password}-Objekt
+     */
+    public StringProperty getPassword() {
+        return password;
+    }
 
-	/**
-	 * Setzt das {@link #connectedToServer}-Objekt.
-	 *
-	 * @param connectedToServer das {@link #connectedToServer}-Objekt
-	 */
-	public void setConnectedToServer(boolean connectedToServer) {
-		this.connectedToServer = connectedToServer;
-	}
+    /**
+     * @return das {@link #serverAddress}-Objekt
+     */
+    public StringProperty getServerAddress() {
+        return serverAddress;
+    }
 
-	/**
-	 * @return das {@link #connectedToServer}-Objekt
-	 */
-	public boolean isConnectedToServer() {
-		return connectedToServer;
-	}
+    /**
+     * Setzt das {@link #connectedToServer}-Objekt.
+     *
+     * @param connectedToServer
+     *         das {@link #connectedToServer}-Objekt
+     */
+    public void setConnectedToServer(boolean connectedToServer) {
+        this.connectedToServer = connectedToServer;
+    }
+
+    /**
+     * @return das {@link #connectedToServer}-Objekt
+     */
+    public boolean isConnectedToServer() {
+        return connectedToServer;
+    }
 }
