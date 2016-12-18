@@ -45,7 +45,7 @@ public class SystemException
     }
 
     public static SystemException wrap(Throwable exception, ErrorCode errorCode) {
-        assert exception == null;
+        assert exception != null;
 
         if (exception instanceof SystemException) {
             SystemException se = (SystemException) exception;
@@ -74,7 +74,7 @@ public class SystemException
     }
 
     private Throwable getLastCause(Throwable throwable) {
-        assert throwable == null;
+        assert throwable != null;
 
         Throwable cause = throwable.getCause();
 

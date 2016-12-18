@@ -1,6 +1,7 @@
-package com.github.odinasen.durak.business.network;
+package com.github.odinasen.durak.business.network.server;
 
 import com.github.odinasen.durak.business.game.GameAction;
+import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
@@ -14,16 +15,26 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.github.odinasen.durak.business.network.server.event.DurakServiceEvent.DurakServiceEventType;
+
 /**
  * Eine Klasse, die verschiedene Dienste des Durak-Servers bereitstellt.
  * Diese Klasse haelt Klassenvariablen, um die Kommunikation zwischen verschiedenen Clients
  * gewaehrleisten zu koennen.
  * <p/>
+ * Dieser Service ist ueberwachbar (java.util.Observable) und sendet bei folgenden Ereignissen
+ * ein Event:
+ * <ul>
+ * <li>Client hat sich angemeldet</li>
+ * <li>Client hat sich abgemeldet</li>
+ * </ul>
+ * <p>
  * Author: Timm Herrmann<br/>
  * Date: 23.06.14
  */
 @SimonRemote(value = {ServerInterface.class, SessionInterface.class})
 public class DurakServerService
+        extends Observable
         implements ServerInterface,
                    SessionInterface {
 
@@ -38,7 +49,7 @@ public class DurakServerService
     /** Server des Passworts */
     private String password;
 
-    public DurakServerService(String password) {
+    DurakServerService(String password) {
         setPassword(password);
     }
 
@@ -69,8 +80,10 @@ public class DurakServerService
                 }
             }
         } else {
-            // Nein, also mit Passwortpruefung registrieren
-            return registerNewClient(callable, client, password);
+            if (callable != null) {
+                // Nein, also mit Passwortpruefung registrieren
+                return registerNewClient(callable, client, password);
+            }
         }
 
         // Die Methode muss schon vorher mal true zurueckgeben, ansonsten wurde der Benutzer nie
@@ -95,13 +108,18 @@ public class DurakServerService
     private boolean registerNewClient(Callable callable, ClientDto client, String password) {
         boolean loggedIn = false;
 
-        if (StringUtils.stringsAreSame(password, this.password)) {
+        // Passwort muss stimmen und Callable-Objekt darf nicht null sein
+        if (StringUtils.stringsAreSame(password, this.password) && (callable != null)) {
             // ID generieren und Client neu registrieren
             UUID clientUUID = UUID.randomUUID();
             clientMap.put(clientUUID, callable);
 
             client.setUuid(clientUUID.toString());
             loggedIn = true;
+
+            // Observer informieren
+            this.setChanged();
+            this.notifyObservers(new DurakServiceEvent(DurakServiceEventType.CLIENT_LOGIN, client));
         }
 
         return loggedIn;
@@ -113,18 +131,24 @@ public class DurakServerService
             List<UUID> idsToRemove = new ArrayList<>();
             for (Map.Entry<UUID, Callable> entry : clientMap.entrySet()) {
                 try {
+                    UUID uuid = entry.getKey();
                     if (callable.equals(entry.getValue())) {
-                        idsToRemove.add(entry.getKey());
+                        idsToRemove.add(uuid);
                     }
                 } catch (SimonRemoteException ex) {
-                    final String message = "Remote Object could not properly be processed and "
-                                           + "will be disconnected from server.";
+                    final String message = "Remote Object could not properly be processed and " +
+                                           "will be disconnected from server.";
                     LOGGER.info(message + " " + ex.getMessage());
                     LOGGER.log(Level.FINE, "", ex);
                 }
             }
 
-            clientMap.remove(idsToRemove);
+            for (UUID uuid : idsToRemove) {
+                clientMap.remove(uuid);
+            }
+            // Observer informieren
+            this.setChanged();
+            this.notifyObservers(new DurakServiceEvent(DurakServiceEventType.CLIENT_LOGOUT, idsToRemove));
             // Hier koennte man noch alle Clients benachrichtigen
         }
     }

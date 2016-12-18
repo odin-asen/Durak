@@ -5,8 +5,9 @@ import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.game.Player;
 import com.github.odinasen.durak.business.game.Spectator;
 import com.github.odinasen.durak.business.network.ClientMessageType;
-import com.github.odinasen.durak.business.network.DurakServerService;
 import com.github.odinasen.durak.business.network.SIMONConfiguration;
+import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
+import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
@@ -18,7 +19,12 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.logging.Logger;
+
+import static com.github.odinasen.durak.business.network.server.event.DurakServiceEvent
+        .DurakServiceEventType;
 
 /**
  * Das ist der Spieleserver. Er verwaltet ein laufendes Spiel und wertet Aktionen aus, um Sie dann
@@ -29,7 +35,8 @@ import java.util.logging.Logger;
  * Author: Timm Herrmann<br/>
  * Date: 21.06.14
  */
-public class GameServer {
+public class GameServer
+        implements Observer {
     private static final Logger LOGGER = LoggingUtility.getLogger(GameServer.class.getName());
 
     /**
@@ -44,6 +51,11 @@ public class GameServer {
     private List<Spectator> spectators;
 
     /**
+     * Indikator, ob ein Spiel laueft oder nicht.
+     */
+    private boolean gameIsRunning;
+
+    /**
      * Ist das Singleton-Objekt der Klasse.
      */
     private static GameServer instance;
@@ -56,6 +68,7 @@ public class GameServer {
     private GameServer() {
         this.players = new ArrayList<>(6);
         this.spectators = new ArrayList<>(0);
+        this.gameIsRunning = false;
     }
 
     public static GameServer getInstance() {
@@ -94,7 +107,10 @@ public class GameServer {
      *         Als Exception-Attribut wird "port" gesetzt.
      */
     public void startServer(int port, String password) throws SystemException {
-        serverService = new DurakServerService(password);
+        this.serverService = new DurakServerService(password);
+        // Wichtig, ansonsten kommen keine Infos im Server an, von Clients, die den SIMON-Service
+        // verwenden wegen An- und Abmeldung
+        this.serverService.addObserver(this);
 
         try {
             this.registry = Simon.createRegistry(port);
@@ -116,7 +132,7 @@ public class GameServer {
 
     /** Startet das Spiel. */
     public void startGame() {
-
+        this.gameIsRunning = true;
     }
 
     /** Stoppt den laufenden Server. Laueft ein Spiel, wird dieses auch geschlossen. */
@@ -136,7 +152,27 @@ public class GameServer {
 
     /** Stoppt ein laufendes Spiel. */
     public void stopGame() {
+        this.gameIsRunning = false;
+    }
 
+    /**
+     * Fuegt einen Client zum Spiel als Spieler oder Beobachter hinzu. Je nach dem, ob das Spiel
+     * bereits laueft oder nicht. Es kann auch sein, dass ein Client gar nicht hinzugefuegt wird.
+     *
+     * @param client
+     *         Der Client, entweder als Spieler oder Zuschauer hinzugefuegt werden soll.
+     */
+    public synchronized void addClient(ClientDto client) {
+        // Darf nur etwas gemacht werden, wenn der Server auch laeuft
+        if (isRunning()) {
+            // Hat das Spiel begonnen oder gibt es mehr als 5 Spieler?
+            if (this.gameIsRunning || (this.players.size() > 5)) {
+                // Ja
+                this.spectators.add(new Spectator(client));
+            } else {
+                this.players.add(new Player(client));
+            }
+        }
     }
 
     /**
@@ -197,5 +233,86 @@ public class GameServer {
     /** Setzt das Serverpasswort. */
     public void setPassword(String password) {
         this.serverService.setPassword(password);
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public List<Spectator> getSpectators() {
+        return spectators;
+    }
+
+    /**
+     * Update-Methode aus dem Observable-Pattern. Wird aufgerufen, wenn einer der registrierten
+     * Observable-Objekte die notify-Methode aufruft.
+     *
+     * @param observable
+     *         ist das Observable-Objekt, dass die notify-Methode aufgerufen hat.
+     * @param o
+     *         Ein zusatzliches Informations-Objekt fuer weitere verarbeiten.
+     */
+    @Override
+    public void update(Observable observable, Object o) {
+        if (o instanceof DurakServiceEvent) {
+            DurakServiceEvent event = (DurakServiceEvent) o;
+
+            new ObservableEventHandler(event).handleEvent();
+        }
+    }
+
+    class ObservableEventHandler {
+        private DurakServiceEvent event;
+
+        ObservableEventHandler(DurakServiceEvent event) {
+            this.event = event;
+        }
+
+        void handleEvent() {
+            DurakServiceEventType type = event.getEventType();
+            if (DurakServiceEventType.CLIENT_LOGIN.equals(type)) {
+                handleClientLogin();
+            } else {
+                handleClientLogout();
+            }
+        }
+
+        private void handleClientLogout() {
+            Object eventObject = event.getEventObject();
+            if (eventObject instanceof List) {
+                List idList = (List)eventObject;
+
+                // Clients aus dem Server entfernen, ggflls. Spiel beenden und andere Spieler
+                // informieren
+                //GameServer.this.removeClients(clients);
+            } else {
+                if (eventObject != null) {
+                    LOGGER.severe(
+                            "Internal mismatch of event object type. Expected " + ClientDto.class
+                            + " but found " + eventObject
+                                    .getClass());
+                } else {
+                    LOGGER.severe("Sent log in event without user information.");
+                }
+            }
+        }
+
+        private void handleClientLogin() {
+            Object eventObject = event.getEventObject();
+            if (eventObject instanceof ClientDto) {
+                ClientDto client = (ClientDto) eventObject;
+                // Client in die Liste hinzufuegen. Server regelt das selbst.
+                GameServer.this.addClient(client);
+            } else {
+                if (eventObject != null) {
+                    LOGGER.severe(
+                            "Internal mismatch of event object type. Expected " + ClientDto.class
+                            + " but found " + eventObject
+                                    .getClass());
+                } else {
+                    LOGGER.severe("Sent log in event without user information.");
+                }
+            }
+        }
     }
 }

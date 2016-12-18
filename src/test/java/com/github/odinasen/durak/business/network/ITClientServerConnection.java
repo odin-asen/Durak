@@ -74,6 +74,22 @@ public class ITClientServerConnection {
         Assert.assertTrue(connected);
     }
 
+    @Test
+    public void disconnectServer() throws Exception {
+        boolean connected = this.client.connect("localhost", this.testPort, "",
+                                                createNewClientDto("Horst"));
+        Assert.assertTrue(connected);
+
+        int playerCount = this.server.getPlayers().size();
+        Assert.assertEquals(1, playerCount);
+
+        this.server.stopServer();
+        playerCount = this.server.getPlayers().size();
+        Assert.assertEquals(0, playerCount);
+        int spectatorCount = this.server.getSpectators().size();
+        Assert.assertEquals(0, spectatorCount);
+    }
+
     private ClientDto createNewClientDto(String clientName) {
         UUID clientID = UUID.randomUUID();
         return new ClientDto(clientID.toString(), clientName);
