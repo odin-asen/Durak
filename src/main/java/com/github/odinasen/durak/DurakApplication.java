@@ -80,6 +80,7 @@ public class DurakApplication extends Application implements Observer {
 
                 /* JavaFX Anwendung beenden */
                 Platform.exit();
+                System.exit(0);
             }
         });
     }

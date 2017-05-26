@@ -1,5 +1,6 @@
 package com.github.odinasen.durak.business.network.server;
 
+import com.github.odinasen.durak.business.ExtendedObservable;
 import com.github.odinasen.durak.business.game.GameAction;
 import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
 import com.github.odinasen.durak.business.network.simon.Callable;
@@ -34,7 +35,7 @@ import static com.github.odinasen.durak.business.network.server.event.DurakServi
  */
 @SimonRemote(value = {ServerInterface.class, SessionInterface.class})
 public class DurakServerService
-        extends Observable
+        extends ExtendedObservable
         implements ServerInterface,
                    SessionInterface {
 
@@ -118,8 +119,7 @@ public class DurakServerService
             loggedIn = true;
 
             // Observer informieren
-            this.setChanged();
-            this.notifyObservers(new DurakServiceEvent(DurakServiceEventType.CLIENT_LOGIN, client));
+            this.setChangedAndUpdate(new DurakServiceEvent<ClientDto>(DurakServiceEventType.CLIENT_LOGIN, client));
         }
 
         return loggedIn;
@@ -146,10 +146,9 @@ public class DurakServerService
             for (UUID uuid : idsToRemove) {
                 clientMap.remove(uuid);
             }
-            // Observer informieren
-            this.setChanged();
-            this.notifyObservers(new DurakServiceEvent(DurakServiceEventType.CLIENT_LOGOUT, idsToRemove));
-            // Hier koennte man noch alle Clients benachrichtigen
+            /* Observer informieren */
+            this.setChangedAndUpdate(new DurakServiceEvent<List<UUID>>(DurakServiceEventType.CLIENT_LOGOUT, idsToRemove));
+            /* Hier koennte man noch alle Clients benachrichtigen */
         }
     }
 

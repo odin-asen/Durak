@@ -2,11 +2,16 @@ package com.github.odinasen.durak.gui.server.model;
 
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.Assert;
-import javafx.beans.property.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
+import javafx.collections.ObservableList;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Model fuer den Server, z.B. angemeldete Benutzer.
@@ -25,7 +30,7 @@ public class GameServerModel {
     /**
      * Set aller Clients
      */
-    private final ObservableSet<SimpleObjectProperty<ClientDto>> clients;
+    private final ObservableList<ClientDto> clients;
 
     /**
      * Ist der Port auf dem der Server laueft.
@@ -47,8 +52,7 @@ public class GameServerModel {
      * und der Port ist {@value #DEFAULT_SERVER_PORT}.
      */
     public GameServerModel() {
-        this.clients = FXCollections.observableSet(new HashSet<SimpleObjectProperty<ClientDto>>(
-                INITIAL_CLIENTS));
+        this.clients = FXCollections.observableArrayList(new ArrayList<ClientDto>(INITIAL_CLIENTS));
         this.password = new SimpleStringProperty("");
         this.port = new SimpleIntegerProperty(DEFAULT_SERVER_PORT);
     }
@@ -59,7 +63,7 @@ public class GameServerModel {
     /**
      * @return ein Iterator von {@link #clients}.
      */
-    public ObservableSet<SimpleObjectProperty<ClientDto>> getClients() {
+    public ObservableList<ClientDto> getClients() {
         return this.clients;
     }
 
@@ -72,7 +76,7 @@ public class GameServerModel {
     public void addClient(ClientDto client) {
         Assert.assertNotNull(client);
         //----------------------------------------------------------------------------------------------
-        this.clients.add(new SimpleObjectProperty<ClientDto>(client));
+        this.clients.add(client);
     }
 
     /**
@@ -108,5 +112,23 @@ public class GameServerModel {
 
     public void removeAllClients() {
         this.clients.clear();
+    }
+
+    /**
+     * Loescht mehrere Benutzer aus der Liste anhand der UUIDs.
+     * @param logoutIds Eine Liste mit UUID als Generic Type
+     */
+    public void removeClients(List<?> logoutIds) {
+        if (logoutIds != null) {
+            List<ClientDto> clientsToRemove = new ArrayList<>(logoutIds.size());
+
+            for (ClientDto clientDto : this.clients) {
+                if (logoutIds.contains(UUID.fromString(clientDto.getUuid()))) {
+                    clientsToRemove.add(clientDto);
+                }
+            }
+
+            this.clients.removeAll(clientsToRemove);
+        }
     }
 }

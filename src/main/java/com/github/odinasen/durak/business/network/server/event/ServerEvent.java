@@ -15,5 +15,5 @@ public interface ServerEvent<T> {
     /**
      * @return Liefert das Event-Objekt.
      */
-    Object getEventObject();
+    T getEventObject();
 }

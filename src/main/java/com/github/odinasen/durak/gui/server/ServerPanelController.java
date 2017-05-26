@@ -4,6 +4,9 @@ import com.github.odinasen.durak.ApplicationStartParameter;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.server.GameServer;
+import com.github.odinasen.durak.business.network.server.event.DurakEventObjectConsumer;
+import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
+import com.github.odinasen.durak.business.network.server.event.DurakServiceEventHandler;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.gui.MainGUIController;
@@ -15,20 +18,14 @@ import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
-import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -37,13 +34,16 @@ import java.util.logging.Logger;
  * Date: 06.01.14
  */
 public class ServerPanelController
-        extends JavaFXController {
+        extends JavaFXController
+        implements Observer {
     private static final Logger LOGGER = LoggingUtility.getLogger(ServerPanelController.class);
 
     private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying "
                                                                 + "to" + " launch a game!";
 
     private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
+
+    private DurakServiceEventHandler eventHandler;
 
     @FXML
     private GridPane serverConfigPanel;
@@ -66,17 +66,27 @@ public class ServerPanelController
      */
     private GameServerModel gameServerModel;
 
-    //================================================================================================
+    //==============================================================================================
     // Constructors
 
     public ServerPanelController() {
         super(FXMLNames.SERVER_PANEL,
               ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
         this.gameServerModel = new GameServerModel();
+
+        initEventHandler();
     }
 
-    //================================================================================================
+    //==============================================================================================
     // Methods
+
+    private void initEventHandler() {
+        this.eventHandler = new DurakServiceEventHandler();
+        eventHandler.registerEventFunction(DurakServiceEvent.DurakServiceEventType.CLIENT_LOGIN,
+                                           new ClientLoginHandler());
+        eventHandler.registerEventFunction(DurakServiceEvent.DurakServiceEventType.CLIENT_LOGOUT,
+                                           new ClientLogoutHandler());
+    }
 
     @Override
     protected void initializePanel() {
@@ -89,7 +99,10 @@ public class ServerPanelController
                                                               new NumberStringConverter());
         this.fieldPassword.textProperty().bindBidirectional(this.gameServerModel.getPassword());
 
-        // Wenn das Panel angezeigt wird, wird es initialisiert mit Startparametern
+        /* Controller als Observer registrieren, um eingehende Events zu erhalten */
+        GameServer.getInstance().addObserver(this);
+
+        /* Wenn das Panel angezeigt wird, wird es initialisiert mit Startparametern */
         initByStartParameters();
     }
 
@@ -120,17 +133,19 @@ public class ServerPanelController
 
     private void initListView() {
         listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        listLoggedClients.setCellFactory(new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
+        /*listLoggedClients.setCellFactory(new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
             @Override
             public ListCell<ClientDto> call(ListView<ClientDto> listView) {
                 return new ClientListCell(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        removeSelectedClients();
+                        //removeSelectedClients();
                     }
                 });
             }
         });
+*/
+        listLoggedClients.setItems(this.gameServerModel.getClients());
     }
 
     /**
@@ -143,10 +158,10 @@ public class ServerPanelController
 
         String serverStatus;
 
-        // Laueft der Server?
+        /* Laueft der Server? */
         if (this.isServerRunning()) {
 
-            // Ja, also Server stoppen
+            /* Ja, also Server stoppen */
             if (this.gameServerModel.isGameRunning()) {
                 DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
                 this.stopGame();
@@ -156,15 +171,15 @@ public class ServerPanelController
             serverStatus = "Server wurde angehalten!";
         } else {
 
-            // Nein, also Server starten
+            /* Nein, also Server starten */
             try {
                 this.startServer();
                 serverStatus = "Server läuft!";
 
-                // Eingabeelemente ausgrauen
+                /* Eingabeelemente ausgrauen */
                 this.enableInputElements();
             } catch (SystemException e) {
-                // Fehlerpopup, da der Server nicht gestartet werden konnte
+                /* Fehlerpopup, da der Server nicht gestartet werden konnte */
                 DialogPopupFactory.getFactory().showErrorPopup(mainWindow,
                                                                e.getMessage(),
                                                                DialogPopupFactory.LOCATION_CENTRE,
@@ -207,7 +222,7 @@ public class ServerPanelController
                                         "Das Spiel wurde beendet!");
         } else {
             if (!startGame()) {
-                // Fehlerpopup, da das Spiel nicht gestartet werden konnte
+                /* Fehlerpopup, da das Spiel nicht gestartet werden konnte */
                 DialogPopupFactory.getFactory().showErrorPopup(mainWindow,
                                                                GAME_NOT_STARTED_MESSAGE,
                                                                DialogPopupFactory.LOCATION_CENTRE,
@@ -229,7 +244,7 @@ public class ServerPanelController
         Collections.addAll(cards, InitialCard.values());
         boxInitialCards.setValue(cards.get(0));
 
-        // Nicht editierbares Feld initialisieren
+        /* Nicht editierbares Feld initialisieren */
         labelInitialCards = new Label();
         copyHeightsAndWidths(boxInitialCards, labelInitialCards);
         GridPane.setMargin(labelInitialCards, GridPane.getMargin(boxInitialCards));
@@ -317,14 +332,14 @@ public class ServerPanelController
      * @see com.github.odinasen.durak.business.network.server.GameServer#startServer(int)
      */
     private void startServer() throws SystemException {
-        // Server starten
+        /* Server starten */
         GameServer server = GameServer.getInstance();
 
-        // Der Port wird ueber Databinding im Textfeld gesetzt
+        /* Der Port wird ueber Databinding im Textfeld gesetzt */
         server.startServer(this.gameServerModel.getPort().getValue(),
                            this.gameServerModel.getPassword().getValue());
 
-        // GUI veraendern
+        /* GUI veraendern */
         fieldServerPort.setEditable(false);
         this.changeServerButton("tooltip.stop.server");
         buttonLaunchGame.setVisible(true);
@@ -344,13 +359,13 @@ public class ServerPanelController
      * Komponenten der Oberflaeche an.
      */
     private void stopServer() {
-        // Clients benachrichtigen
+        /* Clients benachrichtigen */
         GameServer.getInstance().sendClientMessage(ClientMessageType.SERVER_SHUTDOWN);
 
-        // Server stoppen
+        /* Server stoppen */
         GameServer.getInstance().stopServer();
 
-        // GUI anpassen
+        /* GUI anpassen */
         this.buttonLaunchGame.setVisible(false);
         this.changeServerButton("tooltip.server.start.server");
         this.fieldServerPort.setEditable(true);
@@ -409,5 +424,48 @@ public class ServerPanelController
 
     public boolean isServerRunning() {
         return GameServer.getInstance().isRunning();
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        if (o instanceof DurakServiceEvent) {
+            DurakServiceEvent event = (DurakServiceEvent) o;
+            eventHandler.handleEvent(event);
+        }
+    }
+
+    /**
+     * Handler fuer Clients, die sich einloggen.
+     */
+    class ClientLoginHandler
+            extends DurakEventObjectConsumer<ClientDto> {
+
+        public ClientLoginHandler() {
+            super(ClientDto.class);
+        }
+
+        @Override
+        public void accept(DurakServiceEvent<ClientDto> event) {
+            ClientDto client = event.getEventObject();
+
+            ServerPanelController.this.gameServerModel.addClient(client);
+        }
+    }
+
+    /**
+     * Handler fuer Clients, die sich ausloggen.
+     */
+    class ClientLogoutHandler
+            extends DurakEventObjectConsumer<List> {
+        public ClientLogoutHandler() {
+            super(List.class);
+        }
+
+        @Override
+        public void accept(DurakServiceEvent<List> event) {
+            List logoutIds = event.getEventObject();
+
+            ServerPanelController.this.gameServerModel.removeClients(logoutIds);
+        }
     }
 }

@@ -1,13 +1,13 @@
 package com.github.odinasen.durak.business.network.server.event;
 
 /**
- * Event Enumerations fuer {@link DurakServiceEvent}
+ * Event Enumerations fuer {@link com.github.odinasen.durak.business.network.server.DurakServerService}
  * <p/>
  * Author: Timm Herrmann
  * Date: 18.12.2016
  */
-public class DurakServiceEvent
-        implements ServerEvent {
+public class DurakServiceEvent<T>
+        implements ServerEvent<T> {
 
     public enum DurakServiceEventType {
         /**
@@ -23,9 +23,9 @@ public class DurakServiceEvent
     }
 
     private DurakServiceEventType eventType;
-    private Object eventObject;
+    private T eventObject;
 
-    public DurakServiceEvent(DurakServiceEventType eventType, Object eventObject) {
+    public DurakServiceEvent(DurakServiceEventType eventType, T eventObject) {
         this.eventType = eventType;
         this.eventObject = eventObject;
     }
@@ -36,7 +36,7 @@ public class DurakServiceEvent
     }
 
     @Override
-    public Object getEventObject() {
+    public T getEventObject() {
         return this.eventObject;
     }
 }
