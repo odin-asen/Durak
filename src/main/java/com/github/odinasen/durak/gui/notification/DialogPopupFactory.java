@@ -222,12 +222,10 @@ public class DialogPopupFactory {
         @Override
         public void run() {
             pause(timeInMillis);
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    if (window.isShowing())
+            Platform.runLater(() -> {
+                    if (window.isShowing()) {
                         window.hide();
-                }
+                    }
             });
         }
     }

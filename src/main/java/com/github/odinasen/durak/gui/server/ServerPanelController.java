@@ -17,6 +17,7 @@ import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -448,7 +449,7 @@ public class ServerPanelController
         public void accept(DurakServiceEvent<ClientDto> event) {
             ClientDto client = event.getEventObject();
 
-            ServerPanelController.this.gameServerModel.addClient(client);
+            Platform.runLater(() -> ServerPanelController.this.gameServerModel.addClient(client));
         }
     }
 
@@ -465,7 +466,7 @@ public class ServerPanelController
         public void accept(DurakServiceEvent<List> event) {
             List logoutIds = event.getEventObject();
 
-            ServerPanelController.this.gameServerModel.removeClients(logoutIds);
+            Platform.runLater(() -> ServerPanelController.this.gameServerModel.removeClients(logoutIds));
         }
     }
 }

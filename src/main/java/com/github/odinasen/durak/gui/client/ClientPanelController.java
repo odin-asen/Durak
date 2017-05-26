@@ -232,12 +232,7 @@ public class ClientPanelController
                 String clientStatus = I18nSupport.getValue(BundleStrings.USER_MESSAGES, "status.has.been.disconnected");
                 MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, clientStatus);
 
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        ClientPanelController.this.setConnected(false);
-                    }
-                });
+                Platform.runLater(() -> ClientPanelController.this.setConnected(false));
             }
         }
     }

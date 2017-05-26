@@ -70,12 +70,7 @@ public class MainGUIController {
     }
 
     public static void setStatus(StatusType type, final String status) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                mainController.leftStatus.setText(status);
-            }
-        });
+        Platform.runLater(() -> mainController.leftStatus.setText(status));
     }
 
     /**
