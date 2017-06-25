@@ -15,6 +15,7 @@ import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.resources.ResourceGetter;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -57,8 +58,6 @@ public class ClientPanelController
 
     private ClientPanelModel clientModel;
 
-    private boolean connected;
-
     private Window mainWindow;
 
     public ClientPanelController() {
@@ -68,7 +67,7 @@ public class ClientPanelController
 
     @Override
     protected void initializePanel() {
-        setupConnectionButton(false);
+        this.updateConnectDisconnectButton(false);
         this.fieldLoginName.textProperty().bindBidirectional(this.clientModel.getNickname());
         this.fieldPassword.textProperty().bindBidirectional(this.clientModel.getPassword());
         this.fieldServerAddress.textProperty().bindBidirectional(this.clientModel.getServerAddress());
@@ -119,31 +118,40 @@ public class ClientPanelController
         String clientStatus = null;
         final GameClient gameClient = GameClient.getInstance();
 
-        try {
-            ClientDto clientDto = new ClientDto(UUID.randomUUID().toString(),
-                                                this.clientModel.getNickname().getValue());
-            boolean connected = gameClient.reconnect(this.clientModel.getServerAddress().getValue(),
-                                                     this.clientModel.getPort().getValue(),
-                                                     this.clientModel.getPassword().getValue(),
-                                                     clientDto);
-            if (connected) {
-                clientStatus = I18nSupport.getValue(BundleStrings.USER_MESSAGES, "status.connected");
-                LOGGER.fine("Logged successfully in");
-                setConnected(true);
-            } else {
-                clientStatus = I18nSupport.getValue(BundleStrings.USER_MESSAGES, "status.connection.failed");
-                setConnected(false);
-            }
-        } catch (SystemException e) {
-            final String message = e.getMessage();
-            if (e.getErrorCode() == GameClientCode.SERVER_NOT_FOUND) {
-                LOGGER.info("Connect action failed: Server not found");
-            } else if (e.getErrorCode() == GameClientCode.SERVICE_NOT_FOUND) {
-                LOGGER.info("Connect action failed: Service not defined");
-            }
-            DialogPopupFactory.getFactory()
-                              .showErrorPopup(mainWindow, e.getMessage(), DialogPopupFactory.LOCATION_CENTRE, 8.0);
+        /* Besteht eine Verbindung zum Server? */
+        if (this.isConnected()) {
+            /* Ja, Verbindung besteht */
+            gameClient.disconnect();
+            this.setConnected(false);
+            clientStatus = I18nSupport.getValue(BundleStrings.USER_MESSAGES, "status.has.been.disconnected");
+        } else {
+            boolean connected = false;
+            try {
+                ClientDto clientDto = new ClientDto(UUID.randomUUID().toString(),
+                                                    this.clientModel.getNickname().getValue());
 
+                connected = gameClient.reconnect(this.clientModel.getServerAddress().getValue(),
+                                                         this.clientModel.getPort().getValue(),
+                                                         this.clientModel.getPassword().getValue(),
+                                                         clientDto);
+            } catch (SystemException e) {
+                if (e.getErrorCode() == GameClientCode.SERVER_NOT_FOUND) {
+                    LOGGER.info("Connect action failed: Server not found");
+                } else if (e.getErrorCode() == GameClientCode.SERVICE_NOT_FOUND) {
+                    LOGGER.info("Connect action failed: Service not defined");
+                }
+                DialogPopupFactory.getFactory()
+                                  .showErrorPopup(mainWindow, e.getErrorCode(),
+                                                  DialogPopupFactory.LOCATION_CENTRE, 8.0);
+            } finally {
+                if (connected) {
+                    clientStatus = I18nSupport.getValue(BundleStrings.USER_MESSAGES, "status.connected");
+                    LOGGER.fine("Successfully logged in");
+                } else {
+                    clientStatus = I18nSupport.getValue(BundleStrings.USER_MESSAGES, "status.connection.failed");
+                }
+                setConnected(connected);
+            }
         }
 
         // Hat diese Aktion einen Client-Status produziert?
@@ -178,42 +186,53 @@ public class ClientPanelController
     }
 
     public boolean isConnected() {
-        return connected;
-    }
-
-    public void setConnected(boolean connected) {
-        /* Button anpassen, wenn sich der Wert veraendert hat */
-        if (this.connected != connected) {
-            setupConnectionButton(connected);
-        }
-        this.connected = connected;
+        return this.clientModel.isConnectedToServer();
     }
 
     /**
-     * Veraendert den Connection Button in Abhaengigkeit des Verbindungsstatus.
+     * Diese Methode muss in einem JavaFX Thread aufgerufen werden, da je nach Zustand der
+     * Verbindung der Verbindungsbutton verändert wird. (siehe javafx.application.Platform)
      * @param connected
-     *  true - Eine Verbindung besteht, Connection Button wird zum "Verbindung trennen"-Button<br/>
-     *  false - Keine Verbindung aufgebaut, Connection Button wird zum "Verbindung aufbauen"-Button
      */
-    private void setupConnectionButton(boolean connected) {
+    public void setConnected(boolean connected) {
+        /* Hat sich die Verbindungseinstellung geaendert? */
+        if (connected != isConnected()) {
+           this.updateConnectDisconnectButton(connected);
+        }
+
+        this.clientModel.setConnectedToServer(connected);
+    }
+
+    /**
+     * Verbindungsbutton an Verbindungsstatus anpassen.
+     * @param connected true - Button wird zum "Verbindung trennen"-Button<br/>
+     *                  false - Button wird zum "Verbindung aufbauen"-Button
+     */
+    private void updateConnectDisconnectButton(boolean connected) {
         if (connected) {
-            changeButton(this.buttonConnectDisconnect, "toolbar.network.close", "tooltip.client.disconnect.to.server");
+            this.changeButton(this.buttonConnectDisconnect,
+                         "toolbar.client.disconnect.from.server",
+                         "tooltip.client.disconnect.from.server");
         } else {
-            changeButton(this.buttonConnectDisconnect, "toolbar.client.connect.to.server", "tooltip.client.connect.to.server");
+            this.changeButton(this.buttonConnectDisconnect,
+                              "toolbar.client.connect.to.server",
+                              "tooltip.client.connect.to.server");
         }
     }
+
     /**
      * Update fuer GameClient-Meldungen
      */
     @Override
     public void update(Observable o, Object arg) {
-        /* Prueft die aktuellen Einstellungen des GameClients und aktualisiert die eigenen Werte */
+        // Prueft die aktuellen Einstellungen des GameClients und aktualisiert die eigenen Werte
         if (o instanceof GameClient) {
             GameClient client = (GameClient) o;
             if (this.isConnected() && !client.isConnected()) {
                 String clientStatus = I18nSupport.getValue(BundleStrings.USER_MESSAGES, "status.has.been.disconnected");
                 MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT, clientStatus);
-                this.setConnected(false);
+
+                Platform.runLater(() -> ClientPanelController.this.setConnected(false));
             }
         }
     }

@@ -1,25 +1,23 @@
 package com.github.odinasen.durak.business.network.client;
 
-import com.github.odinasen.durak.business.network.ClientMessageType;
-import com.github.odinasen.durak.business.network.SIMONConfiguration;
-import com.github.odinasen.durak.business.network.server.GameServer;
-import com.github.odinasen.durak.util.LoggingUtility;
+import com.github.odinasen.durak.business.ExtendedObservable;
 import com.github.odinasen.durak.business.exception.GameClientCode;
 import com.github.odinasen.durak.business.exception.SystemException;
+import com.github.odinasen.durak.business.network.ClientMessageType;
+import com.github.odinasen.durak.business.network.SIMONConfiguration;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.i18n.I18nSupport;
+import com.github.odinasen.durak.util.LoggingUtility;
 import de.root1.simon.ClosedListener;
 import de.root1.simon.Lookup;
-import de.root1.simon.Registry;
 import de.root1.simon.Simon;
 import de.root1.simon.annotation.SimonRemote;
 import de.root1.simon.exceptions.EstablishConnectionFailed;
 import de.root1.simon.exceptions.LookupFailedException;
 
 import java.net.UnknownHostException;
-import java.util.Observable;
 import java.util.logging.Logger;
 
 import static com.github.odinasen.durak.i18n.BundleStrings.USER_MESSAGES;
@@ -32,7 +30,8 @@ import static com.github.odinasen.durak.i18n.BundleStrings.USER_MESSAGES;
  * Date: 06.01.14
  */
 @SuppressWarnings("UnusedDeclaration")
-public class GameClient extends Observable
+public class GameClient
+        extends ExtendedObservable
         implements ClosedListener {
 
     private static final Logger LOGGER = LoggingUtility.getLogger(GameClient.class.getName());
@@ -159,8 +158,7 @@ public class GameClient extends Observable
             nameLookup.release(server);
             LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Lost server connection");
             connected = false;
-            this.setChanged();
-            this.notifyObservers();
+            this.setChangedAndUpdate();
         }
     }
 

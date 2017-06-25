@@ -1,7 +1,9 @@
 package com.github.odinasen.durak.gui.notification;
 
-import com.github.odinasen.durak.util.LoggingUtility;
+import com.github.odinasen.durak.business.exception.ErrorCode;
 import com.github.odinasen.durak.gui.notification.dialog.message.MessageDialog;
+import com.github.odinasen.durak.i18n.I18nSupport;
+import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -141,6 +143,11 @@ public class DialogPopupFactory {
         }
     }
 
+    public void showErrorPopup(Window parentWindow, ErrorCode errorCode,
+                               int popupLocation, double openSeconds) {
+        String message = I18nSupport.getException(errorCode);
+        this.showErrorPopup(parentWindow, message, popupLocation, openSeconds);
+    }
     private Tooltip createStandardTooltip(String message) {
         final Tooltip tooltip = new Tooltip(message);
         tooltip.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
@@ -215,12 +222,10 @@ public class DialogPopupFactory {
         @Override
         public void run() {
             pause(timeInMillis);
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    if (window.isShowing())
+            Platform.runLater(() -> {
+                    if (window.isShowing()) {
                         window.hide();
-                }
+                    }
             });
         }
     }

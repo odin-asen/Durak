@@ -1,11 +1,13 @@
 package com.github.odinasen.durak;
 
+import com.github.odinasen.durak.business.network.client.GameClient;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.resources.ResourceGetter;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -62,10 +64,23 @@ public class DurakApplication extends Application implements Observer {
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent windowEvent) {
-                // Server stoppen
-                GameServer server = GameServer.getInstance();
-                if (server.isRunning())
-                    server.stopServer();
+                try {
+                    /* Client zuerst stoppen */
+                    GameClient.getInstance().disconnect();
+                } catch (Exception ex) {
+                    LOGGER.info("Exception on closing connection to a server");
+                }
+
+                try {
+                    /* Dann Server stoppen */
+                    GameServer.getInstance().stopServer();
+                } catch (Exception ex) {
+                    LOGGER.info("Exception on stopping server");
+                }
+
+                /* JavaFX Anwendung beenden */
+                Platform.exit();
+                System.exit(0);
             }
         });
     }

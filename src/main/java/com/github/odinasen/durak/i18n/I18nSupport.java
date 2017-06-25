@@ -1,7 +1,7 @@
 package com.github.odinasen.durak.i18n;
 
-import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.business.exception.ErrorCode;
+import com.github.odinasen.durak.util.LoggingUtility;
 
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
@@ -29,7 +29,7 @@ public class I18nSupport {
    */
   public static String getException(ErrorCode errorCode, Object... params) {
     final String className = errorCode.getClass().getSimpleName();
-    final String key = className + "." + errorCode;
+    final String key = "" + errorCode.getNumber();
     final String bundleName = EXCEPTIONS_DIR + className;
     try {
       return getBundle(bundleName).getString(key);

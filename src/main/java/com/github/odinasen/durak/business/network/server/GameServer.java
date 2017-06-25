@@ -1,11 +1,18 @@
 package com.github.odinasen.durak.business.network.server;
 
+import com.github.odinasen.durak.business.ExtendedObservable;
 import com.github.odinasen.durak.business.exception.GameServerCode;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.game.Player;
 import com.github.odinasen.durak.business.game.Spectator;
-import com.github.odinasen.durak.business.network.*;
+import com.github.odinasen.durak.business.network.ClientMessageType;
+import com.github.odinasen.durak.business.network.SIMONConfiguration;
+import com.github.odinasen.durak.business.network.server.event.DurakEventObjectConsumer;
+import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
+import com.github.odinasen.durak.business.network.server.event.DurakServiceEventHandler;
+import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.i18n.I18nSupport;
+import com.github.odinasen.durak.model.ServerUserModel;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
 import de.root1.simon.Registry;
@@ -14,35 +21,44 @@ import de.root1.simon.exceptions.NameBindingException;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Logger;
 
+import static com.github.odinasen.durak.business.network.server.event.DurakServiceEvent
+        .DurakServiceEventType;
+
 /**
  * Das ist der Spieleserver. Er verwaltet ein laufendes Spiel und wertet Aktionen aus, um Sie dann
  * allen Spielern zu kommunizieren.<br/>
  * Methoden werden über ein Singleton-Objekt aufgerufen.<br/>
- * Standardmaessig laueft der Server auf Port 10000.
+ * Standardmaessig laueft der Server auf Port 10000.<br/>
+ *
+ * Die Klasse erbt von {@link java.util.Observable} und meldet allen registrierten
+ * {@link java.util.Observer} eine Veraenderung mit {@link DurakServiceEvent} als Informationsobjekt.
  * <p/>
  * Author: Timm Herrmann<br/>
  * Date: 21.06.14
  */
 public class GameServer
+        extends ExtendedObservable
         implements Observer {
     private static final Logger LOGGER = LoggingUtility.getLogger(GameServer.class.getName());
+
+    private DurakServiceEventHandler eventHandler;
 
     /**
      * Objekt, das alle Service-Methoden fuer den Durakserver enthaelt.
      */
     private DurakServerService serverService;
 
-    /** Liste aller Spieler im Server */
-    private List<Player> players;
+    private ServerUserModel userModel;
 
-    /** Liste aller Beobachter im Server */
-    private List<Spectator> spectators;
+    /**
+     * Indikator, ob ein Spiel laueft oder nicht.
+     */
+    private boolean gameIsRunning;
 
     /**
      * Ist das Singleton-Objekt der Klasse.
@@ -55,8 +71,12 @@ public class GameServer
     private Registry registry;
 
     private GameServer() {
-        this.players = new ArrayList<>(6);
-        this.spectators = new ArrayList<>(0);
+        this.userModel = new ServerUserModel();
+        this.gameIsRunning = false;
+
+        this.eventHandler = new DurakServiceEventHandler();
+        this.eventHandler.registerEventFunction(DurakServiceEventType.CLIENT_LOGIN, new ClientLoginHandler());
+        this.eventHandler.registerEventFunction(DurakServiceEventType.CLIENT_LOGOUT, new ClientLogoutHandler());
     }
 
     public static GameServer getInstance() {
@@ -95,7 +115,10 @@ public class GameServer
      *         Als Exception-Attribut wird "port" gesetzt.
      */
     public void startServer(int port, String password) throws SystemException {
-        serverService = new DurakServerService(password);
+        this.serverService = new DurakServerService(password);
+        // Wichtig, ansonsten kommen keine Infos im Server an, von Clients, die den SIMON-Service
+        // verwenden wegen An- und Abmeldung
+        this.serverService.addObserver(this);
 
         try {
             this.registry = Simon.createRegistry(port);
@@ -117,7 +140,7 @@ public class GameServer
 
     /** Startet das Spiel. */
     public void startGame() {
-
+        this.gameIsRunning = true;
     }
 
     /** Stoppt den laufenden Server. Laueft ein Spiel, wird dieses auch geschlossen. */
@@ -137,7 +160,28 @@ public class GameServer
 
     /** Stoppt ein laufendes Spiel. */
     public void stopGame() {
+        this.gameIsRunning = false;
+    }
 
+    /**
+     * Fuegt einen Client zum Spiel als Spieler oder Beobachter hinzu. Je nach dem, ob das Spiel
+     * bereits laueft oder nicht. Es kann auch sein, dass ein Client gar nicht hinzugefuegt wird.
+     *
+     * @param client
+     *         Der Client, entweder als Spieler oder Zuschauer hinzugefuegt werden soll.
+     */
+    public synchronized void addClient(ClientDto client) {
+        // Darf nur etwas gemacht werden, wenn der Server auch laeuft
+        if (isRunning()) {
+            List<Player> players = this.userModel.getPlayers();
+            // Hat das Spiel begonnen oder gibt es mehr als 5 Spieler?
+            if (this.gameIsRunning || (players.size() > 5)) {
+                // Ja
+                this.userModel.getSpectators().add(new Spectator(client));
+            } else {
+                players.add(new Player(client));
+            }
+        }
     }
 
     /**
@@ -146,9 +190,10 @@ public class GameServer
      * @return Die Anzahl der Clients, die entfernt wurden.
      */
     public int removeAllSpectators() {
-        int removed = this.spectators.size();
+        List<Spectator> spectators = this.userModel.getSpectators();
+        int removed = spectators.size();
 
-        this.spectators.clear();
+        spectators.clear();
 
         return removed;
     }
@@ -159,9 +204,10 @@ public class GameServer
      * @return Die Anzahl der Clients, die entfernt wurden.
      */
     public int removeAllPlayers() throws SystemException {
-        int removed = this.players.size();
+        List<Player> players = this.userModel.getPlayers();
+        int removed = players.size();
 
-        this.players.clear();
+        players.clear();
 
         return removed;
     }
@@ -200,33 +246,72 @@ public class GameServer
         this.serverService.setPassword(password);
     }
 
+    public List<Player> getPlayers() {
+        return this.userModel.getPlayers();
+    }
+
+    public List<Spectator> getSpectators() {
+        return this.userModel.getSpectators();
+    }
+
+    /**
+     * Update-Methode aus dem Observable-Pattern. Wird aufgerufen, wenn einer der registrierten
+     * Observable-Objekte die notify-Methode aufruft.
+     *
+     * @param observable
+     *         ist das Observable-Objekt, dass die notify-Methode aufgerufen hat.
+     * @param o
+     *         Ein zusatzliches Informations-Objekt fuer weitere verarbeiten.
+     */
     @Override
-    public void update(Observable o, Object arg) {
-        if (arg instanceof NetworkMessage) {
-            NetworkMessage<ServerMessageType> message = parseNetworkMessage((NetworkMessage<?>)arg, ServerMessageType.USER_LOGIN);
-            if (message != null) {
-                // TODO user aus getMessageObject holen und dann in Liste aufnehmen und an Oberfläche weiterleiten
-            } else {
-                // Nichts machen oder anderen Typ pruefen. Eventuell diesen Teil an einen MessageHandler deligieren
-            }
+    public void update(Observable observable, Object o) {
+        if (o instanceof DurakServiceEvent) {
+            DurakServiceEvent event = (DurakServiceEvent) o;
+
+            this.eventHandler.handleEvent(event);
         }
     }
 
     /**
-     * Prueft, ob ein NetworkMessage-Objekt vom erwarteten Typ ist und gibt dieses dann zurueck. Ist es nicht von dem Typ
-     * wird null zurueckgeliefert.
-     * @param clazz Der erwartete Typ des NetworkMessage-Objekts
-     * @param <T>
-     *     Die Parametrisierung des NetworkMessage-Objekts.
-     * @return Ein NetworkMessage-Objekt vom erwarteten Typ oder null.
+     * Handler fuer Clients, die sich einloggen.
      */
-    private <T extends Enum<?>>NetworkMessage<T> parseNetworkMessage(NetworkMessage<?> networkMessage, T expectedType) {
-        if (networkMessage != null) {
-            if (networkMessage.getMessageTypeClass().equals(expectedType.getClass())) {
-                return (NetworkMessage<T>)networkMessage;
-            }
+    class ClientLoginHandler
+            extends DurakEventObjectConsumer<ClientDto> {
+
+        public ClientLoginHandler() {
+            super(ClientDto.class);
         }
 
-        return null;
+        @Override
+        public void accept(DurakServiceEvent<ClientDto> event) {
+            ClientDto client = event.getEventObject();
+            /* Client in die Liste hinzufuegen. Server regelt das selbst. */
+            GameServer.this.addClient(client);
+
+            /* Observer informieren */
+            GameServer.this.setChangedAndUpdate(event);
+        }
+    }
+
+    /**
+     * Handler fuer Clients, die sich ausloggen.
+     */
+    class ClientLogoutHandler
+            extends DurakEventObjectConsumer<List> {
+
+        public ClientLogoutHandler() {
+            super(List.class);
+        }
+
+        @Override
+        public void accept(DurakServiceEvent<List> event) {
+            List idList = event.getEventObject();
+
+            // Clients aus dem Server entfernen, ggflls. Spiel beenden und andere Spieler
+            // informieren
+            //GameServer.this.removeClients(clients);
+
+            GameServer.this.setChangedAndUpdate(event);
+        }
     }
 }
