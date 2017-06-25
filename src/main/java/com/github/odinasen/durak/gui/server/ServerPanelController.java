@@ -41,7 +41,7 @@ public class ServerPanelController
     private static final Logger LOGGER = LoggingUtility.getLogger(ServerPanelController.class);
 
     private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying "
-                                                                + "to" + " launch a game!";
+                                                                + "to launch a game!";
 
     private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
@@ -298,7 +298,8 @@ public class ServerPanelController
 
         //TODO Kriterium hängt eigentlich von der ANzahl der Karten ab und jeder sollte mindestens
         // 6 Karten bekommen
-        if (this.listLoggedClients.getItems().size() > 52) {
+        // Mindestens 2 Spieler, (Anzahl Karten)/6 >= Anzahl Spieler
+        if (this.listLoggedClients.getItems().size() > 2) {
             this.setGameRunning(true);
             this.changeGameButton("tooltip.stop.game");
             this.enableInputElements();

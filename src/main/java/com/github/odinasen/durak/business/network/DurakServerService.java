@@ -24,6 +24,7 @@ import java.util.logging.Logger;
  */
 @SimonRemote(value = {ServerInterface.class, SessionInterface.class})
 public class DurakServerService
+        extends Observable
         implements ServerInterface,
                    SessionInterface {
 
@@ -80,8 +81,8 @@ public class DurakServerService
 
     /**
      * Registriert bei uebereinstimmenden Passwoertern einen Benutzer. Setzt in das Client-Objekt
-     * die UUID, wenn der
-     * Benutzer registriert wurde.
+     * die UUID, wenn der Benutzer registriert wurde.
+     * Die Methode setzt eine Benachrichtigung an alle Observer ab.
      *
      * @param callable
      *         Das Callable-Objekt des Benutzers.
@@ -102,6 +103,7 @@ public class DurakServerService
 
             client.setUuid(clientUUID.toString());
             loggedIn = true;
+            this.notifyObservers();
         }
 
         return loggedIn;

@@ -4,9 +4,7 @@ import com.github.odinasen.durak.business.exception.GameServerCode;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.game.Player;
 import com.github.odinasen.durak.business.game.Spectator;
-import com.github.odinasen.durak.business.network.ClientMessageType;
-import com.github.odinasen.durak.business.network.DurakServerService;
-import com.github.odinasen.durak.business.network.SIMONConfiguration;
+import com.github.odinasen.durak.business.network.*;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
@@ -18,6 +16,8 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.logging.Logger;
 
 /**
@@ -29,7 +29,8 @@ import java.util.logging.Logger;
  * Author: Timm Herrmann<br/>
  * Date: 21.06.14
  */
-public class GameServer {
+public class GameServer
+        implements Observer {
     private static final Logger LOGGER = LoggingUtility.getLogger(GameServer.class.getName());
 
     /**
@@ -185,17 +186,47 @@ public class GameServer {
     /**
      * Schickt eine Nachricht an alle verbundenen Clients.
      *
-     * @param clientMessageType
-     *         Der Nachrichtentyp, der an die Clients gesendet wird. Darf nicht null sein.
+     * @param clientMessage
+     *         Die Nachricht, die an die Clients gesendet wird. Darf nicht null sein.
      */
-    public void sendClientMessage(ClientMessageType clientMessageType) {
-        Assert.assertNotNull(clientMessageType, ClientMessageType.class);
-        //----------------------------------------------------------------------------------------------
+    public void sendClientMessage(NetworkMessage<ClientMessageType> clientMessage) {
+        Assert.assertNotNull(clientMessage, NetworkMessage.class);
+        //---------------------------------------------------------------------------
 
     }
 
     /** Setzt das Serverpasswort. */
     public void setPassword(String password) {
         this.serverService.setPassword(password);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if (arg instanceof NetworkMessage) {
+            NetworkMessage<ServerMessageType> message = parseNetworkMessage((NetworkMessage<?>)arg, ServerMessageType.USER_LOGIN);
+            if (message != null) {
+                // TODO user aus getMessageObject holen und dann in Liste aufnehmen und an Oberfläche weiterleiten
+            } else {
+                // Nichts machen oder anderen Typ pruefen. Eventuell diesen Teil an einen MessageHandler deligieren
+            }
+        }
+    }
+
+    /**
+     * Prueft, ob ein NetworkMessage-Objekt vom erwarteten Typ ist und gibt dieses dann zurueck. Ist es nicht von dem Typ
+     * wird null zurueckgeliefert.
+     * @param clazz Der erwartete Typ des NetworkMessage-Objekts
+     * @param <T>
+     *     Die Parametrisierung des NetworkMessage-Objekts.
+     * @return Ein NetworkMessage-Objekt vom erwarteten Typ oder null.
+     */
+    private <T extends Enum<?>>NetworkMessage<T> parseNetworkMessage(NetworkMessage<?> networkMessage, T expectedType) {
+        if (networkMessage != null) {
+            if (networkMessage.getMessageTypeClass().equals(expectedType.getClass())) {
+                return (NetworkMessage<T>)networkMessage;
+            }
+        }
+
+        return null;
     }
 }

@@ -68,9 +68,7 @@ public class ClientPanelController
 
     @Override
     protected void initializePanel() {
-        this.changeButton(this.buttonConnectDisconnect,
-                          "toolbar.client.connect.to.server",
-                          "tooltip.client.connect.to.server");
+        setupConnectionButton(false);
         this.fieldLoginName.textProperty().bindBidirectional(this.clientModel.getNickname());
         this.fieldPassword.textProperty().bindBidirectional(this.clientModel.getPassword());
         this.fieldServerAddress.textProperty().bindBidirectional(this.clientModel.getServerAddress());
@@ -184,15 +182,32 @@ public class ClientPanelController
     }
 
     public void setConnected(boolean connected) {
+        /* Button anpassen, wenn sich der Wert veraendert hat */
+        if (this.connected != connected) {
+            setupConnectionButton(connected);
+        }
         this.connected = connected;
     }
 
+    /**
+     * Veraendert den Connection Button in Abhaengigkeit des Verbindungsstatus.
+     * @param connected
+     *  true - Eine Verbindung besteht, Connection Button wird zum "Verbindung trennen"-Button<br/>
+     *  false - Keine Verbindung aufgebaut, Connection Button wird zum "Verbindung aufbauen"-Button
+     */
+    private void setupConnectionButton(boolean connected) {
+        if (connected) {
+            changeButton(this.buttonConnectDisconnect, "toolbar.network.close", "tooltip.client.disconnect.to.server");
+        } else {
+            changeButton(this.buttonConnectDisconnect, "toolbar.client.connect.to.server", "tooltip.client.connect.to.server");
+        }
+    }
     /**
      * Update fuer GameClient-Meldungen
      */
     @Override
     public void update(Observable o, Object arg) {
-        // Prueft die aktuellen Einstellungen des GameClients und aktualisiert die eigenen Werte
+        /* Prueft die aktuellen Einstellungen des GameClients und aktualisiert die eigenen Werte */
         if (o instanceof GameClient) {
             GameClient client = (GameClient) o;
             if (this.isConnected() && !client.isConnected()) {
