@@ -3,6 +3,7 @@ package com.github.odinasen.durak.gui.server;
 import com.github.odinasen.durak.ApplicationStartParameter;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
+import com.github.odinasen.durak.business.network.NetworkMessage;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.business.network.server.event.DurakEventObjectConsumer;
 import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
@@ -19,11 +20,14 @@ import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
+import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
 
 import java.util.*;
@@ -134,7 +138,7 @@ public class ServerPanelController
 
     private void initListView() {
         listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        /*listLoggedClients.setCellFactory(new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
+        listLoggedClients.setCellFactory(new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
             @Override
             public ListCell<ClientDto> call(ListView<ClientDto> listView) {
                 return new ClientListCell(new EventHandler<ActionEvent>() {
@@ -145,7 +149,7 @@ public class ServerPanelController
                 });
             }
         });
-*/
+
         listLoggedClients.setItems(this.gameServerModel.getClients());
     }
 
@@ -312,10 +316,7 @@ public class ServerPanelController
     private boolean startGame() {
         boolean started = true;
 
-        //TODO Kriterium hängt eigentlich von der ANzahl der Karten ab und jeder sollte mindestens
-        // 6 Karten bekommen
-        // Mindestens 2 Spieler, (Anzahl Karten)/6 >= Anzahl Spieler
-        if (this.listLoggedClients.getItems().size() > 2) {
+        if (this.canStartGame()) {
             this.setGameRunning(true);
             this.changeGameButton("tooltip.stop.game");
             this.enableInputElements();
@@ -324,6 +325,27 @@ public class ServerPanelController
         }
 
         return started;
+    }
+
+    /**
+     * Prueft, ob ein Spiel gestartet werden kann. Haengt intern von der Anzahl der Spieler und Karten ab.
+     * @return true, das Spiel kann gestartet werden. false, das Spiel kann <b>nicht</b> gestartet werden.
+     */
+    public boolean canStartGame() {
+        // Mindestens 2 Spieler und genug Karten -> (Anzahl Karten)/6 >= Anzahl Spieler
+
+        int countPlayers = 0;
+        for (ClientDto client : this.gameServerModel.getClients()) {
+            if (!client.isSpectator()) {
+                countPlayers++;
+            }
+        }
+
+        int numberCards = this.boxInitialCards.getValue().getNumberCards();
+        int cardsPerPlayer = 6;
+        boolean enoughCards = numberCards/cardsPerPlayer >= countPlayers;
+
+        return countPlayers > 2 && enoughCards;
     }
 
     /**
@@ -362,7 +384,7 @@ public class ServerPanelController
      */
     private void stopServer() {
         /* Clients benachrichtigen */
-        GameServer.getInstance().sendClientMessage(ClientMessageType.SERVER_SHUTDOWN);
+        GameServer.getInstance().sendClientMessage(new NetworkMessage<>(new Object(), ClientMessageType.SERVER_SHUTDOWN));
 
         /* Server stoppen */
         GameServer.getInstance().stopServer();

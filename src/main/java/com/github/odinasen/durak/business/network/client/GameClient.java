@@ -5,6 +5,7 @@ import com.github.odinasen.durak.business.exception.GameClientCode;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.SIMONConfiguration;
+import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
 import com.github.odinasen.durak.dto.ClientDto;
@@ -17,6 +18,7 @@ import de.root1.simon.annotation.SimonRemote;
 import de.root1.simon.exceptions.EstablishConnectionFailed;
 import de.root1.simon.exceptions.LookupFailedException;
 
+import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.logging.Logger;
 
@@ -89,7 +91,7 @@ public class GameClient
 
             nameLookup.addClosedListener(server, this);
 
-            connected = server.login(messageReceiver, clientDto, password);
+            connected = server.login(new AuthenticationClient(messageReceiver, clientDto, password));
 
             final String socketAddress = this.getSocketAddress();
 
@@ -185,7 +187,7 @@ public class GameClient
  */
 @SimonRemote(value = {Callable.class})
 class ServerMessageReceiver
-        implements Callable {
+        implements Callable, Serializable {
 
     @Override
     public void sendClientMessage(final ClientMessageType parameter) {

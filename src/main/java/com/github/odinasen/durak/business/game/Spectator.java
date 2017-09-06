@@ -7,31 +7,10 @@ import com.github.odinasen.durak.dto.ClientDto;
  * Author: Timm Herrmann
  * Date: 14.12.2016.
  */
-public class Spectator {
-    private ClientDto client;
+public class Spectator extends Client {
+
     public Spectator(ClientDto client) {
-        this.client = client;
-    }
-
-    /**
-     * @return Den Namen des Zuschauers.
-     */
-    public String getName() {
-        if (client != null) {
-            return client.getName();
-        } else {
-            return "";
-        }
-    }
-
-    /**
-     * @return Die UUID des uebergebenen Clients.
-     */
-    public String getID() {
-        if (client != null) {
-            return client.getUuid();
-        } else {
-            return "";
-        }
+        super(client);
+        client.setIsSpectator(true);
     }
 }

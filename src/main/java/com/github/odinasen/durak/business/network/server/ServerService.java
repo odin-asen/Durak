@@ -3,6 +3,7 @@ package com.github.odinasen.durak.business.network.server;
 import com.github.odinasen.durak.business.ExtendedObservable;
 import com.github.odinasen.durak.business.game.GameAction;
 import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
+import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
@@ -19,27 +20,22 @@ import java.util.logging.Logger;
 import static com.github.odinasen.durak.business.network.server.event.DurakServiceEvent.DurakServiceEventType;
 
 /**
- * Eine Klasse, die verschiedene Dienste des Durak-Servers bereitstellt.
- * Diese Klasse haelt Klassenvariablen, um die Kommunikation zwischen verschiedenen Clients
- * gewaehrleisten zu koennen.
- * <p/>
  * Dieser Service ist ueberwachbar (java.util.Observable) und sendet bei folgenden Ereignissen
  * ein Event:
- * <ul>
- * <li>Client hat sich angemeldet</li>
- * <li>Client hat sich abgemeldet</li>
- * </ul>
- * <p>
- * Author: Timm Herrmann<br/>
+ *
+ * - Client hat sich angemeldet
+ * - Client hat sich abgemeldet
+ *
+ * Author: Timm Herrmann
  * Date: 23.06.14
  */
 @SimonRemote(value = {ServerInterface.class, SessionInterface.class})
-public class DurakServerService
+public class ServerService
         extends ExtendedObservable
         implements ServerInterface,
                    SessionInterface {
 
-    private static final Logger LOGGER = LoggingUtility.getLogger(DurakServerService.class);
+    private static final Logger LOGGER = LoggingUtility.getLogger(ServerService.class);
 
     /**
      * Liste der Clients fuer den gesamten Server. Mappt die ID eines Clients zu seinem
@@ -50,20 +46,20 @@ public class DurakServerService
     /** Server des Passworts */
     private String password;
 
-    DurakServerService(String password) {
+    public static ServerService createService(String password) {
+        return new ServerService(password);
+    }
+
+    private ServerService(String password) {
         setPassword(password);
     }
 
     @Override
-    public boolean login(Callable callable, ClientDto client, String password) {
+    public boolean login(AuthenticationClient client) {
         UUID clientUUID;
         try {
-            clientUUID = UUID.fromString(client.getUuid());
+            clientUUID = UUID.fromString(client.getClientDto().getUuid());
         } catch (Exception ex) {
-            // Hier wird absichtlich nichts gemacht oder geloggt, weil es nicht notwendig ist zu
-            // wissen, ob eine
-            // UUID nicht geparst werden konnte. Eine nicht parsbare UUID wird als neuer Client
-            // gewertet.
             clientUUID = null;
         }
 
@@ -72,18 +68,19 @@ public class DurakServerService
             // Ja
             Callable listCallable = clientMap.get(clientUUID);
 
-            if (callable != null) {
+            if (client.getCallable() != null) {
 
                 // Ist der registrierte Client ein anderer als der uerbergebene?
-                if (!callable.equals(listCallable)) {
+                if (!client.getCallable().equals(listCallable)) {
                     // Nein, also mit Passwortpruefung registrieren und UUID aendern
-                    return registerNewClient(callable, client, password);
+                    int a = 0;
+                    return registerNewClient(client);
                 }
             }
         } else {
-            if (callable != null) {
+            if (client.getCallable() != null) {
                 // Nein, also mit Passwortpruefung registrieren
-                return registerNewClient(callable, client, password);
+                return registerNewClient(client);
             }
         }
 
@@ -97,29 +94,22 @@ public class DurakServerService
      * die UUID, wenn der
      * Benutzer registriert wurde.
      *
-     * @param callable
-     *         Das Callable-Objekt des Benutzers.
-     * @param client
-     *         Das Client-Objekt.
-     * @param password
-     *         Die Benutzereingabe des Passworts.
-     *
      * @return true, wenn der Client registriert ist und die UUID gesetzt wurde, andernfalls false.
      */
-    private boolean registerNewClient(Callable callable, ClientDto client, String password) {
+    private boolean registerNewClient(AuthenticationClient client) {
         boolean loggedIn = false;
 
         // Passwort muss stimmen und Callable-Objekt darf nicht null sein
-        if (StringUtils.stringsAreSame(password, this.password) && (callable != null)) {
+        if (StringUtils.stringsAreSame(client.getPassword(), this.password) && (client.getCallable() != null)) {
             // ID generieren und Client neu registrieren
             UUID clientUUID = UUID.randomUUID();
-            clientMap.put(clientUUID, callable);
+            clientMap.put(clientUUID, client.getCallable());
 
-            client.setUuid(clientUUID.toString());
+            client.getClientDto().setUuid(clientUUID.toString());
             loggedIn = true;
 
             // Observer informieren
-            this.setChangedAndUpdate(new DurakServiceEvent<ClientDto>(DurakServiceEventType.CLIENT_LOGIN, client));
+            this.setChangedAndUpdate(new DurakServiceEvent<ClientDto>(DurakServiceEventType.CLIENT_LOGIN, client.getClientDto()));
         }
 
         return loggedIn;
@@ -167,9 +157,6 @@ public class DurakServerService
 
     }
 
-    /**
-     * Setzt das Serverpasswort.
-     */
     public void setPassword(String password) {
         if (password != null) {
             this.password = password;

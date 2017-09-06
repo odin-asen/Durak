@@ -10,12 +10,14 @@ import java.io.Serializable;
  */
 public class ClientDto
         implements Serializable {
-    public String uuid;
-    public String name;
+    private String uuid;
+    private String name;
+    private boolean isSpectator;
 
     public ClientDto(String uuid, String name) {
         this.uuid = this.uuid;
         this.name = name;
+        this.isSpectator = false;
     }
 
     /**
@@ -48,5 +50,20 @@ public class ClientDto
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * @return der {@link #isSpectator} Wert
+     */
+    public boolean isSpectator() {
+        return isSpectator;
+    }
+
+    /**
+     * Setzt den {@link #isSpectator} Wert
+     * @return isSpectator der neue {@link #isSpectator} Wert
+     */
+    public void setIsSpectator(boolean spectator) {
+        this.isSpectator = spectator;
     }
 }

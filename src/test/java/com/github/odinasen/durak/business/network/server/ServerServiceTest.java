@@ -1,5 +1,6 @@
 package com.github.odinasen.durak.business.network.server;
 
+import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.dto.ClientDto;
 import org.junit.Assert;
@@ -13,31 +14,31 @@ import org.mockito.Mockito;
  * Author: Timm Herrmann
  * Date: 19.12.2016
  */
-public class DurakServerServiceTest {
+public class ServerServiceTest {
 
-    private DurakServerService serverService;
+    private ServerService serverService;
 
-    private static String PWD = "";
+    private static String PASSWORD = "";
 
     @Before
     public void setUp() throws Exception {
-        this.serverService = new DurakServerService(PWD);
+        this.serverService = ServerService.createService(PASSWORD);
     }
 
     @Test
     public void login() throws Exception {
         Callable callable = Mockito.mock(Callable.class);
         ClientDto client = new ClientDto("", "Horst");
-        boolean success = this.serverService.login(callable, client, PWD);
+        boolean success = this.serverService.login(new AuthenticationClient(callable, client, PASSWORD));
         Assert.assertTrue(success);
 
         // Passwort falsch
         ClientDto client2 = new ClientDto("", "Horst2");
-        success = this.serverService.login(callable, client2, "wrongPass");
+        success = this.serverService.login(new AuthenticationClient(callable, client2, "wrongPass"));
         Assert.assertFalse(success);
 
         // Callable null
-        success = this.serverService.login(null, client2, PWD);
+        success = this.serverService.login(new AuthenticationClient(null, client2, PASSWORD));
         Assert.assertFalse(success);
     }
 

@@ -6,6 +6,7 @@ import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.game.Player;
 import com.github.odinasen.durak.business.game.Spectator;
 import com.github.odinasen.durak.business.network.ClientMessageType;
+import com.github.odinasen.durak.business.network.NetworkMessage;
 import com.github.odinasen.durak.business.network.SIMONConfiguration;
 import com.github.odinasen.durak.business.network.server.event.DurakEventObjectConsumer;
 import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
@@ -51,7 +52,7 @@ public class GameServer
     /**
      * Objekt, das alle Service-Methoden fuer den Durakserver enthaelt.
      */
-    private DurakServerService serverService;
+    private ServerService serverService;
 
     private ServerUserModel userModel;
 
@@ -115,7 +116,7 @@ public class GameServer
      *         Als Exception-Attribut wird "port" gesetzt.
      */
     public void startServer(int port, String password) throws SystemException {
-        this.serverService = new DurakServerService(password);
+        this.serverService = ServerService.createService(password);
         // Wichtig, ansonsten kommen keine Infos im Server an, von Clients, die den SIMON-Service
         // verwenden wegen An- und Abmeldung
         this.serverService.addObserver(this);

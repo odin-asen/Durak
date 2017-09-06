@@ -1,7 +1,9 @@
 package com.github.odinasen.durak.business.network.server.event;
 
+import com.github.odinasen.durak.business.network.server.ServerService;
+
 /**
- * Event Enumerations fuer {@link com.github.odinasen.durak.business.network.server.DurakServerService}
+ * Event Enumerations fuer {@link ServerService}
  * <p/>
  * Author: Timm Herrmann
  * Date: 18.12.2016

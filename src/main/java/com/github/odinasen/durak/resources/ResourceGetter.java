@@ -22,6 +22,7 @@ public class ResourceGetter {
     private static final String RESOURCES_ROOT = "";
     private static final String PICTURES_ROOT = RESOURCES_ROOT + "icons/";
     private static final String TOOLBAR_ROOT = PICTURES_ROOT + "toolbar/";
+    private static final String USER_ROOT = PICTURES_ROOT + "user/";
 
     private static final String PNG = "png";
 
@@ -31,6 +32,9 @@ public class ResourceGetter {
         return getImage(TOOLBAR_ROOT + I18nSupport.getValue(RESOURCES_IMAGES, toolbarBundleKey, params), PNG);
     }
 
+    public static Image getUserIcon(String generalBundleKey, Object... params) {
+        return getImage(USER_ROOT + I18nSupport.getValue(RESOURCES_IMAGES, generalBundleKey, params), PNG);
+    }
     /* Loads an image from the specified path and adds the */
   /* surpassed extension if it is not null */
     private static Image getImage(String imageName, String extension) {
