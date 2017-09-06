@@ -160,7 +160,7 @@ public class GameClient
             nameLookup.release(server);
             LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Lost server connection");
             connected = false;
-            this.setChangedAndUpdate();
+            this.setChangedAndNotifyObservers();
         }
     }
 

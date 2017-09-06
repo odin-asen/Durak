@@ -10,13 +10,12 @@ import java.util.Observable;
  */
 public class ExtendedObservable extends Observable {
 
-    /** Benachrichtigt alle Observer und aendert den Status auf "changed" */
-    public void setChangedAndUpdate(Object updateObject) {
+    public void setChangedAndNotifyObservers(Object updateObject) {
         this.setChanged();
         this.notifyObservers(updateObject);
     }
 
-    public void setChangedAndUpdate() {
-        this.setChangedAndUpdate(null);
+    public void setChangedAndNotifyObservers() {
+        this.setChangedAndNotifyObservers(null);
     }
 }

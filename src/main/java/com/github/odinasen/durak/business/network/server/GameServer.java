@@ -290,7 +290,7 @@ public class GameServer
             GameServer.this.addClient(client);
 
             /* Observer informieren */
-            GameServer.this.setChangedAndUpdate(event);
+            GameServer.this.setChangedAndNotifyObservers(event);
         }
     }
 
@@ -312,7 +312,7 @@ public class GameServer
             // informieren
             //GameServer.this.removeClients(clients);
 
-            GameServer.this.setChangedAndUpdate(event);
+            GameServer.this.setChangedAndNotifyObservers(event);
         }
     }
 }

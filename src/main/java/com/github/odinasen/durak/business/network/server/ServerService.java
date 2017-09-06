@@ -12,7 +12,7 @@ import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.util.StringUtils;
 import de.root1.simon.annotation.SimonRemote;
 import de.root1.simon.exceptions.SimonRemoteException;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -50,7 +50,7 @@ public class ServerService
 
     @Override
     public boolean login(AuthenticationClient client) {
-        Authenticator authenticator = new Authenticator(client, this.serverPassword);
+        LoginAuthenticator authenticator = new LoginAuthenticator(client, this.serverPassword);
         UUID clientUUID = createUUIDFromString(client.getClientDto().getUuid());
 
         if (authenticator.isAuthenticated()) {
@@ -77,7 +77,7 @@ public class ServerService
         return clientUUID != null && loggedInClients.containsKey(clientUUID);
     }
 
-    private boolean isClientUUIDLoggedIn(Authenticator authenticator, UUID clientUUID) {
+    private boolean isClientUUIDLoggedIn(LoginAuthenticator authenticator, UUID clientUUID) {
         Callable loggedInClient = loggedInClients.get(clientUUID);
 
         return authenticator.clientHasCallable(loggedInClient);
@@ -87,7 +87,7 @@ public class ServerService
         ClientDto loginClient = client.getClientDto();
         UUID newClientsUUID = insertClientToLoggedInClients(client);
         loginClient.setUuid(newClientsUUID.toString());
-        this.setChangedAndUpdate(new DurakServiceEvent<ClientDto>(DurakServiceEventType.CLIENT_LOGIN, loginClient));
+        this.setChangedAndNotifyObservers(new DurakServiceEvent<ClientDto>(DurakServiceEventType.CLIENT_LOGIN, loginClient));
     }
 
     private synchronized UUID insertClientToLoggedInClients(AuthenticationClient client) {
@@ -98,30 +98,44 @@ public class ServerService
     }
 
     @Override
-    public void logoff(Callable callable) {
+    public synchronized void logoff(Callable callable) {
         if (callable != null) {
-            List<UUID> idsToRemove = new ArrayList<>();
-            for (Map.Entry<UUID, Callable> entry : loggedInClients.entrySet()) {
-                try {
-                    UUID uuid = entry.getKey();
-                    if (callable.equals(entry.getValue())) {
-                        idsToRemove.add(uuid);
-                    }
-                } catch (SimonRemoteException ex) {
-                    final String message =
-                            "Remote Object could not properly be processed and " + "will be disconnected from server.";
-                    LOGGER.info(message + " " + ex.getMessage());
-                    LOGGER.log(Level.FINE, "", ex);
-                }
-            }
+            List<UUID> idsToRemove = getUUIDsToRemove(callable);
+            removeIDsFromLoggedInClients(idsToRemove);
+            this.setChangedAndNotifyObservers(new DurakServiceEvent<List<UUID>>(DurakServiceEventType.CLIENT_LOGOUT,
+                                                                                idsToRemove));
+            //TODO andere Benutzer benachrichtigen
+        }
+    }
 
-            for (UUID uuid : idsToRemove) {
-                loggedInClients.remove(uuid);
+    @NotNull
+    private List<UUID> getUUIDsToRemove(Callable callable) {
+        List<UUID> idsToRemove = new ArrayList<>();
+        for (Map.Entry<UUID, Callable> entry : loggedInClients.entrySet()) {
+            addUUIDIfCallableFoundInto(idsToRemove, callable, entry);
+        }
+        return idsToRemove;
+    }
+
+    private void addUUIDIfCallableFoundInto(List<UUID> idsToRemove,
+                                            Callable callable,
+                                            Map.Entry<UUID, Callable> entry) {
+        try {
+            UUID uuid = entry.getKey();
+            if (callable.equals(entry.getValue())) {
+                idsToRemove.add(uuid);
             }
-            /* Observer informieren */
-            this.setChangedAndUpdate(new DurakServiceEvent<List<UUID>>(DurakServiceEventType.CLIENT_LOGOUT,
-                                                                       idsToRemove));
-            /* Hier koennte man noch alle Clients benachrichtigen */
+        } catch (SimonRemoteException ex) {
+            final String message =
+                    "Remote Object could not properly be processed and " + "will be disconnected from server.";
+            LOGGER.info(message + " " + ex.getMessage());
+            LOGGER.log(Level.FINE, "", ex);
+        }
+    }
+
+    private void removeIDsFromLoggedInClients(List<UUID> idsToRemove) {
+        for (UUID uuid : idsToRemove) {
+            loggedInClients.remove(uuid);
         }
     }
 
@@ -146,31 +160,5 @@ public class ServerService
         } else {
             this.serverPassword = "";
         }
-    }
-}
-
-class Authenticator {
-    AuthenticationClient client;
-    String serverPassword;
-
-    Authenticator(AuthenticationClient client, String serverPassword) {
-        this.client = client;
-        this.serverPassword = serverPassword;
-    }
-
-    boolean isAuthenticated() {
-        return hasValidCallable() && isServerPasswordCorrect();
-    }
-
-    boolean hasValidCallable() {
-        return client.getCallable() != null;
-    }
-
-    boolean isServerPasswordCorrect() {
-        return StringUtils.stringsAreSame(this.client.getPassword(), this.serverPassword);
-    }
-
-    boolean clientHasCallable(Callable callable) {
-        return hasValidCallable() && this.client.getCallable().equals(callable);
     }
 }
