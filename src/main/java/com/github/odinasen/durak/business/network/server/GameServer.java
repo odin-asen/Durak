@@ -244,7 +244,7 @@ public class GameServer
 
     /** Setzt das Serverpasswort. */
     public void setPassword(String password) {
-        this.serverService.setPassword(password);
+        this.serverService.setServerPassword(password);
     }
 
     public List<Player> getPlayers() {

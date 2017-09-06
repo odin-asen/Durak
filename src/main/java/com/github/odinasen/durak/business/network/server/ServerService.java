@@ -12,6 +12,7 @@ import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.util.StringUtils;
 import de.root1.simon.annotation.SimonRemote;
 import de.root1.simon.exceptions.SimonRemoteException;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -22,122 +23,104 @@ import static com.github.odinasen.durak.business.network.server.event.DurakServi
 /**
  * Dieser Service ist ueberwachbar (java.util.Observable) und sendet bei folgenden Ereignissen
  * ein Event:
- *
+ * <p>
  * - Client hat sich angemeldet
  * - Client hat sich abgemeldet
- *
+ * <p>
  * Author: Timm Herrmann
  * Date: 23.06.14
  */
 @SimonRemote(value = {ServerInterface.class, SessionInterface.class})
 public class ServerService
         extends ExtendedObservable
-        implements ServerInterface,
-                   SessionInterface {
+        implements ServerInterface, SessionInterface {
 
     private static final Logger LOGGER = LoggingUtility.getLogger(ServerService.class);
+    private static final Map<UUID, Callable> loggedInClients = new HashMap<>();
 
-    /**
-     * Liste der Clients fuer den gesamten Server. Mappt die ID eines Clients zu seinem
-     * zugehoerigen Callable-Objekt.
-     */
-    private static final Map<UUID, Callable> clientMap = new HashMap<>();
+    private String serverPassword;
 
-    /** Server des Passworts */
-    private String password;
-
-    public static ServerService createService(String password) {
-        return new ServerService(password);
+    private ServerService(String serverPassword) {
+        setServerPassword(serverPassword);
     }
 
-    private ServerService(String password) {
-        setPassword(password);
+    static ServerService createService(String password) {
+        return new ServerService(password);
     }
 
     @Override
     public boolean login(AuthenticationClient client) {
-        UUID clientUUID;
-        try {
-            clientUUID = UUID.fromString(client.getClientDto().getUuid());
-        } catch (Exception ex) {
-            clientUUID = null;
-        }
+        Authenticator authenticator = new Authenticator(client, this.serverPassword);
+        UUID clientUUID = createUUIDFromString(client.getClientDto().getUuid());
 
-        // Gibt es eine bestehende Client-Verbindung fuer das Objekt?
-        if (clientUUID != null && clientMap.containsKey(clientUUID)) {
-            // Ja
-            Callable listCallable = clientMap.get(clientUUID);
-
-            if (client.getCallable() != null) {
-
-                // Ist der registrierte Client ein anderer als der uerbergebene?
-                if (!client.getCallable().equals(listCallable)) {
-                    // Nein, also mit Passwortpruefung registrieren und UUID aendern
-                    int a = 0;
-                    return registerNewClient(client);
-                }
-            }
-        } else {
-            if (client.getCallable() != null) {
-                // Nein, also mit Passwortpruefung registrieren
-                return registerNewClient(client);
+        if (authenticator.isAuthenticated()) {
+            if (!clientConnectionExists(clientUUID) || !isClientUUIDLoggedIn(authenticator, clientUUID)) {
+                registerNewClient(client);
+                return true;
             }
         }
 
-        // Die Methode muss schon vorher mal true zurueckgeben, ansonsten wurde der Benutzer nie
-        // registriert.
         return false;
     }
 
-    /**
-     * Registriert bei uebereinstimmenden Passwoertern einen Benutzer. Setzt in das Client-Objekt
-     * die UUID, wenn der
-     * Benutzer registriert wurde.
-     *
-     * @return true, wenn der Client registriert ist und die UUID gesetzt wurde, andernfalls false.
-     */
-    private boolean registerNewClient(AuthenticationClient client) {
-        boolean loggedIn = false;
-
-        // Passwort muss stimmen und Callable-Objekt darf nicht null sein
-        if (StringUtils.stringsAreSame(client.getPassword(), this.password) && (client.getCallable() != null)) {
-            // ID generieren und Client neu registrieren
-            UUID clientUUID = UUID.randomUUID();
-            clientMap.put(clientUUID, client.getCallable());
-
-            client.getClientDto().setUuid(clientUUID.toString());
-            loggedIn = true;
-
-            // Observer informieren
-            this.setChangedAndUpdate(new DurakServiceEvent<ClientDto>(DurakServiceEventType.CLIENT_LOGIN, client.getClientDto()));
+    private UUID createUUIDFromString(String uuidString) {
+        UUID clientUUID;
+        try {
+            clientUUID = UUID.fromString(uuidString);
+        } catch (Exception ex) {
+            clientUUID = null;
         }
+        return clientUUID;
+    }
 
-        return loggedIn;
+    private boolean clientConnectionExists(UUID clientUUID) {
+        return clientUUID != null && loggedInClients.containsKey(clientUUID);
+    }
+
+    private boolean isClientUUIDLoggedIn(Authenticator authenticator, UUID clientUUID) {
+        Callable loggedInClient = loggedInClients.get(clientUUID);
+
+        return authenticator.clientHasCallable(loggedInClient);
+    }
+
+    private void registerNewClient(AuthenticationClient client) {
+        ClientDto loginClient = client.getClientDto();
+        UUID newClientsUUID = insertClientToLoggedInClients(client);
+        loginClient.setUuid(newClientsUUID.toString());
+        this.setChangedAndUpdate(new DurakServiceEvent<ClientDto>(DurakServiceEventType.CLIENT_LOGIN, loginClient));
+    }
+
+    private synchronized UUID insertClientToLoggedInClients(AuthenticationClient client) {
+        UUID clientUUID = UUID.randomUUID();
+        loggedInClients.put(clientUUID, client.getCallable());
+
+        return clientUUID;
     }
 
     @Override
     public void logoff(Callable callable) {
         if (callable != null) {
             List<UUID> idsToRemove = new ArrayList<>();
-            for (Map.Entry<UUID, Callable> entry : clientMap.entrySet()) {
+            for (Map.Entry<UUID, Callable> entry : loggedInClients.entrySet()) {
                 try {
                     UUID uuid = entry.getKey();
                     if (callable.equals(entry.getValue())) {
                         idsToRemove.add(uuid);
                     }
                 } catch (SimonRemoteException ex) {
-                    final String message = "Remote Object could not properly be processed and " +
-                                           "will be disconnected from server.";
+                    final String message =
+                            "Remote Object could not properly be processed and " + "will be disconnected from server.";
                     LOGGER.info(message + " " + ex.getMessage());
                     LOGGER.log(Level.FINE, "", ex);
                 }
             }
 
             for (UUID uuid : idsToRemove) {
-                clientMap.remove(uuid);
+                loggedInClients.remove(uuid);
             }
             /* Observer informieren */
-            this.setChangedAndUpdate(new DurakServiceEvent<List<UUID>>(DurakServiceEventType.CLIENT_LOGOUT, idsToRemove));
+            this.setChangedAndUpdate(new DurakServiceEvent<List<UUID>>(DurakServiceEventType.CLIENT_LOGOUT,
+                                                                       idsToRemove));
             /* Hier koennte man noch alle Clients benachrichtigen */
         }
     }
@@ -157,11 +140,37 @@ public class ServerService
 
     }
 
-    public void setPassword(String password) {
-        if (password != null) {
-            this.password = password;
+    public void setServerPassword(String serverPassword) {
+        if (serverPassword != null) {
+            this.serverPassword = serverPassword;
         } else {
-            this.password = "";
+            this.serverPassword = "";
         }
+    }
+}
+
+class Authenticator {
+    AuthenticationClient client;
+    String serverPassword;
+
+    Authenticator(AuthenticationClient client, String serverPassword) {
+        this.client = client;
+        this.serverPassword = serverPassword;
+    }
+
+    boolean isAuthenticated() {
+        return hasValidCallable() && isServerPasswordCorrect();
+    }
+
+    boolean hasValidCallable() {
+        return client.getCallable() != null;
+    }
+
+    boolean isServerPasswordCorrect() {
+        return StringUtils.stringsAreSame(this.client.getPassword(), this.serverPassword);
+    }
+
+    boolean clientHasCallable(Callable callable) {
+        return hasValidCallable() && this.client.getCallable().equals(callable);
     }
 }
