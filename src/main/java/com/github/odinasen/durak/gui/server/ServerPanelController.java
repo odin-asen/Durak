@@ -137,8 +137,6 @@ public class ServerPanelController
 
     private void initListView() {
         listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        listLoggedClients.setItems(this.gameServerModel.getClients());
-
         listLoggedClients.setCellFactory(new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
             @Override
             public ListCell<ClientDto> call(ListView<ClientDto> listView) {
@@ -167,6 +165,8 @@ public class ServerPanelController
                 }
             }
         });
+
+        listLoggedClients.setItems(this.gameServerModel.getClients());
     }
 
     /**

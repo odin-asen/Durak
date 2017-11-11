@@ -6,11 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-/**
- * <p/>
- * Author: Timm Herrmann
- * Date: 26.05.2017
- */
 public class DurakServiceEventHandler {
     Logger LOGGER = LoggingUtility.getLogger(DurakServiceEventHandler.class);
 
@@ -31,6 +26,7 @@ public class DurakServiceEventHandler {
     public void handleEvent(DurakServiceEvent event) {
         DurakServiceEvent.DurakServiceEventType type = event.getEventType();
         DurakEventObjectConsumer consumer = eventFunctionMap.get(type);
+        /* Gibt es ein Objekt fuer die angeforderte Funktion? */
         if (consumer != null) {
             consumer.acceptChecked(event);
             LOGGER.fine("Executed consumer for type " + type);

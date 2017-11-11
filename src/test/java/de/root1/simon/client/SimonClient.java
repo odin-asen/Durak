@@ -8,10 +8,6 @@ import de.root1.simon.serverService.ServerInterface;
 
 import java.net.UnknownHostException;
 
-/**
- * Author: Timm Herrmann
- * Date: 09.11.2017.
- */
 public class SimonClient {
 
     private int serverPort;
@@ -41,7 +37,7 @@ public class SimonClient {
         return nameLookup.release(server);
     }
 
-    public ClientCallbackInterface getClientRemoteObject() {
+    public ClientCallbackInterface getClientLocalObject() {
         return clientRemoteObject;
     }
 

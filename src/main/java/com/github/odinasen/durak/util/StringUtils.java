@@ -31,4 +31,16 @@ public class StringUtils {
 
         return false;
     }
+
+    /**
+     * Prueft strings, ob null oder empty.
+     *
+     * @param string
+     *         der String, der zu pruefen ist.
+     *
+     * @return true, wenn null oder empty. Andernfalls false.
+     */
+    public static boolean isEmpty(String string) {
+        return string == null || string.isEmpty();
+    }
 }
