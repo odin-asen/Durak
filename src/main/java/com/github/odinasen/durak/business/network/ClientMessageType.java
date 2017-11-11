@@ -7,5 +7,5 @@ package com.github.odinasen.durak.business.network;
  * Date: 19.09.14
  */
 public enum ClientMessageType {
-  SERVER_SHUTDOWN
+    CLIENT_REMOVED_BY_SERVER, SERVER_SHUTDOWN
 }

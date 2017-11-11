@@ -7,8 +7,6 @@ package com.github.odinasen.durak.business.network;
  * Date: 19.09.14
  */
 public interface SIMONConfiguration {
-  /**
-   * Registrierungsname des Servers. (Fuer SIMON verwendet)
-   */
   String REGISTRY_NAME_SERVER = "durakServer";
+    String REGISTRY_NAME_SERVER_FUNCTIONS = "durakServerFunctions";
 }

@@ -5,6 +5,8 @@ import com.github.odinasen.durak.business.exception.GameClientCode;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.SIMONConfiguration;
+import com.github.odinasen.durak.business.network.server.exception.LoginFailedException;
+import com.github.odinasen.durak.business.network.server.exception.SessionNotFoundException;
 import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
@@ -14,6 +16,7 @@ import com.github.odinasen.durak.util.LoggingUtility;
 import de.root1.simon.ClosedListener;
 import de.root1.simon.Lookup;
 import de.root1.simon.Simon;
+import de.root1.simon.SimonUnreferenced;
 import de.root1.simon.annotation.SimonRemote;
 import de.root1.simon.exceptions.EstablishConnectionFailed;
 import de.root1.simon.exceptions.LookupFailedException;
@@ -25,13 +28,8 @@ import java.util.logging.Logger;
 import static com.github.odinasen.durak.i18n.BundleStrings.USER_MESSAGES;
 
 /**
- * Client-Klasse, welche sich mit der Server-Klasse verbindet und mit dieser direkt ueber SIMON
- * kommuniziert.
- * <p/>
- * Author: Timm Herrmann<br/>
- * Date: 06.01.14
+ * Client-Klasse, welche sich mit der Server-Klasse verbindet und mit dieser direkt ueber SIMON kommuniziert.
  */
-@SuppressWarnings("UnusedDeclaration")
 public class GameClient
         extends ExtendedObservable
         implements ClosedListener {
@@ -49,6 +47,7 @@ public class GameClient
     private ServerMessageReceiver messageReceiver;
     private Lookup nameLookup;
     private ServerInterface server;
+
     private GameClient() {
         this.connected = false;
         this.messageReceiver = new ServerMessageReceiver();
@@ -74,7 +73,8 @@ public class GameClient
      *                      weitere Kommunikation verwendet wird.
      * @return True, wenn der Client mit dem Server verbunden ist, andernfalls false.
      * @throws com.github.odinasen.durak.business.exception.SystemException Wird geworfen, wenn eine Verbindung nicht
-     * aufgebaut werden konnte. - siehe {@link GameClientCode}
+     *                                                                      aufgebaut werden konnte. - siehe
+     *                                                                      {@link GameClientCode}
      */
     public boolean connect(String serverAddress, Integer serverPort, String password, ClientDto clientDto)
             throws SystemException {
@@ -91,10 +91,15 @@ public class GameClient
 
             nameLookup.addClosedListener(server, this);
 
-            connected = server.login(new AuthenticationClient(messageReceiver, clientDto, password));
+            try {
+                AuthenticationClient authClient = new AuthenticationClient(messageReceiver, clientDto, password);
+                server.login(authClient, messageReceiver);
+                connected = true;
+            } catch (LoginFailedException | SessionNotFoundException e) {
+                connected = false;
+            }
 
-            final String socketAddress = this.getSocketAddress();
-
+            String socketAddress = this.getSocketAddress();
             if (connected) {
                 LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Connected to " + socketAddress);
             } else {
@@ -137,9 +142,6 @@ public class GameClient
         return connect(serverAddress, serverPort, password, clientDto);
     }
 
-    /**
-     * Trennt die Verbindung zum Server.
-     */
     public void disconnect() {
         if (connected) {
             connected = false;
@@ -187,11 +189,13 @@ public class GameClient
  */
 @SimonRemote(value = {Callable.class})
 class ServerMessageReceiver
-        implements Callable, Serializable {
+        implements Callable, SimonUnreferenced, Serializable {
 
     @Override
     public void sendClientMessage(final ClientMessageType parameter) {
-
+        if (parameter.equals(ClientMessageType.CLIENT_REMOVED_BY_SERVER)) {
+            GameClient.getInstance().disconnect();
+        }
 //    if(parameter instanceof MessageObject) {
 //      new Thread(new Runnable() {
 //        public void run() {
@@ -199,5 +203,11 @@ class ServerMessageReceiver
 //        }
 //      }).start();
 //    }
+    }
+
+    @Override
+    public void unreferenced() {
+        LoggingUtility.getLogger(this.getClass())
+                      .info("Server unreferenced this client. Good time to update display messages");
     }
 }

@@ -1,5 +1,8 @@
 package com.github.odinasen.durak.business.network.simon;
 
+import com.github.odinasen.durak.business.network.server.exception.LoginFailedException;
+import com.github.odinasen.durak.business.network.server.exception.SessionNotFoundException;
+
 /**
  * Enthaelt Methoden, die von Clients auch ohne Authentifizierung aufgerufen werden koennen.
  *
@@ -11,12 +14,13 @@ public interface ServerInterface {
    * Meldet einen Client beim Server an. Wurde ein Client angemeldet, kann dieser auch Methoden
    * aus {@link SessionInterface} aufrufen.
    *
-   * @param authenticationClient@return
+   * @param authenticationClient @return
    *    True, wenn der Client erfoglreich angemeldet wurde.
    *    False, wenn der Client nicht angemeldet werden konnte
    *    (falsches Passwort oder schon angemeldet).
    */
-  boolean login(AuthenticationClient authenticationClient);
+  SessionInterface login(AuthenticationClient authenticationClient, Callable remoteObject)
+          throws LoginFailedException, SessionNotFoundException;
 
   /**
    * Meldet einen Client vom Server ab. Wurde ein Client abgemeldet, kann dieser keine Methoden
@@ -24,5 +28,6 @@ public interface ServerInterface {
    * @param clientsCallable
    *    Ist das Remote-Objekt, das den Client referenziert.
    */
-  void logoff(Callable clientsCallable);
+  //TODO Callable mit Session ersetzen
+  void logoff(Callable remoteObject);
 }

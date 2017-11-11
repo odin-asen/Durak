@@ -22,10 +22,10 @@ class LoginAuthenticator {
     }
 
     boolean isServerPasswordCorrect() {
-        return StringUtils.stringsAreSame(this.client.getPassword(), this.serverPassword);
+        return StringUtils.stringsAreSame(client.getPassword(), serverPassword);
     }
 
     boolean clientHasCallable(Callable callable) {
-        return hasValidCallable() && this.client.getCallable().equals(callable);
+        return hasValidCallable() && client.getCallable().equals(callable);
     }
 }

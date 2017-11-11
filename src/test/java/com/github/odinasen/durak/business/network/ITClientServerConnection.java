@@ -11,7 +11,7 @@ import org.junit.Test;
 import java.util.UUID;
 
 /**
- * Integrationstests fuer Client-Server-Verbindungen.
+ * Integrationstests fuer SimonClient-Server-Verbindungen.
  * <p/>
  * Author: tih<br/>
  * Date: 04.12.2016.

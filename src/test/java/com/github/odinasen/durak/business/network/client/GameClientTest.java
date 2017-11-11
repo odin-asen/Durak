@@ -41,7 +41,7 @@ public class GameClientTest {
     }
 
     /**
-     * Testet die Wiederverbindung. Ist der Client verbunden
+     * Testet die Wiederverbindung. Ist der SimonClient verbunden
      */
     @Test
     public void reconnect() throws Exception {
@@ -68,14 +68,13 @@ public class GameClientTest {
     }
 
     /**
-     * Die closed-Methode soll nur den Client trennen.
+     * Die closed-Methode soll nur den SimonClient trennen.
      */
     @Test
     public void closed() throws Exception {
         String clientName = "Horst";
         ClientDto clientDto = createNewClientDto(clientName);
 
-        // Hier pruefen, ob die connect bzw. disconnect-Methode
         boolean connected = this.client.connect("localhost", this.testPort, "", clientDto);
         Assert.assertTrue(connected);
 

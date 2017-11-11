@@ -11,7 +11,7 @@ import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * Model fuer den Server, z.B. angemeldete Benutzer.
@@ -57,56 +57,28 @@ public class GameServerModel {
         this.port = new SimpleIntegerProperty(DEFAULT_SERVER_PORT);
     }
 
-    //================================================================================================
-    // Getter and Setter
-
-    /**
-     * @return ein Iterator von {@link #clients}.
-     */
     public ObservableList<ClientDto> getClients() {
         return this.clients;
     }
 
-    /**
-     * Fuegt einen Client zur Liste {@link #clients} hinzu.
-     *
-     * @param client
-     *         ist ein {@link ClientDto}-Objekt. Darf nicht null sein.
-     */
     public void addClient(ClientDto client) {
         Assert.assertNotNull(client);
-        //----------------------------------------------------------------------------------------------
+
         this.clients.add(client);
     }
 
-
-    /**
-     * @return das {@link #port}-Objekt
-     */
     public IntegerProperty getPort() {
         return this.port;
     }
 
-    /**
-     * @return das {@link #password}-Objekt
-     */
     public StringProperty getPassword() {
         return this.password;
     }
 
-    /**
-     * Setzt das {@link #gameRunning}-Objekt.
-     *
-     * @param gameRunning
-     *         das {@link #gameRunning}-Objekt
-     */
     public void setGameRunning(boolean gameRunning) {
         this.gameRunning = gameRunning;
     }
 
-    /**
-     * @return das {@link #gameRunning}-Objekt
-     */
     public boolean isGameRunning() {
         return gameRunning;
     }
@@ -117,19 +89,28 @@ public class GameServerModel {
 
     /**
      * Loescht mehrere Benutzer aus der Liste anhand der UUIDs.
-     * @param logoutIds Eine Liste mit UUID als Generic Type
+     * @param clientIds Eine Liste mit UUID als Generic Type
      */
-    public void removeClients(List<?> logoutIds) {
-        if (logoutIds != null) {
-            List<ClientDto> clientsToRemove = new ArrayList<>(logoutIds.size());
+    public void removeClients(List<? extends ClientDto> clientIds) {
+        if (clientIds != null) {
+            List<ClientDto> clientsToRemove = new ArrayList<>(clientIds.size());
 
-            for (ClientDto clientDto : this.clients) {
-                if (logoutIds.contains(UUID.fromString(clientDto.getUuid()))) {
-                    clientsToRemove.add(clientDto);
+            this.clients.removeIf(new Predicate<ClientDto>() {
+                @Override
+                public boolean test(ClientDto clientDto) {
+                    return clientIds.contains(clientDto);
                 }
-            }
-
-            this.clients.removeAll(clientsToRemove);
+            });
         }
+    }
+
+    private void removeClient(List<ClientDto> clientsToRemove, ClientDto client) {
+        //for (ClientDto clientDto : this.clients) {
+        //  if (clientIds.forEach().contains(UUID.fromString(clientDto.getUuid()))) {
+        //    clientsToRemove.add(clientDto);
+        //}
+        //}
+
+        //this.clients.removeAll(clientsToRemove);
     }
 }

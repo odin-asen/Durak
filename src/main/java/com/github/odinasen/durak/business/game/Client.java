@@ -8,15 +8,12 @@ import com.github.odinasen.durak.dto.ClientDto;
  * Date: 22.07.2017.
  */
 public class Client {
-    protected ClientDto client;
+    private ClientDto client;
 
     public Client(ClientDto client) {
         this.client = client;
     }
 
-    /**
-     * @return Den Namen des Zuschauers.
-     */
     public String getName() {
         if (client != null) {
             return client.getName();
@@ -25,14 +22,15 @@ public class Client {
         }
     }
 
-    /**
-     * @return Die UUID des uebergebenen Clients.
-     */
-    public String getID() {
+    public String getId() {
         if (client != null) {
             return client.getUuid();
         } else {
             return "";
         }
+    }
+
+    public boolean hasSameIdAs(ClientDto otherClient) {
+        return otherClient != null && otherClient.getUuid().equals(this.getId());
     }
 }

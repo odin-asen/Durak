@@ -22,20 +22,21 @@ import de.root1.simon.exceptions.NameBindingException;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import static com.github.odinasen.durak.business.network.server.event.DurakServiceEvent
-        .DurakServiceEventType;
+import static com.github.odinasen.durak.business.network.server.event.DurakServiceEvent.DurakServiceEventType;
 
 /**
  * Das ist der Spieleserver. Er verwaltet ein laufendes Spiel und wertet Aktionen aus, um Sie dann
  * allen Spielern zu kommunizieren.<br/>
  * Methoden werden über ein Singleton-Objekt aufgerufen.<br/>
  * Standardmaessig laueft der Server auf Port 10000.<br/>
- *
+ * <p>
  * Die Klasse erbt von {@link java.util.Observable} und meldet allen registrierten
  * {@link java.util.Observer} eine Veraenderung mit {@link DurakServiceEvent} als Informationsobjekt.
  * <p/>
@@ -46,26 +47,20 @@ public class GameServer
         extends ExtendedObservable
         implements Observer {
     private static final Logger LOGGER = LoggingUtility.getLogger(GameServer.class.getName());
-
-    private DurakServiceEventHandler eventHandler;
-
-    /**
-     * Objekt, das alle Service-Methoden fuer den Durakserver enthaelt.
-     */
-    private ServerService serverService;
-
-    private ServerUserModel userModel;
-
-    /**
-     * Indikator, ob ein Spiel laueft oder nicht.
-     */
-    private boolean gameIsRunning;
-
     /**
      * Ist das Singleton-Objekt der Klasse.
      */
     private static GameServer instance;
-
+    private DurakServiceEventHandler eventHandler;
+    /**
+     * Objekt, das alle Service-Methoden fuer den Durakserver enthaelt.
+     */
+    private ServerService serverService;
+    private ServerUserModel userModel;
+    /**
+     * Indikator, ob ein Spiel laueft oder nicht.
+     */
+    private boolean gameIsRunning;
     /**
      * Ist das Registry-Objekt fuer die SIMON-Verbindung.
      */
@@ -100,20 +95,21 @@ public class GameServer
      * Startet den Server. Kann der Server aus einem Grund nicht gestartet werden, wird eine
      * {@link com.github.odinasen.durak.business.exception.SystemException} geworfen.
      *
-     * @param port
-     *         ist der Port auf dem der Server gestartet wird.
-     * @param password
-     *         Passwort des Servers.
-     *
-     * @throws com.github.odinasen.durak.business.exception.SystemException
-     *         <ol> als <b>praesentierbare Nachricht</b> wenn,
-     *         <li>der Service schon einmal registriert wurde, also die Methode schon einmal
-     *         ausgefuehrt
-     *         wurde, ohne {@link #stopServer()} aufzurufen.</li>
-     *         <li>die IP-Adresse des Servers nicht gefunden werden konnte.</li>
-     *         <li>es ein Problem mit dem Netzwerklayer gibt.</li>
-     *         </ol>
-     *         Als Exception-Attribut wird "port" gesetzt.
+     * @param port     ist der Port auf dem der Server gestartet wird.
+     * @param password Passwort des Servers.
+     * @throws com.github.odinasen.durak.business.exception.SystemException <ol> als <b>praesentierbare Nachricht</b>
+     *                                                                      wenn,
+     *                                                                      <li>der Service schon einmal registriert
+     *                                                                      wurde, also die Methode schon einmal
+     *                                                                      ausgefuehrt
+     *                                                                      wurde, ohne {@link #stopServer()}
+     *                                                                      aufzurufen.</li>
+     *                                                                      <li>die IP-Adresse des Servers nicht
+     *                                                                      gefunden werden konnte.</li>
+     *                                                                      <li>es ein Problem mit dem Netzwerklayer
+     *                                                                      gibt.</li>
+     *                                                                      </ol>
+     *                                                                      Als Exception-Attribut wird "port" gesetzt.
      */
     public void startServer(int port, String password) throws SystemException {
         this.serverService = ServerService.createService(password);
@@ -139,12 +135,13 @@ public class GameServer
         }
     }
 
-    /** Startet das Spiel. */
     public void startGame() {
         this.gameIsRunning = true;
     }
 
-    /** Stoppt den laufenden Server. Laueft ein Spiel, wird dieses auch geschlossen. */
+    /**
+     * Stoppt den laufenden Server. Laueft ein Spiel, wird dieses auch geschlossen.
+     */
     public void stopServer() {
         try {
             this.removeAllClients();
@@ -159,7 +156,6 @@ public class GameServer
         }
     }
 
-    /** Stoppt ein laufendes Spiel. */
     public void stopGame() {
         this.gameIsRunning = false;
     }
@@ -168,8 +164,7 @@ public class GameServer
      * Fuegt einen Client zum Spiel als Spieler oder Beobachter hinzu. Je nach dem, ob das Spiel
      * bereits laueft oder nicht. Es kann auch sein, dass ein Client gar nicht hinzugefuegt wird.
      *
-     * @param client
-     *         Der Client, entweder als Spieler oder Zuschauer hinzugefuegt werden soll.
+     * @param client Der Client, entweder als Spieler oder Zuschauer hinzugefuegt werden soll.
      */
     public synchronized void addClient(ClientDto client) {
         // Darf nur etwas gemacht werden, wenn der Server auch laeuft
@@ -225,7 +220,9 @@ public class GameServer
         return removedSpectators + removedPlayers;
     }
 
-    /** Gibt an, ob der Server laueft oder nicht. */
+    /**
+     * Gibt an, ob der Server laueft oder nicht.
+     */
     public boolean isRunning() {
         return (this.registry != null) && this.registry.isRunning();
     }
@@ -233,16 +230,16 @@ public class GameServer
     /**
      * Schickt eine Nachricht an alle verbundenen Clients.
      *
-     * @param clientMessage
-     *         Die Nachricht, die an die Clients gesendet wird. Darf nicht null sein.
+     * @param clientMessage Die Nachricht, die an die Clients gesendet wird. Darf nicht null sein.
      */
     public void sendClientMessage(NetworkMessage<ClientMessageType> clientMessage) {
         Assert.assertNotNull(clientMessage, NetworkMessage.class);
         //---------------------------------------------------------------------------
-
     }
 
-    /** Setzt das Serverpasswort. */
+    /**
+     * Setzt das Serverpasswort.
+     */
     public void setPassword(String password) {
         this.serverService.setServerPassword(password);
     }
@@ -259,10 +256,8 @@ public class GameServer
      * Update-Methode aus dem Observable-Pattern. Wird aufgerufen, wenn einer der registrierten
      * Observable-Objekte die notify-Methode aufruft.
      *
-     * @param observable
-     *         ist das Observable-Objekt, dass die notify-Methode aufgerufen hat.
-     * @param o
-     *         Ein zusatzliches Informations-Objekt fuer weitere verarbeiten.
+     * @param observable ist das Observable-Objekt, dass die notify-Methode aufgerufen hat.
+     * @param o          Ein zusatzliches Informations-Objekt fuer weitere verarbeiten.
      */
     @Override
     public void update(Observable observable, Object o) {
@@ -270,6 +265,38 @@ public class GameServer
             DurakServiceEvent event = (DurakServiceEvent) o;
 
             this.eventHandler.handleEvent(event);
+        }
+    }
+
+    public void removeClients(List<? extends ClientDto> removedClients) {
+        if (removedClients != null && !removedClients.isEmpty()) {
+            List<Player> players = this.userModel.getPlayers();
+
+            List<String> toBeRemovedClientIds = new ArrayList<>(removedClients.size());
+            players.removeIf(player -> {
+                long clientsWithSameIdCount =
+                        removedClients.stream().filter((Predicate<ClientDto>) player::hasSameIdAs).count();
+                if (clientsWithSameIdCount > 0) {
+                    toBeRemovedClientIds.add(player.getId());
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            List<Spectator> spectators = this.userModel.getSpectators();
+            spectators.removeIf(spectator -> {
+                long clientsWithSameIdCount =
+                        removedClients.stream().filter((Predicate<ClientDto>) spectator::hasSameIdAs).count();
+                if (clientsWithSameIdCount > 0) {
+                    toBeRemovedClientIds.add(spectator.getId());
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            toBeRemovedClientIds.forEach(clientId -> this.serverService.removeClientByIdSendNotification(clientId));
         }
     }
 

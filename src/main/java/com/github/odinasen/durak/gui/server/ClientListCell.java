@@ -41,6 +41,12 @@ public class ClientListCell
             }
             setTooltip(new Tooltip(item.getUuid()));
             setContextMenu(contextMenu);
+        } else {
+            clearEmptyCell();
         }
+    }
+
+    private void clearEmptyCell() {
+        setText("");
     }
 }

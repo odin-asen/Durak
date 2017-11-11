@@ -19,6 +19,7 @@ import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -104,10 +105,8 @@ public class ServerPanelController
                                                               new NumberStringConverter());
         this.fieldPassword.textProperty().bindBidirectional(this.gameServerModel.getPassword());
 
-        /* Controller als Observer registrieren, um eingehende Events zu erhalten */
         GameServer.getInstance().addObserver(this);
 
-        /* Wenn das Panel angezeigt wird, wird es initialisiert mit Startparametern */
         initByStartParameters();
     }
 
@@ -138,19 +137,36 @@ public class ServerPanelController
 
     private void initListView() {
         listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        listLoggedClients.setItems(this.gameServerModel.getClients());
+
         listLoggedClients.setCellFactory(new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
             @Override
             public ListCell<ClientDto> call(ListView<ClientDto> listView) {
                 return new ClientListCell(new EventHandler<ActionEvent>() {
                     @Override
                     public void handle(ActionEvent actionEvent) {
-                        //removeSelectedClients();
+                        removeSelectedClients();
                     }
                 });
             }
         });
 
-        listLoggedClients.setItems(this.gameServerModel.getClients());
+        listLoggedClients.getItems().addListener(new ListChangeListener<ClientDto>() {
+
+            @Override
+            public void onChanged(Change<? extends ClientDto> change) {
+                while (change.next()) {
+                    if (change.wasRemoved()) {
+                        List<? extends ClientDto> clientsToRemove = change.getRemoved();
+                        GameServer.getInstance().removeClients(clientsToRemove);
+                        ServerPanelController.this.gameServerModel.removeClients(clientsToRemove);
+                        GameServer.getInstance().sendClientMessage(new NetworkMessage<>(new Object(),
+                                                                                        ClientMessageType
+                                                                                                .CLIENT_REMOVED_BY_SERVER));
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -383,10 +399,8 @@ public class ServerPanelController
      * Komponenten der Oberflaeche an.
      */
     private void stopServer() {
-        /* Clients benachrichtigen */
         GameServer.getInstance().sendClientMessage(new NetworkMessage<>(new Object(), ClientMessageType.SERVER_SHUTDOWN));
 
-        /* Server stoppen */
         GameServer.getInstance().stopServer();
 
         /* GUI anpassen */
@@ -487,9 +501,9 @@ public class ServerPanelController
 
         @Override
         public void accept(DurakServiceEvent<List> event) {
-            List logoutIds = event.getEventObject();
+            List clientIds = event.getEventObject();
 
-            Platform.runLater(() -> ServerPanelController.this.gameServerModel.removeClients(logoutIds));
+            Platform.runLater(() -> ServerPanelController.this.gameServerModel.removeClients(clientIds));
         }
     }
 }

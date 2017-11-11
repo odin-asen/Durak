@@ -3,13 +3,16 @@ package com.github.odinasen.durak.business.network.server;
 import com.github.odinasen.durak.business.ExtendedObservable;
 import com.github.odinasen.durak.business.game.GameAction;
 import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
+import com.github.odinasen.durak.business.network.server.exception.LoginFailedException;
+import com.github.odinasen.durak.business.network.server.exception.SessionNotFoundException;
+import com.github.odinasen.durak.business.network.server.session.SessionFactory;
 import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
-import com.github.odinasen.durak.util.StringUtils;
+import de.root1.simon.SimonStaticMethodWrapper;
 import de.root1.simon.annotation.SimonRemote;
 import de.root1.simon.exceptions.SimonRemoteException;
 import org.jetbrains.annotations.NotNull;
@@ -23,12 +26,8 @@ import static com.github.odinasen.durak.business.network.server.event.DurakServi
 /**
  * Dieser Service ist ueberwachbar (java.util.Observable) und sendet bei folgenden Ereignissen
  * ein Event:
- * <p>
  * - Client hat sich angemeldet
  * - Client hat sich abgemeldet
- * <p>
- * Author: Timm Herrmann
- * Date: 23.06.14
  */
 @SimonRemote(value = {ServerInterface.class, SessionInterface.class})
 public class ServerService
@@ -38,29 +37,43 @@ public class ServerService
     private static final Logger LOGGER = LoggingUtility.getLogger(ServerService.class);
     private static final Map<UUID, Callable> loggedInClients = new HashMap<>();
 
+    private List<SessionInterface> loggedSessionList;
+
     private String serverPassword;
+    private SessionFactory sessionFactory;
 
     private ServerService(String serverPassword) {
+        loggedSessionList = new ArrayList<>(6);
         setServerPassword(serverPassword);
+        sessionFactory = new SessionFactory();
     }
 
     static ServerService createService(String password) {
         return new ServerService(password);
     }
 
-    @Override
-    public boolean login(AuthenticationClient client) {
+    public SessionInterface login(AuthenticationClient client, Callable clientCallable)
+            throws LoginFailedException, SessionNotFoundException {
+        if (client == null || clientCallable == null) {
+            throw new IllegalArgumentException("Parameters must not be null!");
+        }
+
         LoginAuthenticator authenticator = new LoginAuthenticator(client, this.serverPassword);
         UUID clientUUID = createUUIDFromString(client.getClientDto().getUuid());
 
         if (authenticator.isAuthenticated()) {
-            if (!clientConnectionExists(clientUUID) || !isClientUUIDLoggedIn(authenticator, clientUUID)) {
+            if (!clientSessionExists(clientCallable)) {
                 registerNewClient(client);
-                return true;
-            }
-        }
+                SessionInterface session = sessionFactory.createSession(this, client.getClientDto(), clientCallable);
+                loggedSessionList.add(session);
 
-        return false;
+                return session;
+            } else {
+                return retrieveSessionByReference(clientCallable);
+            }
+        } else {
+            throw new LoginFailedException();
+        }
     }
 
     private UUID createUUIDFromString(String uuidString) {
@@ -73,21 +86,29 @@ public class ServerService
         return clientUUID;
     }
 
-    private boolean clientConnectionExists(UUID clientUUID) {
-        return clientUUID != null && loggedInClients.containsKey(clientUUID);
+    private boolean clientSessionExists(Callable callable) {
+        boolean clientExists = false;
+        for (SessionInterface session : loggedSessionList) {
+            clientExists = clientExists || callable.equals(session.getCallable());
+        }
+        return clientExists;
     }
 
-    private boolean isClientUUIDLoggedIn(LoginAuthenticator authenticator, UUID clientUUID) {
-        Callable loggedInClient = loggedInClients.get(clientUUID);
+    private SessionInterface retrieveSessionByReference(Callable reference) throws SessionNotFoundException {
+        for (SessionInterface session : loggedSessionList) {
+            if (reference.equals(session.getCallable())) {
+                return session;
+            }
+        }
 
-        return authenticator.clientHasCallable(loggedInClient);
+        throw new SessionNotFoundException();
     }
 
     private void registerNewClient(AuthenticationClient client) {
         ClientDto loginClient = client.getClientDto();
         UUID newClientsUUID = insertClientToLoggedInClients(client);
         loginClient.setUuid(newClientsUUID.toString());
-        this.setChangedAndNotifyObservers(new DurakServiceEvent<ClientDto>(DurakServiceEventType.CLIENT_LOGIN, loginClient));
+        this.setChangedAndNotifyObservers(new DurakServiceEvent<>(DurakServiceEventType.CLIENT_LOGIN, loginClient));
     }
 
     private synchronized UUID insertClientToLoggedInClients(AuthenticationClient client) {
@@ -97,13 +118,12 @@ public class ServerService
         return clientUUID;
     }
 
-    @Override
     public synchronized void logoff(Callable callable) {
         if (callable != null) {
             List<UUID> idsToRemove = getUUIDsToRemove(callable);
             removeIDsFromLoggedInClients(idsToRemove);
-            this.setChangedAndNotifyObservers(new DurakServiceEvent<List<UUID>>(DurakServiceEventType.CLIENT_LOGOUT,
-                                                                                idsToRemove));
+            this.setChangedAndNotifyObservers(new DurakServiceEvent<>(DurakServiceEventType.CLIENT_LOGOUT,
+                                                                      idsToRemove));
             //TODO andere Benutzer benachrichtigen
         }
     }
@@ -112,25 +132,28 @@ public class ServerService
     private List<UUID> getUUIDsToRemove(Callable callable) {
         List<UUID> idsToRemove = new ArrayList<>();
         for (Map.Entry<UUID, Callable> entry : loggedInClients.entrySet()) {
-            addUUIDIfCallableFoundInto(idsToRemove, callable, entry);
+            UUID uuid = getUUIDIfFound(callable, entry);
+            if (uuid != null) {
+                idsToRemove.add(uuid);
+            }
         }
         return idsToRemove;
     }
 
-    private void addUUIDIfCallableFoundInto(List<UUID> idsToRemove,
-                                            Callable callable,
-                                            Map.Entry<UUID, Callable> entry) {
+    private UUID getUUIDIfFound(Callable callable, Map.Entry<UUID, Callable> entry) {
         try {
             UUID uuid = entry.getKey();
             if (callable.equals(entry.getValue())) {
-                idsToRemove.add(uuid);
+                return uuid;
             }
         } catch (SimonRemoteException ex) {
             final String message =
-                    "Remote Object could not properly be processed and " + "will be disconnected from server.";
+                    "Remote Object could not properly be processed and will be disconnected from " + "server.";
             LOGGER.info(message + " " + ex.getMessage());
             LOGGER.log(Level.FINE, "", ex);
         }
+
+        return null;
     }
 
     private void removeIDsFromLoggedInClients(List<UUID> idsToRemove) {
@@ -154,11 +177,33 @@ public class ServerService
 
     }
 
+    @Override
+    public Callable getCallable() {
+        return null;
+    }
+
+    public void removeClientByIdSendNotification(String clientId) {
+        UUID clientUUID = UUID.fromString(clientId);
+        if (loggedInClients.containsKey(clientUUID)) {
+            Callable clientCallable = loggedInClients.get(clientUUID);
+            //clientCallable.sendClientMessage(ClientMessageType.CLIENT_REMOVED_BY_SERVER);
+
+            SimonStaticMethodWrapper simonWrapper = new SimonStaticMethodWrapper();
+            simonWrapper.closeNetworkConnectionFromRemoteObject(clientCallable);
+
+            loggedInClients.remove(clientUUID);
+        }
+    }
+
     public void setServerPassword(String serverPassword) {
         if (serverPassword != null) {
             this.serverPassword = serverPassword;
         } else {
             this.serverPassword = "";
         }
+    }
+
+    public void setSessionFactory(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 }
