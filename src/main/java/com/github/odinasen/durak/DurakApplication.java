@@ -21,21 +21,23 @@ import java.util.Observer;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-public class DurakApplication extends Application implements Observer {
+public class DurakApplication
+        extends Application
+        implements Observer {
     private static final String TITLE = "Durak";
 
     private static final Logger LOGGER = LoggingUtility.getLogger(DurakApplication.class.getName());
 
     private GUIMode guiMode;
 
-	/**
-	 * @param args Array mit Parametern. Benamte Parameter, die mit -- beginnen, werden in die
-	 *             Oberflaeche als Startparameter uebergeben.
-	 */
+    /**
+     * @param args
+     *         Array mit Parametern. Benamte Parameter, die mit -- beginnen, werden in die
+     *         Oberflaeche als Startparameter uebergeben.
+     */
     public static void main(String[] args) {
-    /* init logging class */
-        LoggingUtility.setFirstTimeLoggingFile(System.getProperty("user.dir")
-                + System.getProperty("file.separator") + "clientLog.txt");
+        LoggingUtility.setFirstTimeLoggingFile(System.getProperty("user.dir") + System.getProperty(
+                "file.separator") + "clientLog.txt");
 
         launch(args);
     }
@@ -47,15 +49,16 @@ public class DurakApplication extends Application implements Observer {
         ApplicationStartParameter.getInstance(this.getParameters().getNamed());
 
         // Jetzt gehts richtig los
-        ResourceBundle bundle = ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME,
-                Locale.getDefault());
+        ResourceBundle bundle =
+                ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault());
         Parent root = ResourceGetter.loadFXMLPanel(FXMLNames.MAIN_PANEL, bundle);
         primaryStage.setTitle(TITLE);
 
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension dim = toolkit.getScreenSize();
 
-        Scene scene = new Scene(root, getWindowDimension(dim.getWidth()), getWindowDimension(dim.getHeight()));
+        Scene scene = new Scene(root, getWindowDimension(dim.getWidth()),
+                                getWindowDimension(dim.getHeight()));
         primaryStage.setScene(scene);
         primaryStage.centerOnScreen();
 
@@ -86,11 +89,12 @@ public class DurakApplication extends Application implements Observer {
     }
 
     /**
-     * Liefert einen faktorisierten Wert (< 1) fuer eine Fenstergroesse zurueck. Der Methode kann also Breite und Hoehe
+     * Liefert einen faktorisierten Wert (< 1) fuer eine Fenstergroesse zurueck. Der Methode kann
+     * also Breite und Hoehe
      * uebergeben werden.
      */
     private double getWindowDimension(double size) {
-        return 0.75*size;
+        return 0.75 * size;
     }
 
     @Override

@@ -3,15 +3,16 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0"
+<VBox fx:id="root"
       xmlns:fx="http://javafx.com/fxml"
       stylesheets="/css/server.css"
       fx:controller="com.github.odinasen.durak.gui.server.ServerPanelController">
   <ToolBar>
     <Button fx:id="buttonLaunchServer" onAction="#startStopServer" styleClass="startServerButton"/>
-    <Button fx:id="buttonLaunchGame" onAction="#startStopGame" visible="false" styleClass="startGameButton" />
+    <Button fx:id="buttonLaunchGame" onAction="#startStopGame" visible="false"
+            styleClass="startGameButton"/>
   </ToolBar>
-  <TitledPane collapsible="true" text="%title.server.configuration" VBox.vgrow="NEVER">
+  <TitledPane text="%title.server.configuration" VBox.vgrow="NEVER">
     <GridPane fx:id="serverConfigPanel">
       <GridPane.margin>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
@@ -25,7 +26,7 @@
       <TextField fx:id="fieldServerPort" prefColumnCount="4"
                  GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.margin="$gridPaneMargin">
         <tooltip>
-          <Tooltip text="%tooltip.server.server.port" />
+          <Tooltip text="%tooltip.server.server.port"/>
         </tooltip>
       </TextField>
       <Label text="%label.password" GridPane.rowIndex="2" GridPane.columnIndex="0"
@@ -36,12 +37,10 @@
           <Tooltip text="%tooltip.client.server.password"/>
         </tooltip>
       </TextField>
-      <columnConstraints>
-        <ColumnConstraints fillWidth="true" hgrow="ALWAYS" minWidth="80.0"/>
-      </columnConstraints>
     </GridPane>
   </TitledPane>
   <TitledPane collapsible="false" maxHeight="+Infinity" text="%title.logged.in" VBox.vgrow="ALWAYS">
-    <ListView fx:id="listLoggedClients" orientation="VERTICAL" prefHeight="182.0" prefWidth="148.0" />
+    <ListView fx:id="listLoggedClients" prefHeight="182.0"
+    />
   </TitledPane>
 </VBox>

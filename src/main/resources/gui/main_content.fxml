@@ -4,32 +4,40 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox fx:id="root"
-    xmlns:fx="http://fxml.com/fxml"
-    stylesheets="/css/common.css"
+      xmlns:fx="http://fxml.com/fxml"
+      stylesheets="/css/common.css"
       fx:controller="com.github.odinasen.durak.gui.MainGUIController">
-    <MenuBar xmlns:fx="http://javafx.com/fxml" >
-        <Menu text="%menu.connections">
-            <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open.server.panel"/>
-            <MenuItem fx:id="openConnectToServerMenuItem" text="%menu.item.open.client.panel"/>
-            <MenuItem fx:id="closeMenuItem" text="%menu.item.close"/>
-        </Menu>
-        <Menu text="%menu.settings"/>
-    </MenuBar>
-    <ToolBar maxWidth="1.7976931348623157E308">
-        <Button text="%button.button" onAction="#reloadGUI"/>
-        <Button text="karten nehmen"/>
-        <Button text="Nächste Runde"/>
-    </ToolBar>
-    <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS">
-        <fx:include source="game_stack_opponents_panel.fxml"/>
-    </SplitPane>
-    <HBox VBox.vgrow="NEVER">
-        <Label fx:id="leftStatus">
-            <HBox.margin>
-                <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" fx:id="x1"/>
-            </HBox.margin>
-        </Label>
-        <Pane HBox.hgrow="ALWAYS"/>
-        <Label fx:id="rightStatus" HBox.margin="$x1"/>
+  <MenuBar xmlns:fx="http://javafx.com/fxml">
+    <Menu fx:id="menuConnection" text="%menu.connections">
+      <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open.server.panel"/>
+      <MenuItem fx:id="openConnectToServerMenuItem" text="%menu.item.open.client.panel"/>
+      <MenuItem fx:id="closeMenuItem" text="%menu.item.close"/>
+    </Menu>
+    <Menu text="%menu.settings"/>
+  </MenuBar>
+  <ToolBar maxWidth="1.7976931348623157E308">
+    <Button text="%button.button" onAction="#reloadGUI"/>
+    <Button text="karten nehmen"/>
+    <Button text="Nächste Runde"/>
+  </ToolBar>
+  <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS" dividerPositions="0,1.0">
+    <HBox fx:id="serverPanel" minWidth="0" maxWidth="218.0" visible="false">
+      <fx:include source="server.fxml" visible="true" HBox.hgrow="ALWAYS"/>
     </HBox>
+    <HBox minWidth="0" maxWidth="Infinity">
+      <fx:include source="game_stack_opponents_panel.fxml" VBox.vgrow="ALWAYS"/>
+    </HBox>
+    <HBox fx:id="clientPanel" minWidth="0" maxWidth="280.0" visible="false">
+      <fx:include source="client.fxml" visible="true" HBox.hgrow="ALWAYS"/>
+    </HBox>
+  </SplitPane>
+  <HBox VBox.vgrow="NEVER">
+    <Label fx:id="leftStatus">
+      <HBox.margin>
+        <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" fx:id="x1"/>
+      </HBox.margin>
+    </Label>
+    <Pane HBox.hgrow="ALWAYS"/>
+    <Label fx:id="rightStatus" HBox.margin="$x1"/>
+  </HBox>
 </VBox>

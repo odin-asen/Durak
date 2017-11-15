@@ -1,7 +1,7 @@
 package com.github.odinasen.durak.resources;
 
-import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.durak.i18n.I18nSupport;
+import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.image.Image;
@@ -67,7 +67,6 @@ public class ResourceGetter {
      * @param fileName ist der Name der zu ladenen Datei ohne Endung.
      * @param bundle   ist das ResourceBundle, das in der FXML-Datei verwendet wird.
      * @return das Panel, das aus der Datei gelesen wird.
-     * @throws IOException
      */
     public static Parent loadFXMLPanel(String fileName, ResourceBundle bundle) throws IOException {
         final String resourcePath = "gui/" + fileName + ".fxml";
@@ -76,7 +75,11 @@ public class ResourceGetter {
             URL resourceURL = classLoader.getResource(resourcePath);
 
             if (resourceURL != null) {
-                return FXMLLoader.load(resourceURL, bundle);
+                if (bundle != null) {
+                    return FXMLLoader.load(resourceURL, bundle);
+                } else {
+                    return FXMLLoader.load(resourceURL);
+                }
             } else {
                 throw new Error("Could not find resource in path '" + resourcePath + "'." +
                                 "Make sure the file exists in classpath.");
@@ -84,5 +87,9 @@ public class ResourceGetter {
         } else {
             throw new Error("ClassLoader is null. Could not load classpath '" + resourcePath + "'.");
         }
+    }
+
+    public static Parent loadFXMLPanel(String fileName) throws IOException {
+        return loadFXMLPanel(fileName, null);
     }
 }

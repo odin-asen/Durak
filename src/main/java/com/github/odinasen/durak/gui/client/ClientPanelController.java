@@ -17,6 +17,7 @@ import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -41,6 +42,11 @@ public class ClientPanelController
 
     private static final Logger LOGGER = LoggingUtility.getLogger(ClientPanelController.class.getName());
 
+    private static JavaFXController controller;
+
+    @FXML
+    Parent root;
+
     @FXML
     private TextField fieldLoginName;
 
@@ -63,6 +69,10 @@ public class ClientPanelController
     public ClientPanelController() {
         super(FXMLNames.CLIENT_PANEL, ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
         this.clientModel = new ClientPanelModel();
+
+        if (controller == null) {
+            controller = this;
+        }
     }
 
     @Override
@@ -160,6 +170,13 @@ public class ClientPanelController
         }
     }
 
+    public static JavaFXController getInstance() {
+        return controller;
+    }
+
+    public Parent getPanel() {
+        return root;
+    }
     /**
      * Initialisiert das Hauptfenster, falls dies noch nicht gesetzt wurde und falls die Scene schon
      * geladen ist.

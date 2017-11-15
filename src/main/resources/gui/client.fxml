@@ -1,56 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?scenebuilder-classpath-element ../../../../../../out/production/Durak?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox maxWidth="-Infinity" prefHeight="295.0" prefWidth="218.0" minWidth="218.0"
+<?import java.lang.Integer?>
+<VBox fx:id="root"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.github.odinasen.durak.gui.client.ClientPanelController">
   <ToolBar>
     <Button fx:id="buttonConnectDisconnect" onAction="#connectDisconnect"/>
   </ToolBar>
   <TitledPane collapsible="false" text="%title.login.name" VBox.vgrow="ALWAYS">
-    <TextField fx:id="fieldLoginName" prefColumnCount="20">
+    <TextField fx:id="fieldLoginName" prefColumnCount="15">
       <tooltip>
         <Tooltip text="%tooltip.client.login.name"/>
       </tooltip>
     </TextField>
   </TitledPane>
-  <TitledPane collapsible="false" text="%title.server.settings" VBox.vgrow="ALWAYS" >
+  <TitledPane collapsible="false" text="%title.server.settings" VBox.vgrow="ALWAYS">
+    <fx:define>
+      <Integer fx:id="labelColumnIndex" fx:value="0"/>
+      <Integer fx:id="textFieldColumnIndex" fx:value="1"/>
+    </fx:define>
     <GridPane>
       <GridPane.margin>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
       </GridPane.margin>
       <Label text="%label.server.address" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="0"
-             GridPane.columnIndex="0"/>
-      <TextField fx:id="fieldServerAddress" prefColumnCount="20"
-                 GridPane.margin="$gridPaneMargin" GridPane.rowIndex="0" GridPane.columnIndex="1">
+             GridPane.columnIndex="$labelColumnIndex" GridPane.hgrow="ALWAYS"/>
+      <TextField fx:id="fieldServerAddress"
+                 GridPane.margin="$gridPaneMargin" GridPane.rowIndex="0"
+                 GridPane.columnIndex="$textFieldColumnIndex">
         <tooltip>
           <Tooltip text="%tooltip.client.server.address"/>
         </tooltip>
       </TextField>
       <Label text="%label.port" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1"
-             GridPane.columnIndex="0"/>
-      <TextField fx:id="fieldServerPort" prefColumnCount="20"
-                 GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1" GridPane.columnIndex="1">
+             GridPane.columnIndex="$labelColumnIndex" GridPane.hgrow="ALWAYS"/>
+      <TextField fx:id="fieldServerPort"
+                 GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1"
+                 GridPane.columnIndex="$textFieldColumnIndex">
         <tooltip>
           <Tooltip text="%tooltip.client.server.port"/>
         </tooltip>
       </TextField>
       <Label text="%label.password"
-             GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
+             GridPane.rowIndex="2" GridPane.columnIndex="$labelColumnIndex"
+             GridPane.margin="$gridPaneMargin"
+             GridPane.hgrow="ALWAYS"/>
       <PasswordField fx:id="fieldPassword"
                      GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2"
-                     GridPane.columnIndex="1">
+                     GridPane.columnIndex="$textFieldColumnIndex">
         <tooltip>
           <Tooltip text="%tooltip.client.server.password"/>
         </tooltip>
       </PasswordField>
-      <columnConstraints>
-        <ColumnConstraints hgrow="ALWAYS" minWidth="85.0"/>
-      </columnConstraints>
+
     </GridPane>
   </TitledPane>
 </VBox>

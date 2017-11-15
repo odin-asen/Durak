@@ -25,6 +25,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
@@ -49,7 +50,12 @@ public class ServerPanelController
 
     private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
+    private static JavaFXController controller;
+
     private DurakServiceEventHandler eventHandler;
+
+    @FXML
+    private Parent root;
 
     @FXML
     private GridPane serverConfigPanel;
@@ -72,19 +78,17 @@ public class ServerPanelController
      */
     private GameServerModel gameServerModel;
 
-    //==============================================================================================
-    // Constructors
-
     public ServerPanelController() {
         super(FXMLNames.SERVER_PANEL,
               ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
         this.gameServerModel = new GameServerModel();
 
         initEventHandler();
-    }
 
-    //==============================================================================================
-    // Methods
+        if (controller == null) {
+            controller = this;
+        }
+    }
 
     private void initEventHandler() {
         this.eventHandler = new DurakServiceEventHandler();
@@ -126,6 +130,7 @@ public class ServerPanelController
     @Override
     protected void assertNotNullComponents() {
         final String fxmlName = this.getFxmlName();
+        Assert.assertFXElementNotNull(this.root, "root", fxmlName);
         Assert.assertFXElementNotNull(this.buttonLaunchGame, "buttonLaunchGame", fxmlName);
         Assert.assertFXElementNotNull(this.buttonLaunchServer, "buttonLaunchServer", fxmlName);
         Assert.assertFXElementNotNull(this.serverConfigPanel, "serverConfigPanel", fxmlName);
@@ -470,6 +475,14 @@ public class ServerPanelController
             DurakServiceEvent event = (DurakServiceEvent) o;
             eventHandler.handleEvent(event);
         }
+    }
+
+    public Parent getPanel() {
+        return root;
+    }
+
+    public static JavaFXController getInstance() {
+        return controller;
     }
 
     /**

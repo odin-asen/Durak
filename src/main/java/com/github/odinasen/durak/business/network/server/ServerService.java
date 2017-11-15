@@ -15,7 +15,6 @@ import com.github.odinasen.durak.util.LoggingUtility;
 import de.root1.simon.SimonStaticMethodWrapper;
 import de.root1.simon.annotation.SimonRemote;
 import de.root1.simon.exceptions.SimonRemoteException;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -32,7 +31,8 @@ import static com.github.odinasen.durak.business.network.server.event.DurakServi
 @SimonRemote(value = {ServerInterface.class, SessionInterface.class})
 public class ServerService
         extends ExtendedObservable
-        implements ServerInterface, SessionInterface {
+        implements ServerInterface,
+                   SessionInterface {
 
     private static final Logger LOGGER = LoggingUtility.getLogger(ServerService.class);
     private static final Map<UUID, Callable> loggedInClients = new HashMap<>();
@@ -64,7 +64,8 @@ public class ServerService
         if (authenticator.isAuthenticated()) {
             if (!clientSessionExists(clientCallable)) {
                 registerNewClient(client);
-                SessionInterface session = sessionFactory.createSession(this, client.getClientDto(), clientCallable);
+                SessionInterface session =
+                        sessionFactory.createSession(this, client.getClientDto(), clientCallable);
                 loggedSessionList.add(session);
 
                 return session;
@@ -94,7 +95,8 @@ public class ServerService
         return clientExists;
     }
 
-    private SessionInterface retrieveSessionByReference(Callable reference) throws SessionNotFoundException {
+    private SessionInterface retrieveSessionByReference(Callable reference)
+            throws SessionNotFoundException {
         for (SessionInterface session : loggedSessionList) {
             if (reference.equals(session.getCallable())) {
                 return session;
@@ -108,7 +110,8 @@ public class ServerService
         ClientDto loginClient = client.getClientDto();
         UUID newClientsUUID = insertClientToLoggedInClients(client);
         loginClient.setUuid(newClientsUUID.toString());
-        this.setChangedAndNotifyObservers(new DurakServiceEvent<>(DurakServiceEventType.CLIENT_LOGIN, loginClient));
+        this.setChangedAndNotifyObservers(
+                new DurakServiceEvent<>(DurakServiceEventType.CLIENT_LOGIN, loginClient));
     }
 
     private synchronized UUID insertClientToLoggedInClients(AuthenticationClient client) {
@@ -122,13 +125,12 @@ public class ServerService
         if (callable != null) {
             List<UUID> idsToRemove = getUUIDsToRemove(callable);
             removeIDsFromLoggedInClients(idsToRemove);
-            this.setChangedAndNotifyObservers(new DurakServiceEvent<>(DurakServiceEventType.CLIENT_LOGOUT,
-                                                                      idsToRemove));
+            this.setChangedAndNotifyObservers(
+                    new DurakServiceEvent<>(DurakServiceEventType.CLIENT_LOGOUT, idsToRemove));
             //TODO andere Benutzer benachrichtigen
         }
     }
 
-    @NotNull
     private List<UUID> getUUIDsToRemove(Callable callable) {
         List<UUID> idsToRemove = new ArrayList<>();
         for (Map.Entry<UUID, Callable> entry : loggedInClients.entrySet()) {
@@ -148,7 +150,8 @@ public class ServerService
             }
         } catch (SimonRemoteException ex) {
             final String message =
-                    "Remote Object could not properly be processed and will be disconnected from " + "server.";
+                    "Remote Object could not properly be processed and will be disconnected from "
+                    + "" + "server.";
             LOGGER.info(message + " " + ex.getMessage());
             LOGGER.log(Level.FINE, "", ex);
         }
@@ -186,7 +189,6 @@ public class ServerService
         UUID clientUUID = UUID.fromString(clientId);
         if (loggedInClients.containsKey(clientUUID)) {
             Callable clientCallable = loggedInClients.get(clientUUID);
-            //clientCallable.sendClientMessage(ClientMessageType.CLIENT_REMOVED_BY_SERVER);
 
             SimonStaticMethodWrapper simonWrapper = new SimonStaticMethodWrapper();
             simonWrapper.closeNetworkConnectionFromRemoteObject(clientCallable);
