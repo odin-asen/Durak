@@ -8,11 +8,9 @@ import com.github.odinasen.durak.resources.ResourceGetter;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.awt.*;
 import java.util.Locale;
@@ -64,27 +62,22 @@ public class DurakApplication
 
         primaryStage.show();
 
-        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent windowEvent) {
-                try {
-                    /* Client zuerst stoppen */
-                    GameClient.getInstance().disconnect();
-                } catch (Exception ex) {
-                    LOGGER.info("Exception on closing connection to a server");
-                }
-
-                try {
-                    /* Dann Server stoppen */
-                    GameServer.getInstance().stopServer();
-                } catch (Exception ex) {
-                    LOGGER.info("Exception on stopping server");
-                }
-
-                /* JavaFX Anwendung beenden */
-                Platform.exit();
-                System.exit(0);
+        primaryStage.setOnCloseRequest(windowEvent -> {
+            try {
+                GameClient.getInstance().disconnect();
+            } catch (Exception ex) {
+                LOGGER.info("Exception on closing connection to a server");
             }
+
+            try {
+                GameServer.getInstance().stopServer();
+            } catch (Exception ex) {
+                LOGGER.info("Exception on stopping server");
+            }
+
+            /* JavaFX Anwendung beenden */
+            Platform.exit();
+            System.exit(0);
         });
     }
 

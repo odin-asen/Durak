@@ -10,7 +10,7 @@
   <MenuBar xmlns:fx="http://javafx.com/fxml">
     <Menu fx:id="menuConnection" text="%menu.connections">
       <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open.server.panel"/>
-      <MenuItem fx:id="openConnectToServerMenuItem" text="%menu.item.open.client.panel"/>
+      <MenuItem fx:id="openHideClientPanelMenuItem" text="%menu.item.open.client.panel"/>
       <MenuItem fx:id="closeMenuItem" text="%menu.item.close"/>
     </Menu>
     <Menu text="%menu.settings"/>
@@ -21,6 +21,7 @@
     <Button text="Nächste Runde"/>
   </ToolBar>
   <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS" dividerPositions="0,1.0">
+
     <HBox fx:id="serverPanel" minWidth="0" maxWidth="218.0" visible="false">
       <fx:include source="server.fxml" visible="true" HBox.hgrow="ALWAYS"/>
     </HBox>

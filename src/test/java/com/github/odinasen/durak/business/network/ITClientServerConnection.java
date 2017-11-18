@@ -3,12 +3,16 @@ package com.github.odinasen.durak.business.network;
 import com.github.odinasen.durak.business.network.client.GameClient;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.dto.ClientDto;
+import com.github.odinasen.durak.util.LoggingUtility;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ConcurrentModificationException;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Integrationstests fuer SimonClient-Server-Verbindungen.
@@ -18,6 +22,7 @@ import java.util.UUID;
  */
 public class ITClientServerConnection {
     private static final String SERVER_PWD = "bla";
+    private static final Logger LOGGER = LoggingUtility.getLogger(ITClientServerConnection.class);
 
     private int testPort;
     private GameServer server;
@@ -39,13 +44,17 @@ public class ITClientServerConnection {
 
     @After
     public void tearDown() throws Exception {
-        server.stopServer();
-        server.setPassword("");
+        try {
+            server.stopServer();
+        } catch (ConcurrentModificationException ex) {
+            LOGGER.log(
+                    Level.INFO,
+                    "ConcurrentModificationException has been thrown, because SIMON is modifying "
+                    + "" + "" + "an iterator inside a loop. The exception should not break these "
+                    + "tests" + ".");
+        }
     }
 
-    /**
-     * Test fuer eine Verbindung, ohne Passwort.
-     */
     @Test
     public void connectWithoutPassword() throws Exception {
         String clientName = "Horst";

@@ -144,14 +144,14 @@ public class GameServer
      */
     public void stopServer() {
         try {
-            this.removeAllClients();
+            removeAllClients();
         } catch (SystemException e) {
             LOGGER.info(I18nSupport.getException(e.getErrorCode()));
         }
 
         if (this.registry != null) {
-            this.registry.unbind(SIMONConfiguration.REGISTRY_NAME_SERVER);
-            this.registry.stop();
+            registry.unbind(SIMONConfiguration.REGISTRY_NAME_SERVER);
+            registry.stop();
             LOGGER.info(LoggingUtility.STARS + " Server shut down " + LoggingUtility.STARS);
         }
     }

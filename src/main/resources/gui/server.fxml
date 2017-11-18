@@ -12,35 +12,45 @@
     <Button fx:id="buttonLaunchGame" onAction="#startStopGame" visible="false"
             styleClass="startGameButton"/>
   </ToolBar>
-  <TitledPane text="%title.server.configuration" VBox.vgrow="NEVER">
-    <GridPane fx:id="serverConfigPanel">
-      <GridPane.margin>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
-      </GridPane.margin>
-      <Label text="%label.deque" GridPane.rowIndex="0" GridPane.columnIndex="0"
-             GridPane.margin="$gridPaneMargin"/>
-      <ChoiceBox fx:id="boxInitialCards" GridPane.rowIndex="0" GridPane.columnIndex="1"
+  <TabPane tabMinWidth="30">
+    <Tab closable="false">
+      <TitledPane collapsible="false" text="%title.server.configuration" VBox.vgrow="NEVER">
+        <GridPane fx:id="serverConfigPanel">
+          <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
+          </GridPane.margin>
+          <Label text="%label.deque" GridPane.rowIndex="0" GridPane.columnIndex="0"
                  GridPane.margin="$gridPaneMargin"/>
-      <Label text="%label.port"
-             GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
-      <TextField fx:id="fieldServerPort" prefColumnCount="4"
-                 GridPane.rowIndex="1" GridPane.columnIndex="1" GridPane.margin="$gridPaneMargin">
-        <tooltip>
-          <Tooltip text="%tooltip.server.server.port"/>
-        </tooltip>
-      </TextField>
-      <Label text="%label.password" GridPane.rowIndex="2" GridPane.columnIndex="0"
-             GridPane.margin="$gridPaneMargin"/>
-      <TextField fx:id="fieldPassword"
-                 GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2" GridPane.columnIndex="1">
-        <tooltip>
-          <Tooltip text="%tooltip.client.server.password"/>
-        </tooltip>
-      </TextField>
-    </GridPane>
-  </TitledPane>
-  <TitledPane collapsible="false" maxHeight="+Infinity" text="%title.logged.in" VBox.vgrow="ALWAYS">
-    <ListView fx:id="listLoggedClients" prefHeight="182.0"
-    />
-  </TitledPane>
+          <ChoiceBox fx:id="boxInitialCards" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                     GridPane.margin="$gridPaneMargin"/>
+          <Label text="%label.port"
+                 GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
+          <TextField fx:id="fieldServerPort" prefColumnCount="4"
+                     GridPane.rowIndex="1" GridPane.columnIndex="1"
+                     GridPane.margin="$gridPaneMargin">
+            <tooltip>
+              <Tooltip text="%tooltip.server.server.port"/>
+            </tooltip>
+          </TextField>
+          <Label text="%label.password" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                 GridPane.margin="$gridPaneMargin"/>
+          <TextField fx:id="fieldPassword"
+                     GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2"
+                     GridPane.columnIndex="1">
+            <tooltip>
+              <Tooltip text="%tooltip.client.server.password"/>
+            </tooltip>
+          </TextField>
+        </GridPane>
+      </TitledPane>
+    </Tab>
+    <Tab closable="false">
+      <TitledPane collapsible="false" maxHeight="+Infinity" text="%title.logged.in"
+                  VBox.vgrow="ALWAYS">
+        <ListView fx:id="listLoggedClients" prefHeight="182.0"/>
+      </TitledPane>
+    </Tab>
+
+
+  </TabPane>
 </VBox>

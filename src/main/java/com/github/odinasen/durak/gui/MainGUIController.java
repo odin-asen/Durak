@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
@@ -33,11 +34,11 @@ public class MainGUIController {
     private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
     private static MainGUIController mainController;
 
-    /**
-     * Das Hauptpanel der Anwendung.
-     */
     @FXML
     private Parent root;
+
+    @FXML
+    private Menu menuConnection;
     @FXML
     private SplitPane mainSplitPane;
     @FXML
@@ -47,7 +48,7 @@ public class MainGUIController {
     @FXML
     private MenuItem openHideServerPanelMenuItem;
     @FXML
-    private MenuItem openConnectToServerMenuItem;
+    private MenuItem openHideClientPanelMenuItem;
     @FXML
     private MenuItem closeMenuItem;
     @FXML
@@ -95,7 +96,7 @@ public class MainGUIController {
         SplitPane.Divider rightDivider = mainSplitPane.getDividers().get(1);
         OpenHidePanelHandle clientPanelHandle =
                 new OpenHideClientPanelHandle(rightDivider, 0.0, 1.0);
-        openConnectToServerMenuItem.setOnAction(clientPanelHandle);
+        openHideClientPanelMenuItem.setOnAction(clientPanelHandle);
 
         closeMenuItem.setOnAction(actionEvent -> {
             Stage stage = ((Stage) root.getScene().getWindow());
@@ -123,8 +124,8 @@ public class MainGUIController {
         }
 
         if (startParameter.canInitialConnectToServer()) {
-            if (this.openConnectToServerMenuItem != null) {
-                this.openConnectToServerMenuItem.fire();
+            if (this.openHideClientPanelMenuItem != null) {
+                this.openHideClientPanelMenuItem.fire();
             }
         }
     }
@@ -140,7 +141,7 @@ public class MainGUIController {
         Assert.assertFXElementNotNull(
                 this.openHideServerPanelMenuItem, "openHideServerPanelMenuItem", fxmlName);
         Assert.assertFXElementNotNull(
-                this.openConnectToServerMenuItem, "openConnectToServerMenuItem", fxmlName);
+                this.openHideClientPanelMenuItem, "openHideClientPanelMenuItem", fxmlName);
     }
 
     public void reloadGUI() {

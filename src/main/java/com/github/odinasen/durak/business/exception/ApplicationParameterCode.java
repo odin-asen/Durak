@@ -11,12 +11,12 @@ public enum ApplicationParameterCode
      * Ein Parameter wurde nicht gesetzt und konnte nicht geparst werden. Sollte nicht als Fehler, sondern als Info
      * gehandhabt werden.
      */
-    PARAMETER_NOT_SET(001),
+    PARAMETER_NOT_SET(1),
 
     /**
      * Falscher Typ eines Parameters beim Parsen.
      */
-    WRONG_TYPE(002);
+    WRONG_TYPE(2);
 
     /**
      * Property-Name fuer einen Parameter-Namen.
@@ -24,7 +24,7 @@ public enum ApplicationParameterCode
     public static final String PN_PARAM_NAME = "paramName";
     private int errorNumber;
 
-    private ApplicationParameterCode(int errorNumber) {
+    ApplicationParameterCode(int errorNumber) {
         this.errorNumber = errorNumber;
     }
 

@@ -6,7 +6,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
-import org.loadui.testfx.GuiTest;
 import org.loadui.testfx.categories.TestFX;
 import org.loadui.testfx.exceptions.NoNodesVisibleException;
 
@@ -14,32 +13,48 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import static org.loadui.testfx.Assertions.verifyThat;
+import static com.github.odinasen.durak.UIElementAssertions.verifyThat;
 
 @Category(TestFX.class)
 public class ITDurakApplicationTest
-        extends GuiTest {
+        extends UIElementGuiTest {
+
+    @Test(expected = NoNodesVisibleException.class)
+    public void clientPanelInvisibleAtStart() {
+        find(UIElement.ClientPanel);
+    }
+
+    @Test
+    public void clientPanelIsVisibleOnMenuclick() {
+        click(UIElement.MenuConnection).click(UIElement.MenuItemOpenCloseClientPanel);
+        verifyThat(UIElement.ClientPanel, Node::isVisible);
+    }
+
+    @Test(expected = NoNodesVisibleException.class)
+    public void clientPanelIsInvisibleAfterSecondMenuclick() {
+        click(UIElement.MenuConnection).click(UIElement.MenuItemOpenCloseClientPanel);
+        verifyThat(UIElement.ClientPanel, Node::isVisible);
+        click(UIElement.MenuConnection).click(UIElement.MenuItemOpenCloseClientPanel);
+        find(UIElement.ClientPanel);
+    }
 
     @Test(expected = NoNodesVisibleException.class)
     public void serverPanelInvisibleAtStart() {
-        String serverPanel = "#serverPanel";
-        find(serverPanel);
+        find(UIElement.ServerPanel);
     }
 
     @Test
     public void serverPanelIsVisibleOnMenuclick() {
-        String serverPanel = "#serverPanel";
-        click("#menuConnection").click("#openHideServerPanelMenuItem");
-        verifyThat(serverPanel, Node::isVisible);
+        click(UIElement.MenuConnection).click(UIElement.MenuItemOpenCloseServerPanel);
+        verifyThat(UIElement.ServerPanel, Node::isVisible);
     }
 
     @Test(expected = NoNodesVisibleException.class)
     public void serverPanelIsInvisibleAfterSecondMenuclick() {
-        String serverPanel = "#serverPanel";
-        click("#menuConnection").click("#openHideServerPanelMenuItem");
-        verifyThat(serverPanel, Node::isVisible);
-        click("#menuConnection").click("#openHideServerPanelMenuItem");
-        find(serverPanel);
+        click(UIElement.MenuConnection).click(UIElement.MenuItemOpenCloseServerPanel);
+        verifyThat(UIElement.ServerPanel, Node::isVisible);
+        click(UIElement.MenuConnection).click(UIElement.MenuItemOpenCloseServerPanel);
+        find(UIElement.ServerPanel);
     }
 
     @Override
