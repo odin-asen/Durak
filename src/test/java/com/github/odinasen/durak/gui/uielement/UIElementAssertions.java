@@ -8,6 +8,6 @@ import java.util.function.Predicate;
 public class UIElementAssertions
         extends Assertions {
     public static <T extends Node> void verifyThat(UIElement element, Predicate<T> predicate) {
-        verifyThat(element.getId(), predicate::test);
+        verifyThat(element.getIdSelector(), predicate::test);
     }
 }

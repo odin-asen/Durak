@@ -65,63 +65,64 @@ public class MainGUIController {
         }
     }
 
-    public static void setStatus(StatusType type, final String status) {
-        Platform.runLater(() -> mainController.leftStatus.setText(status));
-    }
-
-    /**
-     * Liefert das Window-Objekt der Anwendung per Scene-Objekt eines GUI Elements ({@link #root})
-     */
-    public static Window getMainWindow() {
-        if (mainController.root != null) {
-            Scene scene = mainController.root.getScene();
-            if (scene != null) {
-                return scene.getWindow();
-            }
-        }
-
-        return null;
-    }
-
     /**
      * Prueft, ob alle Objektvariablen, die in der fxml-Datei definiert sind, geladen wurden.
      * Initialisiert die Oberflaechen-Komponenten.
      */
     @FXML
     void initialize() {
-        checkFXMLElements();
+        assertFXMLElementsNotNull();
 
-        SplitPane.Divider leftDivider = mainSplitPane.getDividers().get(0);
-        OpenHidePanelHandle serverPanelHandle =
-                new OpenHideServerPanelHandle(leftDivider, 1.0, 0.0);
-        openHideServerPanelMenuItem.setOnAction(serverPanelHandle);
+        clientPanel.managedProperty().bind(clientPanel.visibleProperty());
+        serverPanel.managedProperty().bind(serverPanel.visibleProperty());
 
-        SplitPane.Divider rightDivider = mainSplitPane.getDividers().get(1);
-        OpenHidePanelHandle clientPanelHandle =
-                new OpenHideClientPanelHandle(rightDivider, 0.0, 1.0);
-        openHideClientPanelMenuItem.setOnAction(clientPanelHandle);
-
-        serverPanel.visibleProperty().addListener((observable, oldValue, newValue) -> {
-            toggleSplitPaneDividerVisiblity(newValue);
-        });
-        clientPanel.visibleProperty().addListener((observable, oldValue, newValue) -> {
-            toggleSplitPaneDividerVisiblity(newValue);
-        });
-
-        closeMenuItem.setOnAction(actionEvent -> {
-            Stage stage = ((Stage) root.getScene().getWindow());
-            stage.close();
-            stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
-        });
+        setServerClientPanelsOpenActions();
+        bindDividerStyleToServerClientPanelVisiblity();
+        setCloseMenuAction();
 
         // Die Anwendung wird mit Startparametern initalisiert
-        // TODO soll das irgendwie in ein Interface ausgelagert werden? checkFXMLElements, dann
+        // TODO soll das irgendwie in ein Interface ausgelagert werden?
+        // assertFXMLElementsNotNull, dann
         // initialise und dann
         // initStartByParameters?
         initByStartParameters();
     }
 
-    void toggleSplitPaneDividerVisiblity(boolean visiblityValue) {
+    /**
+     * Prueft, ob FXML Element initialisiert sind und gibt eventuell assert-Nachrichten aus.
+     */
+    private void assertFXMLElementsNotNull() {
+        final String fxmlName = "main_content";
+
+        Assert.assertFXElementNotNull(this.mainSplitPane, "mainSplitPane", fxmlName);
+        Assert.assertFXElementNotNull(this.closeMenuItem, "closeMenuItem", fxmlName);
+        Assert.assertFXElementNotNull(
+                this.openHideServerPanelMenuItem, "openHideServerPanelMenuItem", fxmlName);
+        Assert.assertFXElementNotNull(
+                this.openHideClientPanelMenuItem, "openHideClientPanelMenuItem", fxmlName);
+    }
+
+    private void setServerClientPanelsOpenActions() {
+        OpenHidePanelHandle serverPanelHandle = new OpenHideServerPanelHandle();
+        openHideServerPanelMenuItem.setOnAction(serverPanelHandle);
+
+        OpenHidePanelHandle clientPanelHandle = new OpenHideClientPanelHandle();
+        openHideClientPanelMenuItem.setOnAction(clientPanelHandle);
+    }
+
+    private void bindDividerStyleToServerClientPanelVisiblity() {
+        SplitPane.Divider divider = mainSplitPane.getDividers().get(0);
+
+        serverPanel.visibleProperty().addListener((observable, oldValue, newValue) -> {
+            toggleSplitPaneDividerVisiblity(divider, newValue);
+        });
+        clientPanel.visibleProperty().addListener((observable, oldValue, newValue) -> {
+            toggleSplitPaneDividerVisiblity(divider, newValue);
+        });
+    }
+
+    private void toggleSplitPaneDividerVisiblity(SplitPane.Divider divider,
+                                                 boolean visiblityValue) {
         ObservableList<String> styleClasses = mainSplitPane.getStyleClass();
 
         if (visiblityValue || serverPanel.isVisible() || clientPanel.isVisible()) {
@@ -130,10 +131,22 @@ public class MainGUIController {
             if (containsHiddenStyleClass) {
                 styleClasses.removeAll(STYLE_CLASS_HIDDEN_DIVIDER);
             }
+
+            divider.setPosition(1.0);
         } else {
             styleClasses.add(STYLE_CLASS_HIDDEN_DIVIDER);
+            divider.setPosition(0.0);
         }
     }
+
+    private void setCloseMenuAction() {
+        closeMenuItem.setOnAction(actionEvent -> {
+            Stage stage = ((Stage)root.getScene().getWindow());
+            stage.close();
+            stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
+    }
+
     /**
      * Setzt Panel-Werte anhand der Start-Parameter der Anwendung
      */
@@ -151,20 +164,6 @@ public class MainGUIController {
                 this.openHideClientPanelMenuItem.fire();
             }
         }
-    }
-
-    /**
-     * Prueft, ob FXML Element initialisiert sind und gibt eventuell assert-Nachrichten aus.
-     */
-    private void checkFXMLElements() {
-        final String fxmlName = "main_content";
-
-        Assert.assertFXElementNotNull(this.mainSplitPane, "mainSplitPane", fxmlName);
-        Assert.assertFXElementNotNull(this.closeMenuItem, "closeMenuItem", fxmlName);
-        Assert.assertFXElementNotNull(
-                this.openHideServerPanelMenuItem, "openHideServerPanelMenuItem", fxmlName);
-        Assert.assertFXElementNotNull(
-                this.openHideClientPanelMenuItem, "openHideClientPanelMenuItem", fxmlName);
     }
 
     public void reloadGUI() {
@@ -189,30 +188,23 @@ public class MainGUIController {
      */
     private class OpenHideServerPanelHandle
             extends OpenHidePanelHandle {
-
-        OpenHideServerPanelHandle(SplitPane.Divider divider,
-                                  double dividerOpenPosition,
-                                  double dividerClosedPosition) {
-            super(divider, dividerOpenPosition, dividerClosedPosition);
+        @Override
+        protected String getMenuItemHideText() {
+            return I18nSupport.getValue(BundleStrings.JAVAFX, "menu.item.hide.server.panel");
         }
 
         @Override
-        protected String getI18nHideText() {
-            return "menu.item.hide.server.panel";
-        }
-
-        @Override
-        protected String getI18nOpenText() {
+        protected String getMenuItemOpenText() {
             if (GameServer.getInstance().isRunning()) {
-                return "menu.item.show.server.panel";
+                return I18nSupport.getValue(BundleStrings.JAVAFX, "menu.item.show.server.panel");
             } else {
-                return "menu.item.open.server.panel";
+                return I18nSupport.getValue(BundleStrings.JAVAFX, "menu.item.open.server.panel");
             }
         }
 
         @Override
         protected Parent getPanel() {
-            return serverPanel;//getServerPanelContent();
+            return serverPanel;
         }
     }
 
@@ -221,21 +213,14 @@ public class MainGUIController {
      */
     private class OpenHideClientPanelHandle
             extends OpenHidePanelHandle {
-
-        OpenHideClientPanelHandle(SplitPane.Divider divider,
-                                  double dividerOpenPosition,
-                                  double dividerClosedPosition) {
-            super(divider, dividerOpenPosition, dividerClosedPosition);
+        @Override
+        protected String getMenuItemHideText() {
+            return I18nSupport.getValue(BundleStrings.JAVAFX, "menu.item.hide.client.panel");
         }
 
         @Override
-        protected String getI18nHideText() {
-            return "menu.item.hide.client.panel";
-        }
-
-        @Override
-        protected String getI18nOpenText() {
-            return "menu.item.open.client.panel";
+        protected String getMenuItemOpenText() {
+            return I18nSupport.getValue(BundleStrings.JAVAFX, "menu.item.open.client.panel");
         }
 
         @Override
@@ -253,62 +238,56 @@ public class MainGUIController {
             implements EventHandler<ActionEvent> {
 
         private Parent panel;
-        private SplitPane.Divider divider;
-        private double dividerOpenPosition;
-        private double dividerClosedPosition;
 
-        OpenHidePanelHandle(SplitPane.Divider divider,
-                            double dividerOpenPosition,
-                            double dividerClosedPosition) {
-            this.panel = getPanel();
-            this.divider = divider;
-            this.dividerOpenPosition = dividerOpenPosition;
-            this.dividerClosedPosition = dividerClosedPosition;
+        OpenHidePanelHandle() {
+            panel = getPanel();
         }
 
         @Override
         public void handle(ActionEvent actionEvent) {
-            if (panel == null) {
-                setDividerToClosedPosition();
-            } else {
+            if (panel != null) {
                 final MenuItem menuItem = (MenuItem) actionEvent.getSource();
 
-                if (panel.isVisible()) {
-                    panel.setVisible(false);
-                    menuItem.setText(
-                            I18nSupport.getValue(BundleStrings.JAVAFX, this.getI18nOpenText()));
-                    setDividerToClosedPosition();
-                } else {
-                    panel.setVisible(true);
-                    menuItem.setText(
-                            I18nSupport.getValue(BundleStrings.JAVAFX, this.getI18nHideText()));
-                    setDividerToOpenPosition();
-                }
+                setMenuItemText(menuItem);
+                togglePanelVisiblity();
             }
         }
 
-        private void setDividerToClosedPosition() {
-            divider.setPosition(dividerClosedPosition);
+        private void setMenuItemText(MenuItem menuItem) {
+            if (panel.isVisible()) {
+                menuItem.setText(getMenuItemOpenText());
+            } else {
+                menuItem.setText(getMenuItemHideText());
+            }
         }
 
-        private void setDividerToOpenPosition() {
-            divider.setPosition(dividerOpenPosition);
+        private void togglePanelVisiblity() {
+            boolean newPanelVisibility = !panel.isVisible();
+            panel.setVisible(newPanelVisibility);
         }
 
-        /**
-         * i18n Key fuer den Menuetext bei ausgeblendetem Panel
-         */
-        abstract protected String getI18nHideText();
+        abstract protected String getMenuItemHideText();
 
-        /**
-         * i18n Key fuer den Menuetext bei angezeigtem Panel
-         */
-        abstract protected String getI18nOpenText();
+        abstract protected String getMenuItemOpenText();
 
-        /**
-         * @return Das Panel, welches geoffnet und geschlossen wird.
-         */
         abstract protected Parent getPanel();
     }
-}
 
+    public static void setStatus(StatusType type, final String status) {
+        Platform.runLater(() -> mainController.leftStatus.setText(status));
+    }
+
+    /**
+     * Liefert das Window-Objekt der Anwendung per Scene-Objekt eines GUI Elements ({@link #root})
+     */
+    public static Window getMainWindow() {
+        if (mainController.root != null) {
+            Scene scene = mainController.root.getScene();
+            if (scene != null) {
+                return scene.getWindow();
+            }
+        }
+
+        return null;
+    }
+}

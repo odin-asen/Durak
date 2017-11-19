@@ -1,6 +1,7 @@
 package com.github.odinasen.durak.business.network;
 
 import com.github.odinasen.durak.business.network.client.GameClient;
+import com.github.odinasen.durak.business.network.client.GameClientTest;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
@@ -34,12 +35,12 @@ public class ITClientServerConnection {
 
     @Before
     public void setUp() throws Exception {
-        this.server = GameServer.getInstance();
-        this.testPort = 10000;
-        this.server.startServer(this.testPort);
-        Assert.assertTrue(this.server.isRunning());
+        server = GameServer.getInstance();
+        testPort = 10000;
+        server.startServer(testPort);
+        Assert.assertTrue(server.isRunning());
 
-        this.client = GameClient.getInstance();
+        client = GameClient.getInstance();
     }
 
     @After
@@ -47,19 +48,22 @@ public class ITClientServerConnection {
         try {
             server.stopServer();
         } catch (ConcurrentModificationException ex) {
-            LOGGER.log(
-                    Level.INFO,
-                    "ConcurrentModificationException has been thrown, because SIMON is modifying "
-                    + "" + "" + "an iterator inside a loop. The exception should not break these "
-                    + "tests" + ".");
+            StringBuilder logMessage = new StringBuilder(256);
+            logMessage.append("Die Exception wird geworfen, weil irgendetwas nicht in SIMON ")
+                      .append("stimmt in der Registry.stop Methode. Das ist hier aber nicht ")
+                      .append("relevant und auch nicht schlimm, da der Server ja sowieso die ")
+                      .append("Verbindung zu den Clients trennt.");
+            LoggingUtility.getLogger(GameClientTest.class)
+                          .log(Level.INFO, logMessage.toString(), ex);
         }
+        server.setPassword("");
     }
 
     @Test
     public void connectWithoutPassword() throws Exception {
         String clientName = "Horst";
         ClientDto clientDto = createNewClientDto(clientName);
-        boolean connected = this.client.connect("localhost", this.testPort, "", clientDto);
+        boolean connected = client.connect("localhost", testPort, "", clientDto);
 
         Assert.assertTrue(connected);
     }
@@ -69,33 +73,32 @@ public class ITClientServerConnection {
      */
     @Test
     public void connectWithPassword() throws Exception {
-        this.server.setPassword(SERVER_PWD);
+        server.setPassword(SERVER_PWD);
 
         String clientName = "Horst";
         ClientDto clientDto = createNewClientDto(clientName);
 
         // Verbindung ohne Passwort soll nicht gelingen
-        boolean connected = this.client.connect("localhost", this.testPort, "", clientDto);
+        boolean connected = client.connect("localhost", testPort, "", clientDto);
         Assert.assertFalse(connected);
 
         // Verbindung mit richtigem Passwort soll gelingen
-        connected = this.client.connect("localhost", this.testPort, SERVER_PWD, clientDto);
+        connected = client.connect("localhost", testPort, SERVER_PWD, clientDto);
         Assert.assertTrue(connected);
     }
 
     @Test
     public void disconnectServer() throws Exception {
-        boolean connected = this.client.connect("localhost", this.testPort, "",
-                                                createNewClientDto("Horst"));
+        boolean connected = client.connect("localhost", testPort, "", createNewClientDto("Horst"));
         Assert.assertTrue(connected);
 
-        int playerCount = this.server.getPlayers().size();
+        int playerCount = server.getPlayers().size();
         Assert.assertEquals(1, playerCount);
 
-        this.server.stopServer();
-        playerCount = this.server.getPlayers().size();
+        server.stopServer();
+        playerCount = server.getPlayers().size();
         Assert.assertEquals(0, playerCount);
-        int spectatorCount = this.server.getSpectators().size();
+        int spectatorCount = server.getSpectators().size();
         Assert.assertEquals(0, spectatorCount);
     }
 

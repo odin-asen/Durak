@@ -2,12 +2,15 @@ package com.github.odinasen.durak.business.network.client;
 
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.dto.ClientDto;
+import com.github.odinasen.durak.util.LoggingUtility;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ConcurrentModificationException;
 import java.util.UUID;
+import java.util.logging.Level;
 
 /**
  * Testklasse fuer den GameClient.
@@ -18,31 +21,35 @@ public class GameClientTest {
     private int testPort;
     private GameServer server;
 
-    /**
-     * Objekt der zu testenden Klasse
-     */
     private GameClient client;
 
     @Before
     public void setUp() throws Exception {
-        this.server = GameServer.getInstance();
-        this.testPort = 10000;
-        this.server.startServer(this.testPort);
+        server = GameServer.getInstance();
+        testPort = 10000;
+        server.startServer(testPort);
 
-        Assert.assertTrue(this.server.isRunning());
+        Assert.assertTrue(server.isRunning());
 
         this.client = GameClient.getInstance();
     }
 
     @After
     public void tearDown() throws Exception {
-        server.stopServer();
+        try {
+            server.stopServer();
+        } catch (ConcurrentModificationException ex) {
+            StringBuilder logMessage = new StringBuilder(256);
+            logMessage.append("Die Exception wird geworfen, weil irgendetwas nicht in SIMON ")
+                      .append("stimmt in der Registry.stop Methode. Das ist hier aber nicht ")
+                      .append("relevant und auch nicht schlimm, da der Server ja sowieso die ")
+                      .append("Verbindung zu den Clients trennt.");
+            LoggingUtility.getLogger(GameClientTest.class)
+                          .log(Level.INFO, logMessage.toString(), ex);
+        }
         server.setPassword("");
     }
 
-    /**
-     * Testet die Wiederverbindung. Ist der SimonClient verbunden
-     */
     @Test
     public void reconnect() throws Exception {
         String clientName = "Horst";

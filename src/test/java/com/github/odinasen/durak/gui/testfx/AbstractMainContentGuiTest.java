@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
  */
 public class AbstractMainContentGuiTest
         extends GuiTest {
+
     @Override
     protected Parent getRootNode() {
         try {
