@@ -36,9 +36,6 @@ import java.util.logging.Logger;
 public class ClientPanelController
         extends JavaFXController
         implements Observer {
-//  private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying to launch a game!";
-//  private static final String DEFAULT_PORT_STRING = "10000";
-//  private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
     private static final Logger LOGGER = LoggingUtility.getLogger(ClientPanelController.class.getName());
 

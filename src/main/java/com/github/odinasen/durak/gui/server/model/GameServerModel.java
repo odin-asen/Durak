@@ -11,7 +11,6 @@ import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Model fuer den Server, z.B. angemeldete Benutzer.
@@ -95,12 +94,7 @@ public class GameServerModel {
         if (clientIds != null) {
             List<ClientDto> clientsToRemove = new ArrayList<>(clientIds.size());
 
-            this.clients.removeIf(new Predicate<ClientDto>() {
-                @Override
-                public boolean test(ClientDto clientDto) {
-                    return clientIds.contains(clientDto);
-                }
-            });
+            this.clients.removeIf(clientIds::contains);
         }
     }
 

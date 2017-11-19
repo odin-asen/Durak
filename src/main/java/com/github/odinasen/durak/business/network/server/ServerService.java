@@ -87,6 +87,7 @@ public class ServerService
         return clientUUID;
     }
 
+    //TODO wirft exception, wenn sich ein Client zweimal hintereinander einloggt
     private boolean clientSessionExists(Callable callable) {
         boolean clientExists = false;
         for (SessionInterface session : loggedSessionList) {

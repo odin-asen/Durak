@@ -1,13 +1,12 @@
 package com.github.odinasen.durak.gui.uielement;
 
 import javafx.scene.Node;
-import org.loadui.testfx.Assertions;
+import org.testfx.api.FxAssert;
 
 import java.util.function.Predicate;
 
-public class UIElementAssertions
-        extends Assertions {
+public class UIElementAssertions {
     public static <T extends Node> void verifyThat(UIElement element, Predicate<T> predicate) {
-        verifyThat(element.getIdSelector(), predicate::test);
+        FxAssert.verifyThat(element.getIdSelector(), predicate);
     }
 }

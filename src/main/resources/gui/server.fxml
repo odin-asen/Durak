@@ -14,7 +14,7 @@
   </ToolBar>
   <TabPane tabMinWidth="30">
     <Tab closable="false">
-      <TitledPane collapsible="false" text="%title.server.configuration" VBox.vgrow="NEVER">
+      <TitledPane collapsible="false" text="%title.server.configuration">
         <GridPane fx:id="serverConfigPanel">
           <GridPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
@@ -45,9 +45,8 @@
       </TitledPane>
     </Tab>
     <Tab closable="false">
-      <TitledPane collapsible="false" maxHeight="+Infinity" text="%title.logged.in"
-                  VBox.vgrow="ALWAYS">
-        <ListView fx:id="listLoggedClients" prefHeight="182.0"/>
+      <TitledPane collapsible="false" text="%title.logged.in" maxHeight="250">
+        <ListView fx:id="listLoggedClients"/>
       </TitledPane>
     </Tab>
 

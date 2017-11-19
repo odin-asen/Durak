@@ -5,7 +5,6 @@ import com.github.odinasen.durak.gui.uielement.UIElementGuiTest;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import org.junit.Test;
-import org.loadui.testfx.exceptions.NoNodesVisibleException;
 
 import static com.github.odinasen.durak.gui.uielement.UIElementAssertions.verifyThat;
 import static org.junit.Assert.assertEquals;
@@ -19,32 +18,28 @@ public class ITMainContentLayoutTest
         verifyThat(UIElement.MainSplitPane, Node::isVisible);
     }
 
-    @Test(expected = NoNodesVisibleException.class)
+    @Test
     public void serverPanelInvisibleAtStart() {
-        findServerPanel();
-    }
-
-    private void findServerPanel() {
-        UIElement.ServerPanel.findElement();
+        UIElement.ServerPanel.verifyIsInvisible();
     }
 
     @Test
     public void serverPanelIsVisibleOnMenuclick() {
         openServerPanel();
-        verifyThat(UIElement.ServerPanel, Node::isVisible);
+        UIElement.ServerPanel.verifyIsVisible();
     }
 
     private void openServerPanel() {
         click(UIElement.MenuConnection).click(UIElement.MenuItemOpenCloseServerPanel);
     }
 
-    @Test(expected = NoNodesVisibleException.class)
+    @Test
     public void serverPanelIsInvisibleAfterSecondMenuclick() {
         openServerPanel();
-        verifyThat(UIElement.ServerPanel, Node::isVisible);
+        UIElement.ServerPanel.verifyIsVisible();
 
         openServerPanel();
-        findServerPanel();
+        UIElement.ServerPanel.verifyIsInvisible();
     }
 
     @Test
@@ -53,32 +48,28 @@ public class ITMainContentLayoutTest
         verifyThat(UIElement.ServerPanel, node -> ((Pane)node).widthProperty().get() > 30.0);
     }
 
-    @Test(expected = NoNodesVisibleException.class)
+    @Test
     public void clientPanelInvisibleAtStart() {
-        findClientPanel();
-    }
-
-    private void findClientPanel() {
-        UIElement.ClientPanel.findElement();
+        UIElement.ClientPanel.verifyIsInvisible();
     }
 
     @Test
     public void clientPanelIsVisibleOnMenuclick() {
         openClientPanel();
-        verifyThat(UIElement.ClientPanel, Node::isVisible);
+        UIElement.ClientPanel.verifyIsVisible();
     }
 
     private void openClientPanel() {
         click(UIElement.MenuConnection).click(UIElement.MenuItemOpenCloseClientPanel);
     }
 
-    @Test(expected = NoNodesVisibleException.class)
+    @Test
     public void clientPanelIsInvisibleAfterSecondMenuclick() {
         openClientPanel();
-        verifyThat(UIElement.ClientPanel, Node::isVisible);
+        UIElement.ClientPanel.verifyIsVisible();
 
         openClientPanel();
-        findClientPanel();
+        UIElement.ClientPanel.verifyIsInvisible();
     }
 
     @Test
@@ -87,11 +78,11 @@ public class ITMainContentLayoutTest
         verifyThat(UIElement.ClientPanel, node -> ((Pane)node).widthProperty().get() > 30.0);
     }
 
-    @Test(expected = NoNodesVisibleException.class)
+    @Test
     public void closeClientPanelMakesPanelInvisible() {
         openClientPanel();
         closeClientPanel();
-        findClientPanel();
+        UIElement.ServerPanel.verifyIsInvisible();
     }
 
     private void closeClientPanel() {
@@ -102,7 +93,7 @@ public class ITMainContentLayoutTest
     public void closeClientPanelMustNotCloseVisibleServerPanel() {
         openServerPanelBeforeClientPanelAndVerifyVisiblity();
 
-        Pane serverPanel = UIElement.ServerPanel.findElement();
+        Pane serverPanel = UIElement.ServerPanel.getElement();
         int serverPanelWidth = (int)serverPanel.getWidth();
 
         closeClientPanel();
@@ -131,11 +122,11 @@ public class ITMainContentLayoutTest
                 node -> ((Pane)node).widthProperty().isEqualTo(serverPanelWidth).get());
     }
 
-    @Test(expected = NoNodesVisibleException.class)
+    @Test
     public void closeServerPanelMakesPanelInvisible() {
         openServerPanel();
         closeServerPanel();
-        findServerPanel();
+        UIElement.ServerPanel.verifyIsInvisible();
     }
 
     private void closeServerPanel() {
@@ -146,7 +137,7 @@ public class ITMainContentLayoutTest
     public void closeServerPanelMustNotCloseVisibleClientPanel() {
         openServerPanelBeforeClientPanelAndVerifyVisiblity();
 
-        Pane clientPanel = UIElement.ClientPanel.findElement();
+        Pane clientPanel = UIElement.ClientPanel.getElement();
         int clientPanelWidth = (int)clientPanel.getWidth();
 
         closeServerPanel();
@@ -165,7 +156,7 @@ public class ITMainContentLayoutTest
     public void clientPanelIsUpIfServerPanelIsInvisible() {
         openClientPanel();
 
-        Pane serverPanel = UIElement.ServerPanel.getElement(stage.getScene());
+        Pane serverPanel = UIElement.ServerPanel.getElement();
         int serverPanelHeight = (int)serverPanel.heightProperty().get();
         assertTrue(serverPanelHeight + " != 0", serverPanelHeight == 0);
     }
@@ -174,7 +165,7 @@ public class ITMainContentLayoutTest
     public void serverPanelIsUpIfClientPanelIsInvisible() {
         openServerPanel();
 
-        Pane serverPanel = UIElement.ServerPanel.getElement(stage.getScene());
+        Pane serverPanel = UIElement.ServerPanel.getElement();
         assertTrue(serverPanel.heightProperty().get() > 0);
     }
 
@@ -186,10 +177,10 @@ public class ITMainContentLayoutTest
     }
 
     private void verifyThatServerPanelIsAboveClientPanel() {
-        Pane clientPanel = UIElement.ClientPanel.getElement(stage.getScene());
+        Pane clientPanel = UIElement.ClientPanel.getElement();
         assertTrue(clientPanel.heightProperty().get() > 0);
 
-        Pane serverPanel = UIElement.ServerPanel.getElement(stage.getScene());
+        Pane serverPanel = UIElement.ServerPanel.getElement();
         assertTrue(serverPanel.heightProperty().get() > 0);
 
         int serverPanelX = (int)serverPanel.getLayoutX();

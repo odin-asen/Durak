@@ -23,8 +23,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 /**
@@ -163,17 +161,6 @@ public class MainGUIController {
             if (this.openHideClientPanelMenuItem != null) {
                 this.openHideClientPanelMenuItem.fire();
             }
-        }
-    }
-
-    public void reloadGUI() {
-        ResourceBundle resourceBundle =
-                ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault());
-
-        try {
-            ResourceGetter.loadFXMLPanel(FXMLNames.MAIN_PANEL, resourceBundle);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

@@ -34,10 +34,22 @@
     </dependency>
 
     <!-- Testing -->
-    <dependency>
+    <!--dependency>
       <groupId>org.loadui</groupId>
       <artifactId>testFx</artifactId>
       <version>3.0.0</version>
+    </dependency-->
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-core</artifactId>
+      <version>4.0.7-alpha</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testfx</groupId>
+      <artifactId>testfx-junit</artifactId> <!-- or testfx-junit5 -->
+      <version>4.0.7-alpha</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -60,12 +72,13 @@
       <url>http://maven.root1.de/releases/</url>
     </repository>
     <repository>
-      <id>maven.root1.de-snapshots</id>
-      <url>http://maven.root1.de/snapshots/</url>
-    </repository>
-    <repository>
       <id>repo.maven.org-releases</id>
       <url>https://repo1.maven.org/maven2/</url>
+      <name>Maven Zentral</name>
+    </repository>
+    <repository>
+      <id>repo.oss.sonatype.org-releases</id>
+      <url>https://oss.sonatype.org/content/repositories/releases/</url>
       <name>Maven Zentral</name>
     </repository>
 

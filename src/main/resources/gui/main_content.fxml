@@ -16,16 +16,15 @@
     <Menu text="%menu.settings"/>
   </MenuBar>
   <ToolBar maxWidth="1.7976931348623157E308">
-    <Button text="%button.button" onAction="#reloadGUI"/>
     <Button text="karten nehmen"/>
     <Button text="Nächste Runde"/>
   </ToolBar>
   <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS" dividerPositions="0,1" styleClass="hiddenDivider">
-    <VBox minWidth="0" maxWidth="280" SplitPane.resizableWithParent="false">
+    <VBox minWidth="0" maxWidth="280" SplitPane.resizableWithParent="false" VBox.vgrow="NEVER">
       <HBox fx:id="serverPanel" visible="false">
         <fx:include source="server.fxml" visible="true" HBox.hgrow="ALWAYS"/>
       </HBox>
-      <HBox fx:id="clientPanel" visible="false" prefHeight="-Infinity">
+      <HBox fx:id="clientPanel" visible="false" prefHeight="-Infinity" VBox.vgrow="ALWAYS">
         <fx:include source="client.fxml" visible="true" HBox.hgrow="ALWAYS"/>
       </HBox>
     </VBox>
