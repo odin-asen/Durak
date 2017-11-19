@@ -1,5 +1,13 @@
 .tablePanel {
-  -fx-border-color: black;
-  -fx-border-style: solid;
-  -fx-border-width: 0.05em;
+    -fx-border-color: black;
+    -fx-border-style: solid;
+    -fx-border-width: 0.05em;
+}
+
+.split-pane.hiddenDivider > .split-pane-divider {
+    -fx-padding: 0;
+}
+
+.split-pane-divider {
+    -fx-padding: 0 0.18em 0 0.18em;
 }

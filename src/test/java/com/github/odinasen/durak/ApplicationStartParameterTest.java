@@ -6,10 +6,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Testklasse fuer Startparameter.
- * Created by tih on 18.09.2016.
- */
 public class ApplicationStartParameterTest {
 
     private static final String SERVER_PORT_PARAM = "sPort";

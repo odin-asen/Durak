@@ -8,6 +8,7 @@ import com.github.odinasen.durak.resources.ResourceGetter;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -32,6 +33,8 @@ import java.util.logging.Logger;
  */
 public class MainGUIController {
     private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
+    public static final String STYLE_CLASS_HIDDEN_DIVIDER = "hiddenDivider";
+
     private static MainGUIController mainController;
 
     @FXML
@@ -98,6 +101,13 @@ public class MainGUIController {
                 new OpenHideClientPanelHandle(rightDivider, 0.0, 1.0);
         openHideClientPanelMenuItem.setOnAction(clientPanelHandle);
 
+        serverPanel.visibleProperty().addListener((observable, oldValue, newValue) -> {
+            toggleSplitPaneDividerVisiblity(newValue);
+        });
+        clientPanel.visibleProperty().addListener((observable, oldValue, newValue) -> {
+            toggleSplitPaneDividerVisiblity(newValue);
+        });
+
         closeMenuItem.setOnAction(actionEvent -> {
             Stage stage = ((Stage) root.getScene().getWindow());
             stage.close();
@@ -111,6 +121,19 @@ public class MainGUIController {
         initByStartParameters();
     }
 
+    void toggleSplitPaneDividerVisiblity(boolean visiblityValue) {
+        ObservableList<String> styleClasses = mainSplitPane.getStyleClass();
+
+        if (visiblityValue || serverPanel.isVisible() || clientPanel.isVisible()) {
+            boolean containsHiddenStyleClass = styleClasses.contains(STYLE_CLASS_HIDDEN_DIVIDER);
+
+            if (containsHiddenStyleClass) {
+                styleClasses.removeAll(STYLE_CLASS_HIDDEN_DIVIDER);
+            }
+        } else {
+            styleClasses.add(STYLE_CLASS_HIDDEN_DIVIDER);
+        }
+    }
     /**
      * Setzt Panel-Werte anhand der Start-Parameter der Anwendung
      */

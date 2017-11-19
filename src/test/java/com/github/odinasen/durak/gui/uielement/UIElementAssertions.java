@@ -1,4 +1,4 @@
-package com.github.odinasen.durak;
+package com.github.odinasen.durak.gui.uielement;
 
 import javafx.scene.Node;
 import org.loadui.testfx.Assertions;

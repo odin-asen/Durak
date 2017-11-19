@@ -1,11 +1,12 @@
-package com.github.odinasen.durak;
+package com.github.odinasen.durak.gui.uielement;
 
-enum UIElement {
+public enum UIElement {
     MenuConnection("#menuConnection"),
     MenuItemOpenCloseServerPanel("#openHideServerPanelMenuItem"),
     MenuItemOpenCloseClientPanel("#openHideClientPanelMenuItem"),
     ClientPanel("#clientPanel"),
-    ServerPanel("#serverPanel");
+    ServerPanel("#serverPanel"),
+    MainSplitPane("#mainSplitPane");
 
     private String id;
 

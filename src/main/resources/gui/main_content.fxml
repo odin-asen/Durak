@@ -20,15 +20,17 @@
     <Button text="karten nehmen"/>
     <Button text="Nächste Runde"/>
   </ToolBar>
-  <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS" dividerPositions="0,1.0">
-
-    <HBox fx:id="serverPanel" minWidth="0" maxWidth="218.0" visible="false">
+  <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS" dividerPositions="0,1"
+             styleClass="hiddenDivider">
+    <HBox fx:id="serverPanel" minWidth="0" maxWidth="218.0" visible="false"
+          SplitPane.resizableWithParent="false">
       <fx:include source="server.fxml" visible="true" HBox.hgrow="ALWAYS"/>
     </HBox>
     <HBox minWidth="0" maxWidth="Infinity">
       <fx:include source="game_stack_opponents_panel.fxml" VBox.vgrow="ALWAYS"/>
     </HBox>
-    <HBox fx:id="clientPanel" minWidth="0" maxWidth="280.0" visible="false">
+    <HBox fx:id="clientPanel" minWidth="0" maxWidth="280.0" visible="false"
+          SplitPane.resizableWithParent="false">
       <fx:include source="client.fxml" visible="true" HBox.hgrow="ALWAYS"/>
     </HBox>
   </SplitPane>

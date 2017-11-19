@@ -1,10 +1,13 @@
-package com.github.odinasen.durak;
+package com.github.odinasen.durak.gui.uielement;
 
+import com.github.odinasen.durak.gui.testfx.AbstractMainContentGuiTest;
 import javafx.scene.Node;
-import org.loadui.testfx.GuiTest;
 
+/**
+ * Abstrakte Klasse, die es ermoeglicht TestFX Methoden mit UIElement Objekten auszufuehren.
+ */
 public abstract class UIElementGuiTest
-        extends GuiTest {
+        extends AbstractMainContentGuiTest {
 
     public UIElementGuiTest click(UIElement element, javafx.scene.input.MouseButton... buttons) {
         return (UIElementGuiTest) click(element.getId(), buttons);
