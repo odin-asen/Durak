@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.testfx.framework.junit.ApplicationTest;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -20,7 +21,11 @@ public class AbstractMainContentGuiTest
     @Override
     public void start(Stage stage) {
         Parent sceneRoot = getRootNode();
-        Scene scene = new Scene(sceneRoot, 100, 100);
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension dim = toolkit.getScreenSize();
+
+        Scene scene = new Scene(sceneRoot, getScaledWindowDimension(dim.getWidth()),
+                                getScaledWindowDimension(dim.getHeight()));
         stage.setScene(scene);
         stage.show();
     }
@@ -37,5 +42,9 @@ public class AbstractMainContentGuiTest
         }
 
         return null;
+    }
+
+    private double getScaledWindowDimension(double size) {
+        return 0.75 * size;
     }
 }

@@ -20,16 +20,16 @@
     <Button text="Nächste Runde"/>
   </ToolBar>
   <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS" dividerPositions="0,1" styleClass="hiddenDivider">
-    <VBox minWidth="0" maxWidth="280" SplitPane.resizableWithParent="false" VBox.vgrow="NEVER">
-      <HBox fx:id="serverPanel" visible="false">
-        <fx:include source="server.fxml" visible="true" HBox.hgrow="ALWAYS"/>
+    <GridPane minWidth="0" maxWidth="280" maxHeight="Infinity" SplitPane.resizableWithParent="false">
+      <HBox fx:id="serverPanel" visible="false" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS">
+        <fx:include source="server.fxml" HBox.hgrow="ALWAYS"/>
       </HBox>
-      <HBox fx:id="clientPanel" visible="false" prefHeight="-Infinity" VBox.vgrow="ALWAYS">
-        <fx:include source="client.fxml" visible="true" HBox.hgrow="ALWAYS"/>
+      <HBox fx:id="clientPanel" visible="false" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS">
+        <fx:include source="client.fxml" HBox.hgrow="ALWAYS"/>
       </HBox>
-    </VBox>
+    </GridPane>
     <HBox minWidth="0" maxWidth="Infinity">
-      <fx:include source="game_stack_opponents_panel.fxml" VBox.vgrow="ALWAYS"/>
+      <fx:include source="game_stack_opponents_panel.fxml" HBox.hgrow="ALWAYS"/>
     </HBox>
   </SplitPane>
   <HBox VBox.vgrow="NEVER">

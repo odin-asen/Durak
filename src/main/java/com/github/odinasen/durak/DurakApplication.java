@@ -55,8 +55,8 @@ public class DurakApplication
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Dimension dim = toolkit.getScreenSize();
 
-        Scene scene = new Scene(root, getWindowDimension(dim.getWidth()),
-                                getWindowDimension(dim.getHeight()));
+        Scene scene = new Scene(root, getScaledWindowDimension(dim.getWidth()),
+                                getScaledWindowDimension(dim.getHeight()));
         primaryStage.setScene(scene);
         primaryStage.centerOnScreen();
 
@@ -86,7 +86,7 @@ public class DurakApplication
      * also Breite und Hoehe
      * uebergeben werden.
      */
-    private double getWindowDimension(double size) {
+    private double getScaledWindowDimension(double size) {
         return 0.75 * size;
     }
 
