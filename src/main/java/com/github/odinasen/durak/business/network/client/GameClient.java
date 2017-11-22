@@ -1,6 +1,6 @@
 package com.github.odinasen.durak.business.network.client;
 
-import com.github.odinasen.durak.business.ExtendedObservable;
+import com.github.odinasen.durak.business.ObserverNotificator;
 import com.github.odinasen.durak.business.exception.GameClientCode;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.ClientMessageType;
@@ -31,7 +31,7 @@ import static com.github.odinasen.durak.i18n.BundleStrings.USER_MESSAGES;
  * Client-Klasse, welche sich mit der Server-Klasse verbindet und mit dieser direkt ueber SIMON kommuniziert.
  */
 public class GameClient
-        extends ExtendedObservable
+        extends ObserverNotificator
         implements ClosedListener {
 
     private static final Logger LOGGER = LoggingUtility.getLogger(GameClient.class.getName());

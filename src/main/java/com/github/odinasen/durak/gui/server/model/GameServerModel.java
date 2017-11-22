@@ -97,14 +97,4 @@ public class GameServerModel {
             this.clients.removeIf(clientIds::contains);
         }
     }
-
-    private void removeClient(List<ClientDto> clientsToRemove, ClientDto client) {
-        //for (ClientDto clientDto : this.clients) {
-        //  if (clientIds.forEach().contains(UUID.fromString(clientDto.getUuid()))) {
-        //    clientsToRemove.add(clientDto);
-        //}
-        //}
-
-        //this.clients.removeAll(clientsToRemove);
-    }
 }

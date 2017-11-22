@@ -6,19 +6,14 @@ import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
 import com.github.odinasen.durak.dto.ClientDto;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
-/**
- * Testklasse fuer die ServerService-Schnittstelle fuer Clients.
- * <p/>
- * Author: Timm Herrmann
- * Date: 19.12.2016
- */
 public class ServerServiceTest {
 
     private String password = "";
@@ -27,14 +22,19 @@ public class ServerServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        this.clientDto = new ClientDto("", "Horst");
-        this.serverService = ServerService.createService(password);
+        clientDto = new ClientDto("", "Horst");
+        serverService = ServerService.createService(password);
     }
 
     @Test
     public void successfulLogin() throws Exception {
-        SessionInterface session = serverService.login(createAuthenticationClient(password), createMockedCallable());
-        Assert.assertNotNull(session);
+        SessionInterface session =
+                serverService.login(createAuthenticationClient(password), createMockedCallable());
+        assertNotNull(session);
+    }
+
+    private Callable createMockedCallable() {
+        return Mockito.mock(Callable.class);
     }
 
     @Test
@@ -43,8 +43,8 @@ public class ServerServiceTest {
         SessionInterface session = doSuccessfulLoginWithClient(callable);
         for (int i = 0; i < 5; i++) {
             SessionInterface recycledSession = doSuccessfulLoginWithClient(callable);
-            Assert.assertNotNull(recycledSession);
-            Assert.assertEquals(session, recycledSession);
+            assertNotNull(recycledSession);
+            assertEquals(session, recycledSession);
         }
     }
 
@@ -76,10 +76,6 @@ public class ServerServiceTest {
         serverService.login(null, null);
     }
 
-    private Callable createMockedCallable() {
-        return Mockito.mock(Callable.class);
-    }
-
     @Test
     public void logoffDoesNotRaiseAnException() throws Exception {
         Callable callable = createMockedCallable();
@@ -88,26 +84,27 @@ public class ServerServiceTest {
         serverService.logoff(callable);
     }
 
-    @Test
-    public void logoffNotifiesClients() throws Exception {
-        serverService.setSessionFactory(createMockedSessionFactory());
-
-        Callable callable = createMockedCallable();
-        SessionInterface session = serverService.login(createAuthenticationClient(password), callable);
-        serverService.logoff(callable);
-
-        // TODO benachrichtigung testen
-        //verify(session, times(1))
-    }
-
     private SessionFactory createMockedSessionFactory() {
         SessionInterface session = mock(SessionInterface.class);
-        SessionFactory sessionFactory = new SessionFactory() {
-            public SessionInterface createSession(ServerService server, ClientDto clientDto, Callable factoryCallable) {
+
+        return new SessionFactory() {
+            public SessionInterface createSession(ServerService server,
+                                                  ClientDto client,
+                                                  Callable factoryCallable) {
                 return session;
             }
         };
+    }
 
-        return sessionFactory;
+    @Test
+    public void removeSession() throws Exception {
+        serverService.setSessionFactory(createMockedSessionFactory());
+
+        Callable callable = createMockedCallable();
+        SessionInterface session =
+                serverService.login(createAuthenticationClient(password), callable);
+
+        serverService.removeSession(session);
+        assertEquals("Server must have zero sessions", 0, serverService.getSessionCount());
     }
 }

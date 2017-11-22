@@ -6,7 +6,6 @@ import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,6 +13,9 @@ import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Integrationstests fuer SimonClient-Server-Verbindungen.
@@ -27,18 +29,17 @@ public class ITClientServerConnection {
 
     private int testPort;
     private GameServer server;
-
-    /**
-     * Objekt der zu testenden Klasse
-     */
+    private GameServerTester serverTester;
     private GameClient client;
 
     @Before
     public void setUp() throws Exception {
         server = GameServer.getInstance();
+        serverTester = new GameServerTester(server);
         testPort = 10000;
+
         server.startServer(testPort);
-        Assert.assertTrue(server.isRunning());
+        assertTrue(server.isRunning());
 
         client = GameClient.getInstance();
     }
@@ -65,7 +66,12 @@ public class ITClientServerConnection {
         ClientDto clientDto = createNewClientDto(clientName);
         boolean connected = client.connect("localhost", testPort, "", clientDto);
 
-        Assert.assertTrue(connected);
+        assertTrue(connected);
+    }
+
+    private ClientDto createNewClientDto(String clientName) {
+        UUID clientID = UUID.randomUUID();
+        return new ClientDto(clientID.toString(), clientName);
     }
 
     /**
@@ -80,30 +86,46 @@ public class ITClientServerConnection {
 
         // Verbindung ohne Passwort soll nicht gelingen
         boolean connected = client.connect("localhost", testPort, "", clientDto);
-        Assert.assertFalse(connected);
+        assertFalse(connected);
 
         // Verbindung mit richtigem Passwort soll gelingen
         connected = client.connect("localhost", testPort, SERVER_PWD, clientDto);
-        Assert.assertTrue(connected);
+        assertTrue(connected);
     }
 
     @Test
-    public void disconnectServer() throws Exception {
+    public void stopServerWithConnectedClients() throws Exception {
         boolean connected = client.connect("localhost", testPort, "", createNewClientDto("Horst"));
-        Assert.assertTrue(connected);
+        assertTrue(connected);
 
-        int playerCount = server.getPlayers().size();
-        Assert.assertEquals(1, playerCount);
+        serverTester.assertServersidePlayerCount(1);
+        serverTester.assertServerHasZeroSpectators();
 
         server.stopServer();
-        playerCount = server.getPlayers().size();
-        Assert.assertEquals(0, playerCount);
-        int spectatorCount = server.getSpectators().size();
-        Assert.assertEquals(0, spectatorCount);
+
+        serverTester.assertServersidePlayerCount(0);
+        serverTester.assertServerHasZeroSpectators();
     }
 
-    private ClientDto createNewClientDto(String clientName) {
-        UUID clientID = UUID.randomUUID();
-        return new ClientDto(clientID.toString(), clientName);
+    @Test
+    public void logoutClientAndReconnect() {
+        boolean connected = client.connect("localhost", testPort, "", createNewClientDto("Horst"));
+        assertTrue(connected);
+
+        serverTester.assertServersidePlayerCount(1);
+        serverTester.assertServerHasZeroSpectators();
+
+        client.disconnect();
+        assertFalse(client.isConnected());
+
+        assertTrue(server.isRunning());
+        serverTester.assertServersidePlayerCount(0);
+        serverTester.assertServerHasZeroSpectators();
+
+        connected = client.reconnect("localhost", testPort, "", createNewClientDto("Horst"));
+        assertTrue(connected);
+
+        serverTester.assertServersidePlayerCount(1);
+        serverTester.assertServerHasZeroSpectators();
     }
 }

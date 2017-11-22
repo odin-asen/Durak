@@ -15,5 +15,5 @@ public interface Callable {
    * @param parameter
    *    Ist der Typ der Nachricht.
    */
-  public void sendClientMessage(ClientMessageType parameter);
+  void sendClientMessage(ClientMessageType parameter);
 }

@@ -35,11 +35,6 @@ import javafx.util.converter.NumberStringConverter;
 import java.util.*;
 import java.util.logging.Logger;
 
-/**
- * <p/>
- * Author: Timm Herrmann<br/>
- * Date: 06.01.14
- */
 public class ServerPanelController
         extends JavaFXController
         implements Observer {

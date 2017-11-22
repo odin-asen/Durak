@@ -13,5 +13,6 @@ public class SimonStaticMethodWrapper {
         SimonProxy simonProxy = Simon.getSimonProxy(remoteObject);
         simonProxy.release();
         simonProxy.getIoSession().closeNow();
+
     }
 }

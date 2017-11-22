@@ -11,11 +11,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-/**
- * <p/>
- * Author: Timm Herrmann<br/>
- * Date: 11.02.14
- */
 public class ClientListCell
         extends ListCell<ClientDto> {
 

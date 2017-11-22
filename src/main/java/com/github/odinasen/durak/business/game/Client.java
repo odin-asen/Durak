@@ -2,11 +2,6 @@ package com.github.odinasen.durak.business.game;
 
 import com.github.odinasen.durak.dto.ClientDto;
 
-/**
- * <p/>
- * Author: tih<br/>
- * Date: 22.07.2017.
- */
 public class Client {
     private ClientDto client;
 

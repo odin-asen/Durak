@@ -1,6 +1,6 @@
 package com.github.odinasen.durak.business.network.server;
 
-import com.github.odinasen.durak.business.ExtendedObservable;
+import com.github.odinasen.durak.business.ObserverNotificator;
 import com.github.odinasen.durak.business.exception.GameServerCode;
 import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.game.Player;
@@ -44,7 +44,7 @@ import static com.github.odinasen.durak.business.network.server.event.DurakServi
  * Date: 21.06.14
  */
 public class GameServer
-        extends ExtendedObservable
+        extends ObserverNotificator
         implements Observer {
     private static final Logger LOGGER = LoggingUtility.getLogger(GameServer.class.getName());
     /**
@@ -67,12 +67,14 @@ public class GameServer
     private Registry registry;
 
     private GameServer() {
-        this.userModel = new ServerUserModel();
-        this.gameIsRunning = false;
+        userModel = new ServerUserModel();
+        gameIsRunning = false;
 
-        this.eventHandler = new DurakServiceEventHandler();
-        this.eventHandler.registerEventFunction(DurakServiceEventType.CLIENT_LOGIN, new ClientLoginHandler());
-        this.eventHandler.registerEventFunction(DurakServiceEventType.CLIENT_LOGOUT, new ClientLogoutHandler());
+        eventHandler = new DurakServiceEventHandler();
+        eventHandler.registerEventFunction(
+                DurakServiceEventType.CLIENT_LOGIN, new ClientLoginHandler());
+        eventHandler.registerEventFunction(
+                DurakServiceEventType.CLIENT_LOGOUT, new ClientLogoutHandler());
     }
 
     public static GameServer getInstance() {
@@ -112,10 +114,10 @@ public class GameServer
      *                                                                      Als Exception-Attribut wird "port" gesetzt.
      */
     public void startServer(int port, String password) throws SystemException {
-        this.serverService = ServerService.createService(password);
+        serverService = ServerService.createService(password);
         // Wichtig, ansonsten kommen keine Infos im Server an, von Clients, die den SIMON-Service
         // verwenden wegen An- und Abmeldung
-        this.serverService.addObserver(this);
+        serverService.addObserver(this);
 
         try {
             this.registry = Simon.createRegistry(port);
@@ -169,11 +171,11 @@ public class GameServer
     public synchronized void addClient(ClientDto client) {
         // Darf nur etwas gemacht werden, wenn der Server auch laeuft
         if (isRunning()) {
-            List<Player> players = this.userModel.getPlayers();
+            List<Player> players = userModel.getPlayers();
             // Hat das Spiel begonnen oder gibt es mehr als 5 Spieler?
             if (this.gameIsRunning || (players.size() > 5)) {
                 // Ja
-                this.userModel.getSpectators().add(new Spectator(client));
+                userModel.getSpectators().add(new Spectator(client));
             } else {
                 players.add(new Player(client));
             }
@@ -241,15 +243,15 @@ public class GameServer
      * Setzt das Serverpasswort.
      */
     public void setPassword(String password) {
-        this.serverService.setServerPassword(password);
+        serverService.setServerPassword(password);
     }
 
     public List<Player> getPlayers() {
-        return this.userModel.getPlayers();
+        return userModel.getPlayers();
     }
 
     public List<Spectator> getSpectators() {
-        return this.userModel.getSpectators();
+        return userModel.getSpectators();
     }
 
     /**
@@ -270,7 +272,7 @@ public class GameServer
 
     public void removeClients(List<? extends ClientDto> removedClients) {
         if (removedClients != null && !removedClients.isEmpty()) {
-            List<Player> players = this.userModel.getPlayers();
+            List<Player> players = userModel.getPlayers();
 
             List<String> toBeRemovedClientIds = new ArrayList<>(removedClients.size());
             players.removeIf(player -> {
@@ -284,7 +286,7 @@ public class GameServer
                 }
             });
 
-            List<Spectator> spectators = this.userModel.getSpectators();
+            List<Spectator> spectators = userModel.getSpectators();
             spectators.removeIf(spectator -> {
                 long clientsWithSameIdCount =
                         removedClients.stream().filter((Predicate<ClientDto>) spectator::hasSameIdAs).count();
@@ -296,7 +298,8 @@ public class GameServer
                 }
             });
 
-            toBeRemovedClientIds.forEach(clientId -> this.serverService.removeClientByIdSendNotification(clientId));
+            toBeRemovedClientIds.forEach(
+                    clientId -> serverService.removeClientBySessionId(clientId));
         }
     }
 
@@ -333,11 +336,11 @@ public class GameServer
 
         @Override
         public void accept(DurakServiceEvent<List> event) {
-            List idList = event.getEventObject();
+            List clientList = event.getEventObject();
 
             // Clients aus dem Server entfernen, ggflls. Spiel beenden und andere Spieler
             // informieren
-            //GameServer.this.removeClients(clients);
+            GameServer.this.removeClients((List<ClientDto>)clientList);
 
             GameServer.this.setChangedAndNotifyObservers(event);
         }
