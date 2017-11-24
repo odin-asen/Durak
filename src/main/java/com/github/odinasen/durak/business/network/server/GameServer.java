@@ -138,7 +138,13 @@ public class GameServer
     }
 
     public void startGame() {
-        this.gameIsRunning = true;
+        List<Player> players = getPlayers();
+        if (players.size() > 1 && isRunning()) {
+            gameIsRunning = true;
+        } else {
+            throw new SystemException(GameServerCode.NOT_ENOUGH_PLAYERS_FOR_GAME).set(
+                    "playerCount", getPlayers().size());
+        }
     }
 
     /**
@@ -156,10 +162,12 @@ public class GameServer
             registry.stop();
             LOGGER.info(LoggingUtility.STARS + " Server shut down " + LoggingUtility.STARS);
         }
+
+        stopGame();
     }
 
     public void stopGame() {
-        this.gameIsRunning = false;
+        gameIsRunning = false;
     }
 
     /**
@@ -173,7 +181,7 @@ public class GameServer
         if (isRunning()) {
             List<Player> players = userModel.getPlayers();
             // Hat das Spiel begonnen oder gibt es mehr als 5 Spieler?
-            if (this.gameIsRunning || (players.size() > 5)) {
+            if (gameIsRunning || (players.size() > 5)) {
                 // Ja
                 userModel.getSpectators().add(new Spectator(client));
             } else {
@@ -301,6 +309,10 @@ public class GameServer
             toBeRemovedClientIds.forEach(
                     clientId -> serverService.removeClientBySessionId(clientId));
         }
+    }
+
+    public boolean gameIsRunning() {
+        return gameIsRunning;
     }
 
     /**
