@@ -1,4 +1,4 @@
-package com.github.odinasen.durak.gui.uielement;
+package com.github.odinasen.durak.gui.testfx.uielement;
 
 import com.github.odinasen.durak.gui.testfx.AbstractMainContentGuiTest;
 import javafx.scene.input.KeyCode;

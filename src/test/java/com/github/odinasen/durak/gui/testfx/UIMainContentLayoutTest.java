@@ -1,16 +1,19 @@
-package com.github.odinasen.durak.gui;
+package com.github.odinasen.durak.gui.testfx;
 
-import com.github.odinasen.durak.gui.uielement.UIElement;
-import com.github.odinasen.durak.gui.uielement.UIElementGuiTest;
+import com.github.odinasen.durak.gui.testfx.uielement.UIElement;
+import com.github.odinasen.durak.gui.testfx.uielement.UIElementGuiTest;
+import com.github.odinasen.test.UITest;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-import static com.github.odinasen.durak.gui.uielement.UIElementAssertions.verifyThat;
+import static com.github.odinasen.durak.gui.testfx.uielement.UIElementAssertions.verifyThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ITMainContentLayoutTest
+@Category(UITest.class)
+public class UIMainContentLayoutTest
         extends UIElementGuiTest {
 
     @Test

@@ -3,19 +3,18 @@ package com.github.odinasen.durak.business.network.client;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
+import com.github.odinasen.test.UnitTest;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import java.util.logging.Level;
 
-/**
- * Testklasse fuer den GameClient.
- * Created by tih on 23.09.2016.
- */
+@Category(UnitTest.class)
 public class GameClientTest {
 
     private int testPort;

@@ -5,9 +5,11 @@ import com.github.odinasen.durak.business.network.client.GameClientTest;
 import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
+import com.github.odinasen.test.IntegrationTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
@@ -17,15 +19,10 @@ import java.util.logging.Logger;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * Integrationstests fuer SimonClient-Server-Verbindungen.
- * <p/>
- * Author: tih<br/>
- * Date: 04.12.2016.
- */
-public class ITClientServerConnection {
+@Category(IntegrationTest.class)
+public class ClientServerConnectionTest {
     private static final String SERVER_PWD = "bla";
-    private static final Logger LOGGER = LoggingUtility.getLogger(ITClientServerConnection.class);
+    private static final Logger LOGGER = LoggingUtility.getLogger(ClientServerConnectionTest.class);
 
     private int testPort;
     private GameServer server;

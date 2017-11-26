@@ -1,12 +1,15 @@
 package com.github.odinasen.durak.i18n;
 
+import com.github.odinasen.test.UnitTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+@Category(UnitTest.class)
 public class I18nSupportTest {
     private String error1DeText = "Fehler, die Welt geht unter!";
     private String error1Text = "Error, the world goes down!";

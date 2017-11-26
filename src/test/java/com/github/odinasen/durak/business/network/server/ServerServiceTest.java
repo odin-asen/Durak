@@ -6,14 +6,17 @@ import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
 import com.github.odinasen.durak.dto.ClientDto;
+import com.github.odinasen.test.UnitTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
+@Category(UnitTest.class)
 public class ServerServiceTest {
 
     private String password = "";
@@ -88,8 +91,7 @@ public class ServerServiceTest {
         SessionInterface session = mock(SessionInterface.class);
 
         return new SessionFactory() {
-            public SessionInterface createSession(ServerService server,
-                                                  ClientDto client,
+            public SessionInterface createSession(ServerService server, ClientDto client,
                                                   Callable factoryCallable) {
                 return session;
             }

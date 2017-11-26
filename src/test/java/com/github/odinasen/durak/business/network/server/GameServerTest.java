@@ -6,9 +6,11 @@ import com.github.odinasen.durak.business.network.GameServerTester;
 import com.github.odinasen.durak.business.network.client.GameClientTest;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
+import com.github.odinasen.test.UnitTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -20,6 +22,7 @@ import java.util.logging.Level;
 
 import static org.junit.Assert.*;
 
+@Category(UnitTest.class)
 public class GameServerTest {
 
     public static final String testClientName = "Horst";
@@ -44,8 +47,7 @@ public class GameServerTest {
                       .append("stimmt in der Registry.stop Methode. Das ist hier aber nicht ")
                       .append("relevant und auch nicht schlimm, da der Server ja sowieso die ")
                       .append("Verbindung zu den Clients trennt.");
-            LoggingUtility.getLogger(GameClientTest.class)
-                          .log(Level.INFO, logMessage.toString(), ex);
+            LoggingUtility.getLogger(GameClientTest.class).log(Level.INFO, logMessage.toString(), ex);
         }
         server.setPassword("");
     }
@@ -127,8 +129,7 @@ public class GameServerTest {
 
     private void assertUnexpectedPortUsedException(SystemException ex) {
         String message =
-                "Second start of server should not result in already bound port message " +
-                "after server has been stopped.";
+                "Second start of server should not result in already bound port message " + "after server has been stopped.";
         assertNotSame(message, GameServerCode.PORT_USED, ex.getErrorCode());
     }
 
@@ -186,8 +187,7 @@ public class GameServerTest {
         assertClientAndPlayerHaveNotEmptyAndNotSameId(lastClientAdded, 5);
     }
 
-    private void assertClientAndPlayerHaveNotEmptyAndNotSameId(ClientDto clientDto,
-                                                               int playerIndex) {
+    private void assertClientAndPlayerHaveNotEmptyAndNotSameId(ClientDto clientDto, int playerIndex) {
         assertNotNull(clientDto.getUuid());
         assertNotSame(clientDto.getUuid(), "");
         assertNotSame(clientDto.getUuid(), getServersPlayerId(playerIndex));

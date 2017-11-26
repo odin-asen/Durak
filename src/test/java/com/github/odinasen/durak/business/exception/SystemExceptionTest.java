@@ -1,6 +1,8 @@
 package com.github.odinasen.durak.business.exception;
 
+import com.github.odinasen.test.UnitTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -12,6 +14,7 @@ import static org.junit.Assert.assertNotSame;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@Category(UnitTest.class)
 public class SystemExceptionTest {
 
     Exception baseException;
@@ -39,17 +42,14 @@ public class SystemExceptionTest {
 
     @Test
     public void wrapWithProperties() throws Exception {
-        SystemException testException =
-                initialiseBaseExceptionAndCreateSystemException(baseExceptionMessage);
+        SystemException testException = initialiseBaseExceptionAndCreateSystemException(baseExceptionMessage);
 
         ErrorCode testErrorCode = TestErrorCode.ERROR_ONE_OH_ONE;
         String propKeyOne = "first";
         String propValueOne = "Hallo";
         String propKeyTwo = "second";
         Integer propValueTwo = 7;
-        testException.setErrorCode(testErrorCode)
-                     .set(propKeyOne, propValueOne)
-                     .set(propKeyTwo, propValueTwo);
+        testException.setErrorCode(testErrorCode).set(propKeyOne, propValueOne).set(propKeyTwo, propValueTwo);
 
         Map<String, Object> properties = testException.getProperties();
         assertEquals(2, properties.size());
@@ -91,8 +91,7 @@ public class SystemExceptionTest {
 
     @Test
     public void wrapInheritsExceptionMessage() {
-        SystemException testException =
-                initialiseBaseExceptionAndCreateSystemException(baseExceptionMessage);
+        SystemException testException = initialiseBaseExceptionAndCreateSystemException(baseExceptionMessage);
         assertEquals(baseExceptionMessage, testException.getMessage());
     }
 

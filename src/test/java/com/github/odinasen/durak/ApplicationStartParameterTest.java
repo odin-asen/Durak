@@ -1,11 +1,14 @@
 package com.github.odinasen.durak;
 
+import com.github.odinasen.test.UnitTest;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Category(UnitTest.class)
 public class ApplicationStartParameterTest {
 
     private static final String SERVER_PORT_PARAM = "sPort";

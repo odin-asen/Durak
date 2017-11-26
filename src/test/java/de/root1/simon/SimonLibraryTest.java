@@ -1,5 +1,6 @@
 package de.root1.simon;
 
+import com.github.odinasen.test.ThirdPartyTest;
 import de.root1.simon.client.SimonClient;
 import de.root1.simon.exceptions.EstablishConnectionFailed;
 import de.root1.simon.exceptions.LookupFailedException;
@@ -7,6 +8,7 @@ import de.root1.simon.exceptions.NameBindingException;
 import de.root1.simon.utils.Utils;
 import org.apache.mina.core.session.IoSession;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -17,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * SIMON Bibliothek testen und Dinge ausprobieren
  */
+@Category(ThirdPartyTest.class)
 public class SimonLibraryTest
         extends SimonConnectionSetup {
 

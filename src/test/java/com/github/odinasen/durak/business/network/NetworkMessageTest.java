@@ -1,7 +1,10 @@
 package com.github.odinasen.durak.business.network;
 
+import com.github.odinasen.test.UnitTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(UnitTest.class)
 public class NetworkMessageTest {
 
     ClientMessageType testMessageType = ClientMessageType.CLIENT_REMOVED_BY_SERVER;

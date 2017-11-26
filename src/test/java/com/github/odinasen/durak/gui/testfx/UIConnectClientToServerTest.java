@@ -1,17 +1,20 @@
-package com.github.odinasen.durak.gui;
+package com.github.odinasen.durak.gui.testfx;
 
 import com.github.odinasen.durak.business.network.client.GameClient;
 import com.github.odinasen.durak.business.network.server.GameServer;
-import com.github.odinasen.durak.gui.uielement.UIElement;
-import com.github.odinasen.durak.gui.uielement.UIElementGuiTest;
+import com.github.odinasen.durak.gui.testfx.uielement.UIElement;
+import com.github.odinasen.durak.gui.testfx.uielement.UIElementGuiTest;
+import com.github.odinasen.test.UITest;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import org.junit.After;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.junit.Assert.*;
 
-public class ITConnectClientToServerTest
+@Category(UITest.class)
+public class UIConnectClientToServerTest
         extends UIElementGuiTest {
 
     @After

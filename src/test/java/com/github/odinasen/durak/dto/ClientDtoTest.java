@@ -1,10 +1,13 @@
 package com.github.odinasen.durak.dto;
 
+import com.github.odinasen.test.UnitTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+@Category(UnitTest.class)
 public class ClientDtoTest {
     private String UUIDStr = "bla";
     private String testName = "Horst";
