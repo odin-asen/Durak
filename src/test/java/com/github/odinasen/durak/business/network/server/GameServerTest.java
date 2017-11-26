@@ -106,6 +106,53 @@ public class GameServerTest {
     }
 
     @Test
+    public void startServerShouldMakePossibleToProperlyUnbindPortWithStopServerMethod() {
+        startServerAndAssertRunning();
+        try {
+            startServerAndAssertRunning();
+            fail("Test should not reach this line. Expected SystemException");
+        } catch (SystemException ex) {
+            server.stopServer();
+            assertFalse(server.isRunning());
+
+            assertTestPortCanBeUsedBySocket();
+
+            try {
+                startServerAndAssertRunning();
+            } catch (SystemException unexpectedException) {
+                assertUnexpectedPortUsedException(ex);
+            }
+        }
+    }
+
+    private void assertUnexpectedPortUsedException(SystemException ex) {
+        String message =
+                "Second start of server should not result in already bound port message " +
+                "after server has been stopped.";
+        assertNotSame(message, GameServerCode.PORT_USED, ex.getErrorCode());
+    }
+
+    private void assertTestPortCanBeUsedBySocket() {
+        try (ServerSocket socket = new ServerSocket(testPort)) {
+            socket.close();
+        } catch (IOException ex) {
+            fail("It should be possible to open a server socket on an unused port.");
+        }
+    }
+
+    @Test
+    public void stopServerShouldUnbindPort() {
+        for (int i = 0; i < 5; i++) {
+            try {
+                startServerAndAssertRunning();
+                server.stopServer();
+            } catch (SystemException ex) {
+                assertUnexpectedPortUsedException(ex);
+            }
+        }
+    }
+
+    @Test
     public void stopServerReleasesSocket() throws Exception {
         assertFalse(server.isRunning());
 
@@ -113,11 +160,7 @@ public class GameServerTest {
 
         stopServerAndAssertNotRunning();
 
-        try (ServerSocket socket = new ServerSocket(testPort)) {
-            socket.close();
-        } catch (IOException ex) {
-            fail("It should be possible to open a server socket on an unused port.");
-        }
+        assertTestPortCanBeUsedBySocket();
     }
 
     @Test
@@ -223,6 +266,17 @@ public class GameServerTest {
     }
 
     @Test
+    public void startServerMultipleTimesMayThrowExeption() {
+        startServerAndAssertRunning();
+        try {
+            server.startServer(testPort);
+        } catch (SystemException ex) {
+            assertEquals(GameServerCode.PORT_USED, ex.getErrorCode());
+            assertEquals(ex.get("port"), testPort);
+        }
+    }
+
+    @Test
     public void stopServerRemovesAllPlayers() {
         int playerAmount = 6;
         startServerAndGame(playerAmount);
@@ -251,5 +305,10 @@ public class GameServerTest {
 
         serverTester.assertServersidePlayerCount(0);
         serverTester.assertServerHasZeroSpectators();
+    }
+
+    @Test
+    public void setPasswordThrowsNoExceptionBeforeStart() {
+        server.setPassword("bla");
     }
 }

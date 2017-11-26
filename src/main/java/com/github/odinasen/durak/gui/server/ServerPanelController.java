@@ -21,8 +21,6 @@ import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -40,8 +38,8 @@ public class ServerPanelController
         implements Observer {
     private static final Logger LOGGER = LoggingUtility.getLogger(ServerPanelController.class);
 
-    private static final String ASSERT_SERVER_RUN_BEFORE_GAME = "Server must run before trying "
-                                                                + "to launch a game!";
+    private static final String ASSERT_SERVER_RUN_BEFORE_GAME =
+            "Server must run before trying " + "to launch a game!";
 
     private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
@@ -100,8 +98,9 @@ public class ServerPanelController
         this.changeServerButton("tooltip.server.start.server");
         initInitialCardsComponents();
 
-        this.fieldServerPort.textProperty().bindBidirectional(this.gameServerModel.getPort(),
-                                                              new NumberStringConverter());
+        this.fieldServerPort.textProperty()
+                            .bindBidirectional(this.gameServerModel.getPort(),
+                                               new NumberStringConverter());
         this.fieldPassword.textProperty().bindBidirectional(this.gameServerModel.getPassword());
 
         GameServer.getInstance().addObserver(this);
@@ -140,28 +139,20 @@ public class ServerPanelController
         listLoggedClients.setCellFactory(new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
             @Override
             public ListCell<ClientDto> call(ListView<ClientDto> listView) {
-                return new ClientListCell(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent actionEvent) {
-                        removeSelectedClients();
-                    }
-                });
+                return new ClientListCell(actionEvent -> removeSelectedClients());
             }
         });
 
-        listLoggedClients.getItems().addListener(new ListChangeListener<ClientDto>() {
-
-            @Override
-            public void onChanged(Change<? extends ClientDto> change) {
-                while (change.next()) {
-                    if (change.wasRemoved()) {
-                        List<? extends ClientDto> clientsToRemove = change.getRemoved();
-                        GameServer.getInstance().removeClients(clientsToRemove);
-                        ServerPanelController.this.gameServerModel.removeClients(clientsToRemove);
-                        GameServer.getInstance().sendClientMessage(new NetworkMessage<>(new Object(),
-                                                                                        ClientMessageType
-                                                                                                .CLIENT_REMOVED_BY_SERVER));
-                    }
+        listLoggedClients.getItems().addListener((ListChangeListener<ClientDto>)change -> {
+            while (change.next()) {
+                if (change.wasRemoved()) {
+                    List<? extends ClientDto> clientsToRemove = change.getRemoved();
+                    GameServer.getInstance().removeClients(clientsToRemove);
+                    ServerPanelController.this.gameServerModel.removeClients(clientsToRemove);
+                    GameServer.getInstance()
+                              .sendClientMessage(new NetworkMessage<>(new Object(),
+                                                                      ClientMessageType
+                                                                              .CLIENT_REMOVED_BY_SERVER));
                 }
             }
         });
@@ -201,10 +192,9 @@ public class ServerPanelController
                 this.enableInputElements();
             } catch (SystemException e) {
                 /* Fehlerpopup, da der Server nicht gestartet werden konnte */
-                DialogPopupFactory.getFactory().showErrorPopup(mainWindow,
-                                                               e.getMessage(),
-                                                               DialogPopupFactory.LOCATION_CENTRE,
-                                                               8.0);
+                DialogPopupFactory.getFactory()
+                                  .showErrorPopup(mainWindow, e.getMessage(),
+                                                  DialogPopupFactory.LOCATION_CENTRE, 8.0);
                 serverStatus = "Serverstart ist fehlgeschlagen!";
             }
         }
@@ -244,12 +234,12 @@ public class ServerPanelController
         } else {
             if (!startGame()) {
                 /* Fehlerpopup, da das Spiel nicht gestartet werden konnte */
-                DialogPopupFactory.getFactory().showErrorPopup(mainWindow,
-                                                               GAME_NOT_STARTED_MESSAGE,
-                                                               DialogPopupFactory.LOCATION_CENTRE,
-                                                               8.0);
-                MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
-                                            "Das Spiel konnte nicht gestartet werden!");
+                DialogPopupFactory.getFactory()
+                                  .showErrorPopup(mainWindow, GAME_NOT_STARTED_MESSAGE,
+                                                  DialogPopupFactory.LOCATION_CENTRE, 8.0);
+                MainGUIController.setStatus(
+                        MainGUIController.StatusType.DEFAULT,
+                        "Das Spiel konnte nicht gestartet werden!");
             } else {
                 MainGUIController.setStatus(MainGUIController.StatusType.DEFAULT,
                                             "Das Spiel wurde gestartet!");
@@ -314,8 +304,8 @@ public class ServerPanelController
         ObservableList<ClientDto> loggedClients = this.listLoggedClients.getItems();
         int before = loggedClients.size();
 
-        final List<ClientDto> selectedClients = this.listLoggedClients.getSelectionModel()
-                                                                      .getSelectedItems();
+        final List<ClientDto> selectedClients =
+                this.listLoggedClients.getSelectionModel().getSelectedItems();
 
         for (int i = selectedClients.size() - 1; i >= 0; i--) {
             this.listLoggedClients.getItems().remove(selectedClients.get(i));
@@ -344,8 +334,11 @@ public class ServerPanelController
     }
 
     /**
-     * Prueft, ob ein Spiel gestartet werden kann. Haengt intern von der Anzahl der Spieler und Karten ab.
-     * @return true, das Spiel kann gestartet werden. false, das Spiel kann <b>nicht</b> gestartet werden.
+     * Prueft, ob ein Spiel gestartet werden kann. Haengt intern von der Anzahl der Spieler und
+     * Karten ab.
+     *
+     * @return true, das Spiel kann gestartet werden. false, das Spiel kann <b>nicht</b>
+     * gestartet werden.
      */
     public boolean canStartGame() {
         // Mindestens 2 Spieler und genug Karten -> (Anzahl Karten)/6 >= Anzahl Spieler
@@ -359,7 +352,7 @@ public class ServerPanelController
 
         int numberCards = this.boxInitialCards.getValue().getNumberCards();
         int cardsPerPlayer = 6;
-        boolean enoughCards = numberCards/cardsPerPlayer >= countPlayers;
+        boolean enoughCards = numberCards / cardsPerPlayer >= countPlayers;
 
         return countPlayers > 2 && enoughCards;
     }
@@ -399,7 +392,9 @@ public class ServerPanelController
      * Komponenten der Oberflaeche an.
      */
     private void stopServer() {
-        GameServer.getInstance().sendClientMessage(new NetworkMessage<>(new Object(), ClientMessageType.SERVER_SHUTDOWN));
+        GameServer.getInstance()
+                  .sendClientMessage(
+                          new NetworkMessage<>(new Object(), ClientMessageType.SERVER_SHUTDOWN));
 
         GameServer.getInstance().stopServer();
 
@@ -467,7 +462,7 @@ public class ServerPanelController
     @Override
     public void update(Observable observable, Object o) {
         if (o instanceof DurakServiceEvent) {
-            DurakServiceEvent event = (DurakServiceEvent) o;
+            DurakServiceEvent event = (DurakServiceEvent)o;
             eventHandler.handleEvent(event);
         }
     }
@@ -511,7 +506,8 @@ public class ServerPanelController
         public void accept(DurakServiceEvent<List> event) {
             List clientIds = event.getEventObject();
 
-            Platform.runLater(() -> ServerPanelController.this.gameServerModel.removeClients(clientIds));
+            Platform.runLater(
+                    () -> ServerPanelController.this.gameServerModel.removeClients(clientIds));
         }
     }
 }

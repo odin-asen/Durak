@@ -5,10 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Systemweite Exception Klasse.
- * <p/>
- * Author: Timm Herrmann<br/>
- * Date: 18.10.14
+ * System-wide exception class.
  */
 public class SystemException
         extends RuntimeException {
@@ -37,9 +34,9 @@ public class SystemException
 
         this.errorCode = errorCode;
         if (cause == null) {
-            this.lastCause = null;
+            lastCause = null;
         } else {
-            this.lastCause = getLastCause(cause);
+            lastCause = getLastCause(cause);
         }
         this.properties = new HashMap<String, Object>(4);
     }
@@ -68,18 +65,16 @@ public class SystemException
      * @param stream PrintStream in den der Stacktrace ausgegeben wird.
      */
     public void printLastCauseStackTrace(PrintStream stream) {
-        if (this.lastCause != null) {
-            this.lastCause.printStackTrace(stream);
+        if (lastCause != null) {
+            lastCause.printStackTrace(stream);
         }
     }
 
     private Throwable getLastCause(Throwable throwable) {
-        assert throwable != null;
-
         Throwable cause = throwable.getCause();
 
         if (cause != null) {
-            return getLastCause(throwable);
+            return getLastCause(cause);
         } else {
             return throwable;
         }

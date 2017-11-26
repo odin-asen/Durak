@@ -12,7 +12,6 @@ import com.github.odinasen.durak.business.network.server.event.DurakEventObjectC
 import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
 import com.github.odinasen.durak.business.network.server.event.DurakServiceEventHandler;
 import com.github.odinasen.durak.dto.ClientDto;
-import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.model.ServerUserModel;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
@@ -114,25 +113,30 @@ public class GameServer
      *                                                                      Als Exception-Attribut wird "port" gesetzt.
      */
     public void startServer(int port, String password) throws SystemException {
-        serverService = ServerService.createService(password);
-        // Wichtig, ansonsten kommen keine Infos im Server an, von Clients, die den SIMON-Service
-        // verwenden wegen An- und Abmeldung
-        serverService.addObserver(this);
-
+        ServerService newServerService = ServerService.createService(password);
+        Registry newRegistry = null;
         try {
-            this.registry = Simon.createRegistry(port);
-            this.registry.start();
-            this.registry.bind(SIMONConfiguration.REGISTRY_NAME_SERVER, this.serverService);
+            newRegistry = Simon.createRegistry(port);
+            newRegistry.start();
+            newRegistry.bind(SIMONConfiguration.REGISTRY_NAME_SERVER, newServerService);
+
+            registry = newRegistry;
+            serverService = newServerService;
+
+            // Wichtig, ansonsten kommen keine Infos im Server an, von Clients, die den
+            // SIMON-Service
+            // verwenden wegen An- und Abmeldung
+            serverService.addObserver(this);
 
             LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Server is running");
         } catch (NameBindingException e) {
-            this.registry.stop();
+            stopRegistry(newRegistry);
             throw SystemException.wrap(e, GameServerCode.SERVICE_ALREADY_RUNNING).set("port", port);
         } catch (UnknownHostException e) {
-            this.registry.stop();
+            stopRegistry(newRegistry);
             throw SystemException.wrap(e, GameServerCode.NETWORK_ERROR).set("port", port);
         } catch (IOException e) {
-            this.registry.stop();
+            stopRegistry(newRegistry);
             throw SystemException.wrap(e, GameServerCode.PORT_USED).set("port", port);
         }
     }
@@ -151,19 +155,23 @@ public class GameServer
      * Stoppt den laufenden Server. Laueft ein Spiel, wird dieses auch geschlossen.
      */
     public void stopServer() {
-        try {
-            removeAllClients();
-        } catch (SystemException e) {
-            LOGGER.info(I18nSupport.getException(e.getErrorCode()));
-        }
+        removeAllClients();
 
-        if (this.registry != null) {
-            registry.unbind(SIMONConfiguration.REGISTRY_NAME_SERVER);
-            registry.stop();
+        stopGame();
+
+        if (isRunning()) {
+            stopRegistry(registry);
             LOGGER.info(LoggingUtility.STARS + " Server shut down " + LoggingUtility.STARS);
         }
 
-        stopGame();
+
+    }
+
+    private void stopRegistry(Registry registry) {
+        if (registry != null) {
+            registry.unbind(SIMONConfiguration.REGISTRY_NAME_SERVER);
+            registry.stop();
+        }
     }
 
     public void stopGame() {
@@ -209,8 +217,8 @@ public class GameServer
      *
      * @return Die Anzahl der Clients, die entfernt wurden.
      */
-    public int removeAllPlayers() throws SystemException {
-        List<Player> players = this.userModel.getPlayers();
+    public int removeAllPlayers() {
+        List<Player> players = userModel.getPlayers();
         int removed = players.size();
 
         players.clear();
@@ -251,7 +259,9 @@ public class GameServer
      * Setzt das Serverpasswort.
      */
     public void setPassword(String password) {
-        serverService.setServerPassword(password);
+        if (serverService != null) {
+            serverService.setServerPassword(password);
+        }
     }
 
     public List<Player> getPlayers() {
