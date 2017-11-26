@@ -45,7 +45,7 @@ public class SystemException
         assert exception != null;
 
         if (exception instanceof SystemException) {
-            SystemException se = (SystemException) exception;
+            SystemException se = (SystemException)exception;
             if (errorCode != null && errorCode != se.getErrorCode()) {
                 return new SystemException(exception.getMessage(), exception, errorCode);
             }

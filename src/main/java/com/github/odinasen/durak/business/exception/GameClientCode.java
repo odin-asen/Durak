@@ -19,7 +19,7 @@ public enum GameClientCode
 
     private int errorNumber;
 
-    private GameClientCode(int errorNumber) {
+    GameClientCode(int errorNumber) {
         this.errorNumber = errorNumber;
     }
 

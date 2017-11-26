@@ -93,7 +93,7 @@ public class ITMainContentLayoutTest
     public void closeClientPanelMustNotCloseVisibleServerPanel() {
         openServerPanelBeforeClientPanelAndVerifyVisiblity();
 
-        Pane serverPanel = UIElement.ServerPanel.getElement();
+        Pane serverPanel = (Pane)UIElement.ServerPanel.getElement();
         int serverPanelWidth = (int)serverPanel.getWidth();
 
         closeClientPanel();
@@ -137,7 +137,7 @@ public class ITMainContentLayoutTest
     public void closeServerPanelMustNotCloseVisibleClientPanel() {
         openServerPanelBeforeClientPanelAndVerifyVisiblity();
 
-        Pane clientPanel = UIElement.ClientPanel.getElement();
+        Pane clientPanel = (Pane)UIElement.ClientPanel.getElement();
         int clientPanelWidth = (int)clientPanel.getWidth();
 
         closeServerPanel();
@@ -156,7 +156,7 @@ public class ITMainContentLayoutTest
     public void clientPanelIsUpIfServerPanelIsInvisible() {
         openClientPanel();
 
-        Pane serverPanel = UIElement.ServerPanel.getElement();
+        Pane serverPanel = (Pane)UIElement.ServerPanel.getElement();
         int serverPanelHeight = (int)serverPanel.heightProperty().get();
         assertTrue(serverPanelHeight + " != 0", serverPanelHeight == 0);
     }
@@ -165,7 +165,7 @@ public class ITMainContentLayoutTest
     public void serverPanelIsUpIfClientPanelIsInvisible() {
         openServerPanel();
 
-        Pane serverPanel = UIElement.ServerPanel.getElement();
+        Pane serverPanel = (Pane)UIElement.ServerPanel.getElement();
         assertTrue(serverPanel.heightProperty().get() > 0);
     }
 
@@ -177,10 +177,10 @@ public class ITMainContentLayoutTest
     }
 
     private void verifyThatServerPanelIsAboveClientPanel() {
-        Pane clientPanel = UIElement.ClientPanel.getElement();
+        Pane clientPanel = (Pane)UIElement.ClientPanel.getElement();
         assertTrue(clientPanel.heightProperty().get() > 0);
 
-        Pane serverPanel = UIElement.ServerPanel.getElement();
+        Pane serverPanel = (Pane)UIElement.ServerPanel.getElement();
         assertTrue(serverPanel.heightProperty().get() > 0);
 
         int serverPanelX = (int)serverPanel.getLayoutX();

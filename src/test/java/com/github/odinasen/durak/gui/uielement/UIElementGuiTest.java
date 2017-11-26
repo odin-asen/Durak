@@ -1,6 +1,7 @@
 package com.github.odinasen.durak.gui.uielement;
 
 import com.github.odinasen.durak.gui.testfx.AbstractMainContentGuiTest;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 
 /**
@@ -11,5 +12,15 @@ public abstract class UIElementGuiTest
 
     public UIElementGuiTest click(UIElement element, MouseButton... buttons) {
         return (UIElementGuiTest)clickOn(element.getIdSelector(), buttons);
+    }
+
+    public void type(String text) {
+        String upperCaseText = text.toUpperCase();
+        KeyCode[] numberKeyCodes = new KeyCode[upperCaseText.length()];
+        for (int index = 0; index < upperCaseText.length(); index++) {
+            numberKeyCodes[index] = KeyCode.getKeyCode(upperCaseText.substring(index, index + 1));
+        }
+
+        type(numberKeyCodes);
     }
 }

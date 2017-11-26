@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -70,11 +71,22 @@ public class SystemExceptionTest {
     }
 
     @Test
-    public void wrapSystemExceptionInheritsErrorCode() throws Exception {
+    public void wrapSystemExceptionWithoutNewErrorCode() throws Exception {
         SystemException wrappedException = new SystemException(TestErrorCode.ERROR_ONE_OH_ONE);
         SystemException testException = SystemException.wrap(wrappedException);
 
         assertEquals(TestErrorCode.ERROR_ONE_OH_ONE, testException.getErrorCode());
+        assertEquals(wrappedException, testException);
+    }
+
+    @Test
+    public void wrapSystemExceptionWithNewErrorCode() throws Exception {
+        SystemException wrappedException = new SystemException(TestErrorCode.ERROR_ONE_OH_ONE);
+        SystemException testException =
+                SystemException.wrap(wrappedException, TestErrorCode.NEW_ERROR_CODE);
+
+        assertNotSame(wrappedException.getErrorCode(), testException.getErrorCode());
+        assertNotSame(wrappedException, testException);
     }
 
     @Test

@@ -27,7 +27,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
-import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
 
 import java.util.*;
@@ -136,12 +135,8 @@ public class ServerPanelController
 
     private void initListView() {
         listLoggedClients.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        listLoggedClients.setCellFactory(new Callback<ListView<ClientDto>, ListCell<ClientDto>>() {
-            @Override
-            public ListCell<ClientDto> call(ListView<ClientDto> listView) {
-                return new ClientListCell(actionEvent -> removeSelectedClients());
-            }
-        });
+        listLoggedClients.setCellFactory(
+                listView -> new ClientListCell(actionEvent -> removeSelectedClients()));
 
         listLoggedClients.getItems().addListener((ListChangeListener<ClientDto>)change -> {
             while (change.next()) {
@@ -171,25 +166,25 @@ public class ServerPanelController
         String serverStatus;
 
         /* Laueft der Server? */
-        if (this.isServerRunning()) {
+        if (isServerRunning()) {
 
             /* Ja, also Server stoppen */
-            if (this.gameServerModel.isGameRunning()) {
+            if (gameServerModel.isGameRunning()) {
                 DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
-                this.stopGame();
+                stopGame();
             }
-            this.gameServerModel.removeAllClients();
-            this.stopServer();
+            gameServerModel.removeAllClients();
+            stopServer();
             serverStatus = "Server wurde angehalten!";
         } else {
 
             /* Nein, also Server starten */
             try {
-                this.startServer();
+                startServer();
                 serverStatus = "Server läuft!";
 
                 /* Eingabeelemente ausgrauen */
-                this.enableInputElements();
+                setEditableValueOnInputElements();
             } catch (SystemException e) {
                 /* Fehlerpopup, da der Server nicht gestartet werden konnte */
                 DialogPopupFactory.getFactory()
@@ -206,13 +201,13 @@ public class ServerPanelController
      * Abhaenging von Verbindungszustand und Spielzustand, werden Eingabekomponenten aktiviert
      * bzw. deaktiviert.
      */
-    private void enableInputElements() {
+    private void setEditableValueOnInputElements() {
         boolean enableServerFields = !GameServer.getInstance().isRunning();
-        boolean enableGameFields = !this.gameServerModel.isGameRunning();
+        boolean enableGameFields = !gameServerModel.isGameRunning();
 
-        this.fieldPassword.setEditable(enableServerFields);
-        this.fieldServerPort.setEditable(enableServerFields);
-        this.setBoxEditable(enableGameFields);
+        fieldPassword.setEditable(enableServerFields);
+        fieldServerPort.setEditable(enableServerFields);
+        setBoxEditable(enableGameFields);
     }
 
     /**
@@ -223,8 +218,6 @@ public class ServerPanelController
      * Der Server muss gestartet sein, bevor diese Methode aufgerufen wird.
      */
     public void startStopGame() {
-        assert isServerRunning() : ASSERT_SERVER_RUN_BEFORE_GAME;
-
         Window mainWindow = MainGUIController.getMainWindow();
 
         if (gameServerModel.isGameRunning()) {
@@ -322,10 +315,10 @@ public class ServerPanelController
     private boolean startGame() {
         boolean started = true;
 
-        if (this.canStartGame()) {
-            this.setGameRunning(true);
-            this.changeGameButton("tooltip.stop.game");
-            this.enableInputElements();
+        if (canStartGame()) {
+            setGameRunning(true);
+            changeGameButton("tooltip.stop.game");
+            setEditableValueOnInputElements();
         } else {
             started = false;
         }
@@ -344,13 +337,13 @@ public class ServerPanelController
         // Mindestens 2 Spieler und genug Karten -> (Anzahl Karten)/6 >= Anzahl Spieler
 
         int countPlayers = 0;
-        for (ClientDto client : this.gameServerModel.getClients()) {
+        for (ClientDto client : gameServerModel.getClients()) {
             if (!client.isSpectator()) {
                 countPlayers++;
             }
         }
 
-        int numberCards = this.boxInitialCards.getValue().getNumberCards();
+        int numberCards = boxInitialCards.getValue().getNumberCards();
         int cardsPerPlayer = 6;
         boolean enoughCards = numberCards / cardsPerPlayer >= countPlayers;
 
@@ -369,12 +362,12 @@ public class ServerPanelController
         GameServer server = GameServer.getInstance();
 
         /* Der Port wird ueber Databinding im Textfeld gesetzt */
-        server.startServer(this.gameServerModel.getPort().getValue(),
-                           this.gameServerModel.getPassword().getValue());
+        server.startServer(gameServerModel.getPort().getValue(),
+                           gameServerModel.getPassword().getValue());
 
         /* GUI veraendern */
         fieldServerPort.setEditable(false);
-        this.changeServerButton("tooltip.stop.server");
+        changeServerButton("tooltip.stop.server");
         buttonLaunchGame.setVisible(true);
     }
 
@@ -382,9 +375,9 @@ public class ServerPanelController
      * Stoppt das Spiel und passt die Toolbar an.
      */
     private void stopGame() {
-        this.setGameRunning(false);
-        this.changeGameButton("tooltip.start.game");
-        this.enableInputElements();
+        setGameRunning(false);
+        changeGameButton("tooltip.start.game");
+        setEditableValueOnInputElements();
     }
 
     /**
@@ -399,9 +392,9 @@ public class ServerPanelController
         GameServer.getInstance().stopServer();
 
         /* GUI anpassen */
-        this.buttonLaunchGame.setVisible(false);
-        this.changeServerButton("tooltip.server.start.server");
-        this.fieldServerPort.setEditable(true);
+        buttonLaunchGame.setVisible(false);
+        changeServerButton("tooltip.server.start.server");
+        fieldServerPort.setEditable(true);
     }
 
     /**
@@ -432,7 +425,7 @@ public class ServerPanelController
             oldStyle = "stopGameButton";
             newStyle = "startGameButton";
         }
-        this.changeButton(this.buttonLaunchGame, oldStyle, newStyle, tooltipKey);
+        this.changeButton(buttonLaunchGame, oldStyle, newStyle, tooltipKey);
     }
 
     /**
@@ -448,11 +441,11 @@ public class ServerPanelController
             oldStyle = "stopServerButton";
             newStyle = "startServerButton";
         }
-        this.changeButton(this.buttonLaunchServer, oldStyle, newStyle, tooltipKey);
+        changeButton(buttonLaunchServer, oldStyle, newStyle, tooltipKey);
     }
 
     public void setGameRunning(boolean running) {
-        this.gameServerModel.setGameRunning(this.isServerRunning() && running);
+        gameServerModel.setGameRunning(isServerRunning() && running);
     }
 
     public boolean isServerRunning() {

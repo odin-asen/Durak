@@ -37,7 +37,7 @@
       </TextField>
       <Label text="%label.port" GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1"
              GridPane.columnIndex="$labelColumnIndex" GridPane.hgrow="ALWAYS"/>
-      <TextField fx:id="fieldServerPort"
+      <TextField fx:id="clientConnectionPortField"
                  GridPane.margin="$gridPaneMargin" GridPane.rowIndex="1"
                  GridPane.columnIndex="$textFieldColumnIndex">
         <tooltip>

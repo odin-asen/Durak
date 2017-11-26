@@ -15,7 +15,16 @@ public enum UIElement {
     MenuItemCloseApplication("#closeMenuItem"),
     ClientPanel("#clientPanel"),
     ServerPanel("#serverPanel"),
-    MainSplitPane("#mainSplitPane");
+    MainSplitPane("#mainSplitPane"),
+    StartServerButton("#buttonLaunchServer"),
+    StopServerButton("#buttonLaunchServer"),
+    ServerPortField("#fieldServerPort"),
+    StatusLabel("#leftStatus"),
+    ConnectToServerButton("#buttonConnectDisconnect"),
+    DisconnectFromServerButton("#buttonConnectDisconnect"),
+    ConnectionAddressField("#fieldServerAddress"),
+    ConnectionPortField("#clientConnectionPortField");
+
 
     private String idSelector;
 
@@ -35,18 +44,27 @@ public enum UIElement {
         FxAssert.verifyThat(getIdSelector(), node -> !node.isVisible());
     }
 
-    public <T extends Node> T getElement() {
+    public Node getElement() {
         NodeFinder nodeFinder = FxService.serviceContext().getNodeFinder();
         NodeQuery nodeQuery = nodeFinder.lookup(getIdSelector());
 
         Optional<Node> optional = nodeQuery.tryQuery();
         if (optional.isPresent()) {
-            Node node = optional.get();
-            return (T)node;
+            return optional.get();
         } else {
             String message = String.format("UI-Element mit Id '%s' konnte nicht gefunden werden.",
                                            getIdSelector());
             throw new ElementNotFoundException(message);
         }
+    }
+
+    public boolean hasStyleClass(String styleClass) {
+        boolean hasStyle = false;
+
+        for (String style : getElement().getStyleClass()) {
+            hasStyle = hasStyle || style.equals(styleClass);
+        }
+
+        return hasStyle;
     }
 }
