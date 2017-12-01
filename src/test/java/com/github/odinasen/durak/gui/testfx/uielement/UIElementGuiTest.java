@@ -3,6 +3,7 @@ package com.github.odinasen.durak.gui.testfx.uielement;
 import com.github.odinasen.durak.gui.testfx.AbstractMainContentGuiTest;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import org.testfx.robot.Motion;
 
 /**
  * Abstrakte Klasse, die es ermoeglicht TestFX Methoden mit UIElement Objekten auszufuehren.
@@ -12,6 +13,10 @@ public abstract class UIElementGuiTest
 
     public UIElementGuiTest click(UIElement element, MouseButton... buttons) {
         return (UIElementGuiTest)clickOn(element.getIdSelector(), buttons);
+    }
+
+    public UIElementGuiTest doubleClick(UIElement element, MouseButton... buttons) {
+        return (UIElementGuiTest)doubleClickOn(element.getIdSelector(), Motion.DEFAULT, buttons);
     }
 
     public void type(String text) {

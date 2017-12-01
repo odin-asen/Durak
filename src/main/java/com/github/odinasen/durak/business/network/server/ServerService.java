@@ -4,7 +4,6 @@ import com.github.odinasen.durak.business.ObserverNotificator;
 import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent;
 import com.github.odinasen.durak.business.network.server.exception.LoginFailedException;
 import com.github.odinasen.durak.business.network.server.exception.SessionNotFoundException;
-import com.github.odinasen.durak.business.network.server.session.Session;
 import com.github.odinasen.durak.business.network.server.session.SessionFactory;
 import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
@@ -118,19 +117,12 @@ public class ServerService
         return session;
     }
 
-    public synchronized void logoff(Callable callable) {
-        if (callable != null) {
-            SessionInterface foundSession = null;
-            for (SessionInterface session : loggedSessionList) {
-                SessionComparator comparator = new SessionComparator(session);
-                if (comparator.sessionHasReference(callable)) {
-                    foundSession = session;
-                    break;
-                }
-            }
+    public synchronized void logoff(SessionInterface clientSession) {
+        if (clientSession != null) {
+            boolean sessionRemoved = removeSession(clientSession);
 
-            if (foundSession != null) {
-                ClientDto clientDto = ((Session)foundSession).getClientDto();
+            if (sessionRemoved) {
+                ClientDto clientDto = clientSession.getClientDto();
 
                 List<ClientDto> clients = new ArrayList<>(1);
                 clients.add(clientDto);
@@ -140,8 +132,8 @@ public class ServerService
         }
     }
 
-    public void removeSession(SessionInterface session) {
-        loggedSessionList.remove(session);
+    public boolean removeSession(SessionInterface session) {
+        return loggedSessionList.remove(session);
     }
 
     public void removeClientBySessionId(String sessionId) {

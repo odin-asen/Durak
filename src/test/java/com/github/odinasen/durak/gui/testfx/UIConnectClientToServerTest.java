@@ -37,7 +37,7 @@ public class UIConnectClientToServerTest
         assertTrue(serverButton.hasStyleClass("startServerButton"));
 
         UIElement serverPortField = UIElement.ServerPortField;
-        click(serverPortField).type("1000");
+        doubleClick(serverPortField).type("1000");
 
         click(serverButton);
         assertTrue(serverButton.hasStyleClass("stopServerButton"));
@@ -60,8 +60,8 @@ public class UIConnectClientToServerTest
 
         Node connectGraphic = ((Button)clientButton.getElement()).getGraphic();
 
-        click(UIElement.ConnectionAddressField).type("localhost");
-        click(UIElement.ConnectionPortField).type("1000");
+        doubleClick(UIElement.ConnectionAddressField).type("localhost");
+        doubleClick(UIElement.ConnectionPortField).type("1000");
         click(clientButton);
 
         Node disconnectGraphic = ((Button)clientButton.getElement()).getGraphic();

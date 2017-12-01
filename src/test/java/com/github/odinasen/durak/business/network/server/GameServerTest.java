@@ -33,7 +33,7 @@ public class GameServerTest {
     @Before
     public void setUp() throws Exception {
         server = GameServer.getInstance();
-        serverTester = new GameServerTester(server);
+        serverTester = new GameServerTester(server, testClientName);
         testPort = 10000;
     }
 
@@ -52,35 +52,9 @@ public class GameServerTest {
         server.setPassword("");
     }
 
-    //TODO auslagern zu Player-Tests
-    @Test
-    public void playerIdAndClientUUIDAreTheSame() {
-        startServerAndAssertRunning();
-
-        ClientDto clientDto = executeAddClientsAndReturnLast(1);
-
-        assertNotNull(clientDto.getUuid());
-        assertNotSame(clientDto.getUuid(), "");
-
-        assertEquals(clientDto.getUuid(), getServersPlayerId(0));
-    }
-
-    private String getServersPlayerId(int index) {
-        return server.getPlayers().get(index).getId();
-    }
-
     private void startServerAndAssertRunning() {
         server.startServer(testPort);
         assertTrue(server.isRunning());
-    }
-
-    private ClientDto executeAddClientsAndReturnLast(int amount) {
-        ClientDto lastClientAdded = null;
-        for (int i = 0; i < amount; i++) {
-            lastClientAdded = createClient(testClientName + i);
-            server.addClient(lastClientAdded);
-        }
-        return lastClientAdded;
     }
 
     private ClientDto createClient(String name) {
@@ -168,7 +142,8 @@ public class GameServerTest {
     public void stopServerStopsGame() {
         startServerAndAssertRunning();
 
-        executeAddClientsAndReturnLast(2);
+        serverTester.addClientsToServer(2);
+
         server.startGame();
         assertTrue(server.gameIsRunning());
 
@@ -180,17 +155,19 @@ public class GameServerTest {
     public void serverDoesNotAddMoreThanSixPlayers() {
         startServerAndAssertRunning();
 
-        ClientDto lastClientAdded = executeAddClientsAndReturnLast(7);
+        serverTester.addClientsToServer(7);
+        ClientDto lastClientAdded = serverTester.getLastCreatedClient();
 
         serverTester.assertServersidePlayerCount(6);
 
-        assertClientAndPlayerHaveNotEmptyAndNotSameId(lastClientAdded, 5);
+        String lastPlayersId = server.getPlayers().get(5).getId();
+        assertClientHasNoEmptyAndNotSameId(lastClientAdded, lastPlayersId);
     }
 
-    private void assertClientAndPlayerHaveNotEmptyAndNotSameId(ClientDto clientDto, int playerIndex) {
+    private void assertClientHasNoEmptyAndNotSameId(ClientDto clientDto, String unexpectedId) {
         assertNotNull(clientDto.getUuid());
         assertNotSame(clientDto.getUuid(), "");
-        assertNotSame(clientDto.getUuid(), getServersPlayerId(playerIndex));
+        assertNotSame(clientDto.getUuid(), unexpectedId);
     }
 
     @Test
@@ -215,7 +192,8 @@ public class GameServerTest {
         startGameAndAssertSystemExceptionExpectPlayerProperty(0);
         assertFalse(server.gameIsRunning());
 
-        server.addClient(createClient(testClientName));
+        serverTester.addClientsToServer(1);
+
         startGameAndAssertSystemExceptionExpectPlayerProperty(1);
         assertFalse(server.gameIsRunning());
     }
@@ -233,7 +211,8 @@ public class GameServerTest {
     private void startServerAndGame(int amountPlayers) {
         startServerAndAssertRunning();
 
-        ClientDto lastClientAdded = executeAddClientsAndReturnLast(amountPlayers);
+        serverTester.addClientsToServer(amountPlayers);
+
         server.startGame();
         assertTrue(server.gameIsRunning());
     }
@@ -243,16 +222,19 @@ public class GameServerTest {
         startServerAndAssertRunning();
 
         int numberOfPlayers = 3;
-        executeAddClientsAndReturnLast(numberOfPlayers);
+        serverTester.addClientsToServer(numberOfPlayers);
         server.startGame();
         assertTrue(server.gameIsRunning());
 
-        ClientDto notAddedClient = executeAddClientsAndReturnLast(1);
+        serverTester.addClientsToServer(1);
+
+        ClientDto notAddedClient = serverTester.getLastCreatedClient();
 
         assertEquals(numberOfPlayers, server.getPlayers().size());
 
         int lastPlayerIndex = numberOfPlayers - 1;
-        assertClientAndPlayerHaveNotEmptyAndNotSameId(notAddedClient, lastPlayerIndex);
+        String lastPlayersId = server.getPlayers().get(lastPlayerIndex).getId();
+        assertClientHasNoEmptyAndNotSameId(notAddedClient, lastPlayersId);
     }
 
     @Test

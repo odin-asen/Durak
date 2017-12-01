@@ -12,8 +12,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 @Category(UnitTest.class)
@@ -81,10 +80,17 @@ public class ServerServiceTest {
 
     @Test
     public void logoffDoesNotRaiseAnException() throws Exception {
-        Callable callable = createMockedCallable();
-        serverService.login(createAuthenticationClient(password), callable);
+        serverService.logoff(null);
 
-        serverService.logoff(callable);
+        int sessionCountBeforeLogin = serverService.getSessionCount();
+
+        Callable callable = createMockedCallable();
+        SessionInterface session =
+                serverService.login(createAuthenticationClient(password), callable);
+
+        assertTrue(sessionCountBeforeLogin < serverService.getSessionCount());
+        serverService.logoff(session);
+        assertEquals(sessionCountBeforeLogin, serverService.getSessionCount());
     }
 
     private SessionFactory createMockedSessionFactory() {

@@ -10,6 +10,7 @@ import com.github.odinasen.durak.business.network.server.exception.SessionNotFou
 import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
+import com.github.odinasen.durak.business.network.simon.SessionInterface;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.util.LoggingUtility;
@@ -28,7 +29,8 @@ import java.util.logging.Logger;
 import static com.github.odinasen.durak.i18n.BundleStrings.USER_MESSAGES;
 
 /**
- * Client-Klasse, welche sich mit der Server-Klasse verbindet und mit dieser direkt ueber SIMON kommuniziert.
+ * Client-Klasse, welche sich mit der Server-Klasse verbindet und mit dieser direkt ueber SIMON
+ * kommuniziert.
  */
 public class GameClient
         extends ObserverNotificator
@@ -47,6 +49,7 @@ public class GameClient
     private ServerMessageReceiver messageReceiver;
     private Lookup nameLookup;
     private ServerInterface server;
+    private SessionInterface session;
 
     private GameClient() {
         this.connected = false;
@@ -66,18 +69,28 @@ public class GameClient
     /**
      * Verbindet den Client mit einem Server.
      *
-     * @param serverAddress Ist die IP- oder DNS-Adresse des Servers.
-     * @param serverPort    Port des des Servers.
-     * @param password      Passwort des Servers.
-     * @param clientDto     Client Repraesentation fuer den Login am Server. Im Client wird eine ID gesetzt, die fuer
-     *                      weitere Kommunikation verwendet wird.
+     * @param serverAddress
+     *         Ist die IP- oder DNS-Adresse des Servers.
+     * @param serverPort
+     *         Port des des Servers.
+     * @param password
+     *         Passwort des Servers.
+     * @param clientDto
+     *         Client Repraesentation fuer den Login am Server. Im Client wird eine ID gesetzt,
+     *         die fuer
+     *         weitere Kommunikation verwendet wird.
+     *
      * @return True, wenn der Client mit dem Server verbunden ist, andernfalls false.
-     * @throws com.github.odinasen.durak.business.exception.SystemException Wird geworfen, wenn eine Verbindung nicht
-     *                                                                      aufgebaut werden konnte. - siehe
-     *                                                                      {@link GameClientCode}
+     *
+     * @throws com.github.odinasen.durak.business.exception.SystemException
+     *         Wird geworfen, wenn eine Verbindung nicht
+     *         aufgebaut werden konnte. - siehe
+     *         {@link GameClientCode}
      */
-    public boolean connect(String serverAddress, Integer serverPort, String password, ClientDto clientDto)
-            throws SystemException {
+    public boolean connect(String serverAddress,
+                           Integer serverPort,
+                           String password,
+                           ClientDto clientDto) throws SystemException {
 
         if (connected) {
             return true;
@@ -87,13 +100,14 @@ public class GameClient
 
         try {
             nameLookup = Simon.createNameLookup(serverAddress, serverPort);
-            server = (ServerInterface) nameLookup.lookup(SIMONConfiguration.REGISTRY_NAME_SERVER);
+            server = (ServerInterface)nameLookup.lookup(SIMONConfiguration.REGISTRY_NAME_SERVER);
 
             nameLookup.addClosedListener(server, this);
 
             try {
-                AuthenticationClient authClient = new AuthenticationClient(messageReceiver, clientDto, password);
-                server.login(authClient, messageReceiver);
+                AuthenticationClient authClient =
+                        new AuthenticationClient(messageReceiver, clientDto, password);
+                session = server.login(authClient, messageReceiver);
                 connected = true;
             } catch (LoginFailedException | SessionNotFoundException e) {
                 connected = false;
@@ -101,16 +115,19 @@ public class GameClient
 
             String socketAddress = this.getSocketAddress();
             if (connected) {
-                LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Connected to " + socketAddress);
+                LoggingUtility.embedInfo(
+                        LOGGER, LoggingUtility.STARS, "Connected to " + socketAddress);
             } else {
-                final String logMessage = "Failed to connect to " + socketAddress + " without exception";
+                final String logMessage =
+                        "Failed to connect to " + socketAddress + " without exception";
                 LoggingUtility.embedInfo(LOGGER, LoggingUtility.HASHES, logMessage);
             }
         } catch (UnknownHostException e) {
             LOGGER.warning("Failed connection try to " + failedSocketAddress);
             throw new SystemException(GameClientCode.SERVER_NOT_FOUND);
         } catch (EstablishConnectionFailed e) {
-            LOGGER.warning("EstablishConnectionFailed occurred while connecting: " + e.getMessage());
+            LOGGER.warning(
+                    "EstablishConnectionFailed occurred while connecting: " + e.getMessage());
             throw new SystemException(GameClientCode.SERVER_NOT_FOUND);
         } catch (LookupFailedException e) {
             LOGGER.warning("LookupFailedException occurred while connection: " + e.getMessage());
@@ -126,8 +143,10 @@ public class GameClient
      *
      * @see #connect(String, Integer, String, com.github.odinasen.durak.dto.ClientDto)
      */
-    public boolean reconnect(String serverAddress, Integer serverPort, String password, ClientDto clientDto)
-            throws SystemException {
+    public boolean reconnect(String serverAddress,
+                             Integer serverPort,
+                             String password,
+                             ClientDto clientDto) throws SystemException {
 
         if (connected) {
             disconnect();
@@ -146,10 +165,11 @@ public class GameClient
         if (connected) {
             connected = false;
 
-            server.logoff(messageReceiver);
+            server.logoff(session);
             nameLookup.release(server);
 
-            LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Disconnected from " + getSocketAddress());
+            LoggingUtility.embedInfo(
+                    LOGGER, LoggingUtility.STARS, "Disconnected from " + getSocketAddress());
         }
     }
 
@@ -173,7 +193,8 @@ public class GameClient
      */
     public String getSocketAddress() {
         if (nameLookup != null) {
-            return nameLookup.getServerAddress().getHostAddress() + ":" + nameLookup.getServerPort();
+            return nameLookup.getServerAddress()
+                             .getHostAddress() + ":" + nameLookup.getServerPort();
         } else {
             return I18nSupport.getValue(USER_MESSAGES, "no.address");
         }
@@ -189,20 +210,22 @@ public class GameClient
  */
 @SimonRemote(value = {Callable.class})
 class ServerMessageReceiver
-        implements Callable, SimonUnreferenced, Serializable {
+        implements Callable,
+                   SimonUnreferenced,
+                   Serializable {
 
     @Override
     public void sendClientMessage(final ClientMessageType parameter) {
         if (parameter.equals(ClientMessageType.CLIENT_REMOVED_BY_SERVER)) {
             GameClient.getInstance().disconnect();
         }
-//    if(parameter instanceof MessageObject) {
-//      new Thread(new Runnable() {
-//        public void run() {
-//          GameClient.getClient().receiveServerMessage((MessageObject) parameter);
-//        }
-//      }).start();
-//    }
+        //    if(parameter instanceof MessageObject) {
+        //      new Thread(new Runnable() {
+        //        public void run() {
+        //          GameClient.getClient().receiveServerMessage((MessageObject) parameter);
+        //        }
+        //      }).start();
+        //    }
     }
 
     @Override

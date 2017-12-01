@@ -32,7 +32,7 @@ public class ClientServerConnectionTest {
     @Before
     public void setUp() throws Exception {
         server = GameServer.getInstance();
-        serverTester = new GameServerTester(server);
+        serverTester = new GameServerTester(server, "Horst");
         testPort = 10000;
 
         server.startServer(testPort);

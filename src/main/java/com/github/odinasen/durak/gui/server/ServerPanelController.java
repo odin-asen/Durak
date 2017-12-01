@@ -122,15 +122,15 @@ public class ServerPanelController
 
     @Override
     protected void assertNotNullComponents() {
-        final String fxmlName = this.getFxmlName();
-        Assert.assertFXElementNotNull(this.root, "root", fxmlName);
-        Assert.assertFXElementNotNull(this.buttonLaunchGame, "buttonLaunchGame", fxmlName);
-        Assert.assertFXElementNotNull(this.buttonLaunchServer, "buttonLaunchServer", fxmlName);
-        Assert.assertFXElementNotNull(this.serverConfigPanel, "serverConfigPanel", fxmlName);
-        Assert.assertFXElementNotNull(this.fieldServerPort, "fieldServerPort", fxmlName);
-        Assert.assertFXElementNotNull(this.boxInitialCards, "boxInitialCards", fxmlName);
-        Assert.assertFXElementNotNull(this.fieldPassword, "fieldPassword", fxmlName);
-        Assert.assertFXElementNotNull(this.listLoggedClients, "listLoggedClients", fxmlName);
+        final String fxmlName = getFxmlName();
+        Assert.assertFXElementNotNull(root, "root", fxmlName);
+        Assert.assertFXElementNotNull(buttonLaunchGame, "buttonLaunchGame", fxmlName);
+        Assert.assertFXElementNotNull(buttonLaunchServer, "buttonLaunchServer", fxmlName);
+        Assert.assertFXElementNotNull(serverConfigPanel, "serverConfigPanel", fxmlName);
+        Assert.assertFXElementNotNull(fieldServerPort, "fieldServerPort", fxmlName);
+        Assert.assertFXElementNotNull(boxInitialCards, "boxInitialCards", fxmlName);
+        Assert.assertFXElementNotNull(fieldPassword, "fieldPassword", fxmlName);
+        Assert.assertFXElementNotNull(listLoggedClients, "listLoggedClients", fxmlName);
     }
 
     private void initListView() {
