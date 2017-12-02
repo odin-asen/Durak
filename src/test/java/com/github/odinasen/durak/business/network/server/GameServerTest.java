@@ -47,7 +47,8 @@ public class GameServerTest {
                       .append("stimmt in der Registry.stop Methode. Das ist hier aber nicht ")
                       .append("relevant und auch nicht schlimm, da der Server ja sowieso die ")
                       .append("Verbindung zu den Clients trennt.");
-            LoggingUtility.getLogger(GameClientTest.class).log(Level.INFO, logMessage.toString(), ex);
+            LoggingUtility.getLogger(GameClientTest.class)
+                          .log(Level.INFO, logMessage.toString(), ex);
         }
         server.setPassword("");
     }
@@ -103,7 +104,8 @@ public class GameServerTest {
 
     private void assertUnexpectedPortUsedException(SystemException ex) {
         String message =
-                "Second start of server should not result in already bound port message " + "after server has been stopped.";
+                "Second start of server should not result in already bound port message after " +
+                "server has been stopped.";
         assertNotSame(message, GameServerCode.PORT_USED, ex.getErrorCode());
     }
 
@@ -292,5 +294,10 @@ public class GameServerTest {
     @Test
     public void setPasswordThrowsNoExceptionBeforeStart() {
         server.setPassword("bla");
+    }
+
+    @Test
+    public void setPasswordAllowsNullPassword() {
+        server.setPassword(null);
     }
 }

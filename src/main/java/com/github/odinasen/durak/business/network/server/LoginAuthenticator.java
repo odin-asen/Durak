@@ -1,31 +1,32 @@
 package com.github.odinasen.durak.business.network.server;
 
-import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.util.StringUtils;
 
 class LoginAuthenticator {
-    AuthenticationClient client;
+    String clientName;
     String serverPassword;
+    Callable callable;
 
-    LoginAuthenticator(AuthenticationClient client, String serverPassword) {
-        this.client = client;
+    LoginAuthenticator(String clientName, String serverPassword, Callable callable) {
+        this.clientName = clientName;
         this.serverPassword = serverPassword;
+        this.callable = callable;
     }
 
-    boolean isAuthenticated() {
-        return hasValidCallable() && isServerPasswordCorrect();
+    boolean passwordIsCorrect(String password) {
+        return hasValidCallable() && isPasswordCorrect(password);
     }
 
     boolean hasValidCallable() {
-        return client.getCallable() != null;
+        return callable != null;
     }
 
-    boolean isServerPasswordCorrect() {
-        return StringUtils.stringsAreSame(client.getPassword(), serverPassword);
+    boolean isPasswordCorrect(String password) {
+        return StringUtils.stringsAreSame(password, serverPassword);
     }
 
-    boolean clientHasCallable(Callable callable) {
-        return hasValidCallable() && client.getCallable().equals(callable);
+    boolean clientHasCallable(Callable otherCallable) {
+        return hasValidCallable() && callable.equals(otherCallable);
     }
 }

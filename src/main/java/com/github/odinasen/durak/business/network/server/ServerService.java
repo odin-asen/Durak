@@ -5,7 +5,6 @@ import com.github.odinasen.durak.business.network.server.event.DurakServiceEvent
 import com.github.odinasen.durak.business.network.server.exception.LoginFailedException;
 import com.github.odinasen.durak.business.network.server.exception.SessionNotFoundException;
 import com.github.odinasen.durak.business.network.server.session.SessionFactory;
-import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
@@ -54,15 +53,14 @@ public class ServerService
             throw new IllegalArgumentException("Parameters must not be null!");
         }
 
-        ClientDto clientDto = new ClientDto(UUID.randomUUID().toString(), name);
-        AuthenticationClient client = new AuthenticationClient(remoteObject, clientDto, password);
-        LoginAuthenticator authenticator = new LoginAuthenticator(client, serverPassword);
+        LoginAuthenticator authenticator =
+                new LoginAuthenticator(name, serverPassword, remoteObject);
 
-        if (authenticator.isAuthenticated()) {
+        if (authenticator.passwordIsCorrect(password)) {
             try {
                 return retrieveSessionByReference(remoteObject);
             } catch (SessionNotFoundException ex) {
-                return registerNewClient(client, remoteObject);
+                return registerNewClient(name, remoteObject);
             }
         } else {
             throw new LoginFailedException();
@@ -82,16 +80,14 @@ public class ServerService
         throw new SessionNotFoundException();
     }
 
-    private SessionInterface registerNewClient(AuthenticationClient client,
-                                               Callable clientCallable) {
-        ClientDto loginClient = client.getClientDto();
-        loginClient.setUuid(UUID.randomUUID().toString());
+    private SessionInterface registerNewClient(String name, Callable clientCallable) {
+        ClientDto newClient = new ClientDto(UUID.randomUUID().toString(), name);
 
-        SessionInterface session = sessionFactory.createSession(this, loginClient, clientCallable);
+        SessionInterface session = sessionFactory.createSession(this, newClient, clientCallable);
         loggedSessionList.add(session);
 
         DurakServiceEvent<ClientDto> loginEvent =
-                new DurakServiceEvent<>(DurakServiceEventType.CLIENT_LOGIN, loginClient);
+                new DurakServiceEvent<>(DurakServiceEventType.CLIENT_LOGIN, newClient);
         notificator.setChangedAndNotifyObservers(loginEvent);
 
         return session;
