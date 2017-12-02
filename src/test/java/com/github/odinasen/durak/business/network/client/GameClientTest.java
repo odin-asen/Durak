@@ -4,6 +4,7 @@ import com.github.odinasen.durak.business.network.server.GameServer;
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.test.UnitTest;
+import com.google.common.base.Stopwatch;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,7 +13,10 @@ import org.junit.experimental.categories.Category;
 
 import java.util.ConcurrentModificationException;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+
+import static org.junit.Assert.assertTrue;
 
 @Category(UnitTest.class)
 public class GameClientTest {
@@ -29,7 +33,7 @@ public class GameClientTest {
         testPort = 10000;
         server.startServer(testPort);
 
-        Assert.assertTrue(server.isRunning());
+        assertTrue(server.isRunning());
 
         client = GameClient.getInstance();
     }
@@ -54,15 +58,29 @@ public class GameClientTest {
     public void reconnect() throws Exception {
         // Hier pruefen, ob die connect bzw. disconnect-Methode
         boolean connected = client.reconnect("localhost", testPort, testClientName, "");
-        Assert.assertTrue(connected);
-        Assert.assertTrue(client.isConnected());
+        assertTrue(connected);
+        assertTrue(client.isConnected());
+    }
+
+    @Test
+    public void reconnectAlreadyConnectedClient() throws Exception {
+        boolean connected = client.connect("localhost", testPort, testClientName, "");
+        assertTrue(client.isConnected());
+
+        Stopwatch watch = Stopwatch.createStarted();
+        connected = client.reconnect("localhost", testPort, testClientName, "");
+        watch.stop();
+        assertTrue(connected);
+
+        /* Method should take a break of at least one second. */
+        assertTrue(1000L < watch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     @Test
     public void disconnect() throws Exception {
         // Hier pruefen, ob die connect bzw. disconnect-Methode
         boolean connected = client.connect("localhost", testPort, testClientName, "");
-        Assert.assertTrue(connected);
+        assertTrue(connected);
 
         client.disconnect();
         Assert.assertFalse(client.isConnected());
@@ -74,7 +92,7 @@ public class GameClientTest {
     @Test
     public void closed() throws Exception {
         boolean connected = client.connect("localhost", testPort, testClientName, "");
-        Assert.assertTrue(connected);
+        assertTrue(connected);
 
         client.closed();
         Assert.assertFalse(client.isConnected());
