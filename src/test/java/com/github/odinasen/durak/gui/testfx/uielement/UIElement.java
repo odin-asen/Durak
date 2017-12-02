@@ -23,7 +23,8 @@ public enum UIElement {
     ConnectToServerButton("#buttonConnectDisconnect"),
     DisconnectFromServerButton("#buttonConnectDisconnect"),
     ConnectionAddressField("#fieldServerAddress"),
-    ConnectionPortField("#clientConnectionPortField");
+    ConnectionPortField("#clientConnectionPortField"),
+    ConnectionNameField("#fieldLoginName");
 
 
     private String idSelector;

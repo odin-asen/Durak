@@ -7,11 +7,9 @@ import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.SIMONConfiguration;
 import com.github.odinasen.durak.business.network.server.exception.LoginFailedException;
 import com.github.odinasen.durak.business.network.server.exception.SessionNotFoundException;
-import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
-import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.util.LoggingUtility;
 import de.root1.simon.ClosedListener;
@@ -75,10 +73,6 @@ public class GameClient
      *         Port des des Servers.
      * @param password
      *         Passwort des Servers.
-     * @param clientDto
-     *         Client Repraesentation fuer den Login am Server. Im Client wird eine ID gesetzt,
-     *         die fuer
-     *         weitere Kommunikation verwendet wird.
      *
      * @return True, wenn der Client mit dem Server verbunden ist, andernfalls false.
      *
@@ -88,9 +82,8 @@ public class GameClient
      *         {@link GameClientCode}
      */
     public boolean connect(String serverAddress,
-                           Integer serverPort,
-                           String password,
-                           ClientDto clientDto) throws SystemException {
+                           Integer serverPort, String clientName, String password)
+            throws SystemException {
 
         if (connected) {
             return true;
@@ -105,9 +98,7 @@ public class GameClient
             nameLookup.addClosedListener(server, this);
 
             try {
-                AuthenticationClient authClient =
-                        new AuthenticationClient(messageReceiver, clientDto, password);
-                session = server.login(authClient, messageReceiver);
+                session = server.login(clientName, password, messageReceiver);
                 connected = true;
             } catch (LoginFailedException | SessionNotFoundException e) {
                 connected = false;
@@ -140,13 +131,10 @@ public class GameClient
     /**
      * Trennt den Client vom Server falls notwendig und baut die Verbindung zum eingegebenen Server
      * auf.
-     *
-     * @see #connect(String, Integer, String, com.github.odinasen.durak.dto.ClientDto)
      */
     public boolean reconnect(String serverAddress,
-                             Integer serverPort,
-                             String password,
-                             ClientDto clientDto) throws SystemException {
+                             Integer serverPort, String clientName, String password)
+            throws SystemException {
 
         if (connected) {
             disconnect();
@@ -158,7 +146,7 @@ public class GameClient
         }
 
         // setup a new connection
-        return connect(serverAddress, serverPort, password, clientDto);
+        return connect(serverAddress, serverPort, clientName, password);
     }
 
     public void disconnect() {

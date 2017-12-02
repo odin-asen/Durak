@@ -10,14 +10,12 @@ import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.ServerInterface;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
 import com.github.odinasen.durak.dto.ClientDto;
-import com.github.odinasen.durak.util.LoggingUtility;
 import de.root1.simon.annotation.SimonRemote;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observer;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import static com.github.odinasen.durak.business.network.server.event.DurakServiceEvent
         .DurakServiceEventType;
@@ -31,8 +29,6 @@ import static com.github.odinasen.durak.business.network.server.event.DurakServi
 @SimonRemote(value = {ServerInterface.class, SessionInterface.class})
 public class ServerService
         implements ServerInterface {
-
-    private static final Logger LOGGER = LoggingUtility.getLogger(ServerService.class);
 
     private List<SessionInterface> loggedSessionList;
 
@@ -51,34 +47,26 @@ public class ServerService
         return new ServerService(password);
     }
 
-    public SessionInterface login(AuthenticationClient client, Callable clientCallable)
+    @Override
+    public SessionInterface login(String name, String password, Callable remoteObject)
             throws LoginFailedException, SessionNotFoundException {
-        if (client == null || clientCallable == null) {
+        if (name == null || remoteObject == null) {
             throw new IllegalArgumentException("Parameters must not be null!");
         }
 
+        ClientDto clientDto = new ClientDto(UUID.randomUUID().toString(), name);
+        AuthenticationClient client = new AuthenticationClient(remoteObject, clientDto, password);
         LoginAuthenticator authenticator = new LoginAuthenticator(client, serverPassword);
-        UUID clientUUID = createUUIDFromString(client.getClientDto().getUuid());
 
         if (authenticator.isAuthenticated()) {
-            if (!clientSessionExists(clientCallable)) {
-                return registerNewClient(client, clientCallable);
+            if (!clientSessionExists(remoteObject)) {
+                return registerNewClient(client, remoteObject);
             } else {
-                return retrieveSessionByReference(clientCallable);
+                return retrieveSessionByReference(remoteObject);
             }
         } else {
             throw new LoginFailedException();
         }
-    }
-
-    private UUID createUUIDFromString(String uuidString) {
-        UUID clientUUID;
-        try {
-            clientUUID = UUID.fromString(uuidString);
-        } catch (Exception ex) {
-            clientUUID = null;
-        }
-        return clientUUID;
     }
 
     private boolean clientSessionExists(Callable callable) {
@@ -137,8 +125,6 @@ public class ServerService
     }
 
     public void removeClientBySessionId(String sessionId) {
-        UUID clientUUID = UUID.fromString(sessionId);
-
         SessionInterface toBeRemovedSession = null;
         for (SessionInterface session : loggedSessionList) {
             if (sessionId.equals(session.getSessionId()) && toBeRemovedSession == null) {

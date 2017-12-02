@@ -1,6 +1,7 @@
 package com.github.odinasen.durak.business.network.server;
 
 import com.github.odinasen.durak.business.network.server.exception.LoginFailedException;
+import com.github.odinasen.durak.business.network.server.exception.SessionNotFoundException;
 import com.github.odinasen.durak.business.network.server.session.SessionFactory;
 import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
@@ -20,6 +21,7 @@ public class ServerServiceTest {
 
     private String password = "";
     private ServerService serverService;
+    private String clientName = "Horst";
     private ClientDto clientDto;
 
     @Before
@@ -30,8 +32,7 @@ public class ServerServiceTest {
 
     @Test
     public void successfulLogin() throws Exception {
-        SessionInterface session =
-                serverService.login(createAuthenticationClient(password), createMockedCallable());
+        SessionInterface session = loginClient();
         assertNotNull(session);
     }
 
@@ -51,7 +52,7 @@ public class ServerServiceTest {
     }
 
     private SessionInterface doSuccessfulLoginWithClient(Callable callable) throws Exception {
-        return serverService.login(createAuthenticationClient(password), callable);
+        return serverService.login(clientName, password, callable);
     }
 
     private AuthenticationClient createAuthenticationClient(String password) {
@@ -60,22 +61,22 @@ public class ServerServiceTest {
 
     @Test(expected = LoginFailedException.class)
     public void unsuccessfulLoginWithWrongPassword() throws Exception {
-        serverService.login(createAuthenticationClient("wrongPass"), createMockedCallable());
+        serverService.login(clientName, "wrongPass", createMockedCallable());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void unsuccessfulLoginWithoutCallable() throws Exception {
-        serverService.login(new AuthenticationClient(null, clientDto, password), null);
+        serverService.login(clientName, password, null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void unsuccessfulLoginWithoutAuthenticationClient() throws Exception {
-        serverService.login(null, createMockedCallable());
+        serverService.login(null, null, createMockedCallable());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void unsuccessfulLoginWithNullParameters() throws Exception {
-        serverService.login(null, null);
+        serverService.login(null, null, null);
     }
 
     @Test
@@ -84,13 +85,16 @@ public class ServerServiceTest {
 
         int sessionCountBeforeLogin = serverService.getSessionCount();
 
-        Callable callable = createMockedCallable();
-        SessionInterface session =
-                serverService.login(createAuthenticationClient(password), callable);
+        SessionInterface session = loginClient();
 
         assertTrue(sessionCountBeforeLogin < serverService.getSessionCount());
         serverService.logoff(session);
         assertEquals(sessionCountBeforeLogin, serverService.getSessionCount());
+    }
+
+    private SessionInterface loginClient() throws LoginFailedException, SessionNotFoundException {
+        Callable callable = createMockedCallable();
+        return serverService.login(clientName, password, callable);
     }
 
     private SessionFactory createMockedSessionFactory() {
@@ -108,9 +112,7 @@ public class ServerServiceTest {
     public void removeSession() throws Exception {
         serverService.setSessionFactory(createMockedSessionFactory());
 
-        Callable callable = createMockedCallable();
-        SessionInterface session =
-                serverService.login(createAuthenticationClient(password), callable);
+        SessionInterface session = loginClient();
 
         serverService.removeSession(session);
         assertEquals("Server must have zero sessions", 0, serverService.getSessionCount());

@@ -3,7 +3,6 @@ package com.github.odinasen.durak.business.network;
 import com.github.odinasen.durak.business.network.client.GameClient;
 import com.github.odinasen.durak.business.network.client.GameClientTest;
 import com.github.odinasen.durak.business.network.server.GameServer;
-import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.test.IntegrationTest;
 import org.junit.After;
@@ -12,9 +11,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.ConcurrentModificationException;
-import java.util.UUID;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -22,17 +19,17 @@ import static org.junit.Assert.assertTrue;
 @Category(IntegrationTest.class)
 public class ClientServerConnectionTest {
     private static final String SERVER_PWD = "bla";
-    private static final Logger LOGGER = LoggingUtility.getLogger(ClientServerConnectionTest.class);
 
     private int testPort;
     private GameServer server;
     private GameServerTester serverTester;
     private GameClient client;
+    private String testClientName = "Horst";
 
     @Before
     public void setUp() throws Exception {
         server = GameServer.getInstance();
-        serverTester = new GameServerTester(server, "Horst");
+        serverTester = new GameServerTester(server, testClientName);
         testPort = 10000;
 
         server.startServer(testPort);
@@ -59,16 +56,9 @@ public class ClientServerConnectionTest {
 
     @Test
     public void connectWithoutPassword() throws Exception {
-        String clientName = "Horst";
-        ClientDto clientDto = createNewClientDto(clientName);
-        boolean connected = client.connect("localhost", testPort, "", clientDto);
+        boolean connected = client.connect("localhost", testPort, testClientName, "");
 
         assertTrue(connected);
-    }
-
-    private ClientDto createNewClientDto(String clientName) {
-        UUID clientID = UUID.randomUUID();
-        return new ClientDto(clientID.toString(), clientName);
     }
 
     /**
@@ -78,21 +68,18 @@ public class ClientServerConnectionTest {
     public void connectWithPassword() throws Exception {
         server.setPassword(SERVER_PWD);
 
-        String clientName = "Horst";
-        ClientDto clientDto = createNewClientDto(clientName);
-
         // Verbindung ohne Passwort soll nicht gelingen
-        boolean connected = client.connect("localhost", testPort, "", clientDto);
+        boolean connected = client.connect("localhost", testPort, testClientName, "");
         assertFalse(connected);
 
         // Verbindung mit richtigem Passwort soll gelingen
-        connected = client.connect("localhost", testPort, SERVER_PWD, clientDto);
+        connected = client.connect("localhost", testPort, testClientName, SERVER_PWD);
         assertTrue(connected);
     }
 
     @Test
     public void stopServerWithConnectedClients() throws Exception {
-        boolean connected = client.connect("localhost", testPort, "", createNewClientDto("Horst"));
+        boolean connected = client.connect("localhost", testPort, testClientName, "");
         assertTrue(connected);
 
         serverTester.assertServersidePlayerCount(1);
@@ -106,7 +93,7 @@ public class ClientServerConnectionTest {
 
     @Test
     public void logoutClientAndReconnect() {
-        boolean connected = client.connect("localhost", testPort, "", createNewClientDto("Horst"));
+        boolean connected = client.connect("localhost", testPort, testClientName, "");
         assertTrue(connected);
 
         serverTester.assertServersidePlayerCount(1);
@@ -119,7 +106,7 @@ public class ClientServerConnectionTest {
         serverTester.assertServersidePlayerCount(0);
         serverTester.assertServerHasZeroSpectators();
 
-        connected = client.reconnect("localhost", testPort, "", createNewClientDto("Horst"));
+        connected = client.reconnect("localhost", testPort, testClientName, "");
         assertTrue(connected);
 
         serverTester.assertServersidePlayerCount(1);

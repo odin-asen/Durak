@@ -139,7 +139,8 @@ public class ClientPanelController
 
                 connected = gameClient.reconnect(clientModel.getServerAddress().getValue(),
                                                  clientModel.getPort().getValue(),
-                                                 clientModel.getPassword().getValue(), clientDto);
+                                                 clientModel.getNickname().getValue(),
+                                                 clientModel.getPassword().getValue());
             } catch (SystemException e) {
                 if (e.getErrorCode() == GameClientCode.SERVER_NOT_FOUND) {
                     LOGGER.info("Connect action failed: Server not found");

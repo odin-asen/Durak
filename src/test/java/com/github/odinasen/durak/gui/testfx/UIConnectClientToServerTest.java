@@ -60,6 +60,7 @@ public class UIConnectClientToServerTest
 
         Node connectGraphic = ((Button)clientButton.getElement()).getGraphic();
 
+        doubleClick(UIElement.ConnectionNameField).type("Horst");
         doubleClick(UIElement.ConnectionAddressField).type("localhost");
         doubleClick(UIElement.ConnectionPortField).type("1000");
         click(clientButton);

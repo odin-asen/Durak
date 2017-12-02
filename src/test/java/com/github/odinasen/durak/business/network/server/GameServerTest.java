@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 @Category(UnitTest.class)
 public class GameServerTest {
 
-    public static final String testClientName = "Horst";
+    private String testClientName = "Horst";
     private int testPort;
     private GameServer server;
     private GameServerTester serverTester;

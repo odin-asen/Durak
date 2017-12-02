@@ -18,7 +18,7 @@ public interface ServerInterface {
      * False, wenn der Client nicht angemeldet werden konnte
      * (falsches Passwort oder schon angemeldet).
      */
-    SessionInterface login(AuthenticationClient authenticationClient, Callable remoteObject)
+    SessionInterface login(String name, String password, Callable remoteObject)
             throws LoginFailedException, SessionNotFoundException;
 
     /**

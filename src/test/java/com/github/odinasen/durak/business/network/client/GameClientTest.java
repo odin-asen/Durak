@@ -21,6 +21,7 @@ public class GameClientTest {
     private GameServer server;
 
     private GameClient client;
+    private String testClientName = "Horst";
 
     @Before
     public void setUp() throws Exception {
@@ -30,7 +31,7 @@ public class GameClientTest {
 
         Assert.assertTrue(server.isRunning());
 
-        this.client = GameClient.getInstance();
+        client = GameClient.getInstance();
     }
 
     @After
@@ -51,26 +52,20 @@ public class GameClientTest {
 
     @Test
     public void reconnect() throws Exception {
-        String clientName = "Horst";
-        ClientDto clientDto = createNewClientDto(clientName);
-
         // Hier pruefen, ob die connect bzw. disconnect-Methode
-        boolean connected = this.client.reconnect("localhost", this.testPort, "", clientDto);
+        boolean connected = client.reconnect("localhost", testPort, testClientName, "");
         Assert.assertTrue(connected);
-        Assert.assertTrue(this.client.isConnected());
+        Assert.assertTrue(client.isConnected());
     }
 
     @Test
     public void disconnect() throws Exception {
-        String clientName = "Horst";
-        ClientDto clientDto = createNewClientDto(clientName);
-
         // Hier pruefen, ob die connect bzw. disconnect-Methode
-        boolean connected = this.client.connect("localhost", this.testPort, "", clientDto);
+        boolean connected = client.connect("localhost", testPort, testClientName, "");
         Assert.assertTrue(connected);
 
-        this.client.disconnect();
-        Assert.assertFalse(this.client.isConnected());
+        client.disconnect();
+        Assert.assertFalse(client.isConnected());
     }
 
     /**
@@ -78,14 +73,11 @@ public class GameClientTest {
      */
     @Test
     public void closed() throws Exception {
-        String clientName = "Horst";
-        ClientDto clientDto = createNewClientDto(clientName);
-
-        boolean connected = this.client.connect("localhost", this.testPort, "", clientDto);
+        boolean connected = client.connect("localhost", testPort, testClientName, "");
         Assert.assertTrue(connected);
 
-        this.client.closed();
-        Assert.assertFalse(this.client.isConnected());
+        client.closed();
+        Assert.assertFalse(client.isConnected());
     }
 
     private ClientDto createNewClientDto(String clientName) {
