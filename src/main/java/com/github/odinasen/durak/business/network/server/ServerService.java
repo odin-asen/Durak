@@ -59,27 +59,19 @@ public class ServerService
         LoginAuthenticator authenticator = new LoginAuthenticator(client, serverPassword);
 
         if (authenticator.isAuthenticated()) {
-            if (!clientSessionExists(remoteObject)) {
-                return registerNewClient(client, remoteObject);
-            } else {
+            try {
                 return retrieveSessionByReference(remoteObject);
+            } catch (SessionNotFoundException ex) {
+                return registerNewClient(client, remoteObject);
             }
         } else {
             throw new LoginFailedException();
         }
     }
 
-    private boolean clientSessionExists(Callable callable) {
-        boolean clientExists = false;
-        for (SessionInterface session : loggedSessionList) {
-            SessionComparator comparator = new SessionComparator(session);
-            clientExists = clientExists || comparator.sessionHasReference(callable);
-        }
-        return clientExists;
-    }
-
     private SessionInterface retrieveSessionByReference(Callable reference)
             throws SessionNotFoundException {
+        boolean clientExists = false;
         for (SessionInterface session : loggedSessionList) {
             SessionComparator comparator = new SessionComparator(session);
             if (comparator.sessionHasReference(reference)) {

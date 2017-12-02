@@ -3,7 +3,6 @@ package com.github.odinasen.durak.business.network.server;
 import com.github.odinasen.durak.business.network.server.exception.LoginFailedException;
 import com.github.odinasen.durak.business.network.server.exception.SessionNotFoundException;
 import com.github.odinasen.durak.business.network.server.session.SessionFactory;
-import com.github.odinasen.durak.business.network.simon.AuthenticationClient;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
 import com.github.odinasen.durak.dto.ClientDto;
@@ -12,6 +11,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -55,8 +58,37 @@ public class ServerServiceTest {
         return serverService.login(clientName, password, callable);
     }
 
-    private AuthenticationClient createAuthenticationClient(String password) {
-        return new AuthenticationClient(createMockedCallable(), clientDto, password);
+    @Test
+    public void removeClientById() throws LoginFailedException, SessionNotFoundException {
+        int sessionCountBeforeLogin = serverService.getSessionCount();
+
+        SessionInterface session = loginClient();
+
+        assertEquals(1, serverService.getSessionCount());
+
+        String notExistingSessionId = "blibalblub";
+        serverService.removeClientBySessionId(notExistingSessionId);
+        assertEquals(1, serverService.getSessionCount());
+
+        serverService.removeClientBySessionId(session.getSessionId());
+        assertEquals(0, serverService.getSessionCount());
+    }
+
+    @Test
+    public void successfulLoginMultipleClients() throws Exception {
+        int numberOfLogins = 5;
+        List<SessionInterface> sessions = new ArrayList<>(numberOfLogins);
+        for (int i = 0; i < numberOfLogins; i++) {
+            final Callable callable = createMockedCallable();
+            final SessionInterface session = doSuccessfulLoginWithClient(callable);
+
+            assertNotNull(session);
+            sessions.add(session);
+        }
+
+        for (SessionInterface session : sessions) {
+            assertEquals(1, Collections.frequency(sessions, session));
+        }
     }
 
     @Test(expected = LoginFailedException.class)
