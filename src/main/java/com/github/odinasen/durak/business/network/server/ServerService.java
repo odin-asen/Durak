@@ -60,7 +60,7 @@ public class ServerService
             try {
                 return retrieveSessionByReference(remoteObject);
             } catch (SessionNotFoundException ex) {
-                return registerNewClient(name, remoteObject);
+                return createNewClient(name, remoteObject);
             }
         } else {
             throw new LoginFailedException();
@@ -80,7 +80,7 @@ public class ServerService
         throw new SessionNotFoundException();
     }
 
-    private SessionInterface registerNewClient(String name, Callable clientCallable) {
+    private SessionInterface createNewClient(String name, Callable clientCallable) {
         ClientDto newClient = new ClientDto(UUID.randomUUID().toString(), name);
 
         SessionInterface session = sessionFactory.createSession(this, newClient, clientCallable);

@@ -1,7 +1,6 @@
 package com.github.odinasen.durak.business.network.client;
 
 import com.github.odinasen.durak.business.network.server.GameServer;
-import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.test.UnitTest;
 import com.google.common.base.Stopwatch;
@@ -12,7 +11,6 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.ConcurrentModificationException;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -64,11 +62,11 @@ public class GameClientTest {
 
     @Test
     public void reconnectAlreadyConnectedClient() throws Exception {
-        boolean connected = client.connect("localhost", testPort, testClientName, "");
+        client.connect("localhost", testPort, testClientName, "");
         assertTrue(client.isConnected());
 
         Stopwatch watch = Stopwatch.createStarted();
-        connected = client.reconnect("localhost", testPort, testClientName, "");
+        boolean connected = client.reconnect("localhost", testPort, testClientName, "");
         watch.stop();
         assertTrue(connected);
 
@@ -78,7 +76,6 @@ public class GameClientTest {
 
     @Test
     public void disconnect() throws Exception {
-        // Hier pruefen, ob die connect bzw. disconnect-Methode
         boolean connected = client.connect("localhost", testPort, testClientName, "");
         assertTrue(connected);
 
@@ -96,10 +93,5 @@ public class GameClientTest {
 
         client.closed();
         Assert.assertFalse(client.isConnected());
-    }
-
-    private ClientDto createNewClientDto(String clientName) {
-        UUID clientID = UUID.randomUUID();
-        return new ClientDto(clientID.toString(), clientName);
     }
 }

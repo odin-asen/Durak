@@ -27,14 +27,7 @@ public class GameServerTester {
         assertEquals(message, expectedCount, actualPlayers);
     }
 
-    public void assertServerHasZeroSpectators() {
-        int actualCount = server.getSpectators().size();
-        String message = "Server darf keine Zuschauer haben.";
-        assertEquals(message, 0, actualCount);
-    }
-
     public void addClientsToServer(int amount) {
-        ClientDto lastClientAdded = null;
         for (int i = 0; i < amount; i++) {
             lastCreatedClient = new ClientDto(UUID.randomUUID().toString(), testClientName + i);
             server.addClient(lastCreatedClient);

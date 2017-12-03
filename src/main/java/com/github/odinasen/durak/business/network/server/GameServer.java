@@ -3,8 +3,8 @@ package com.github.odinasen.durak.business.network.server;
 import com.github.odinasen.durak.business.ObserverNotificator;
 import com.github.odinasen.durak.business.exception.GameServerCode;
 import com.github.odinasen.durak.business.exception.SystemException;
+import com.github.odinasen.durak.business.game.ClientUtils;
 import com.github.odinasen.durak.business.game.Player;
-import com.github.odinasen.durak.business.game.Spectator;
 import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.NetworkMessage;
 import com.github.odinasen.durak.business.network.SIMONConfiguration;
@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
 
-import static com.github.odinasen.durak.business.network.server.event.DurakServiceEvent.DurakServiceEventType;
+import static com.github.odinasen.durak.business.network.server.event.DurakServiceEvent
+        .DurakServiceEventType;
 
 /**
  * Das ist der Spieleserver. Er verwaltet ein laufendes Spiel und wertet Aktionen aus, um Sie dann
@@ -37,7 +37,8 @@ import static com.github.odinasen.durak.business.network.server.event.DurakServi
  * Standardmaessig laueft der Server auf Port 10000.<br/>
  * <p>
  * Die Klasse erbt von {@link java.util.Observable} und meldet allen registrierten
- * {@link java.util.Observer} eine Veraenderung mit {@link DurakServiceEvent} als Informationsobjekt.
+ * {@link java.util.Observer} eine Veraenderung mit {@link DurakServiceEvent} als
+ * Informationsobjekt.
  * <p/>
  * Author: Timm Herrmann<br/>
  * Date: 21.06.14
@@ -96,21 +97,15 @@ public class GameServer
      * Startet den Server. Kann der Server aus einem Grund nicht gestartet werden, wird eine
      * {@link com.github.odinasen.durak.business.exception.SystemException} geworfen.
      *
-     * @param port     ist der Port auf dem der Server gestartet wird.
-     * @param password Passwort des Servers.
-     * @throws com.github.odinasen.durak.business.exception.SystemException <ol> als <b>praesentierbare Nachricht</b>
-     *                                                                      wenn,
-     *                                                                      <li>der Service schon einmal registriert
-     *                                                                      wurde, also die Methode schon einmal
-     *                                                                      ausgefuehrt
-     *                                                                      wurde, ohne {@link #stopServer()}
-     *                                                                      aufzurufen.</li>
-     *                                                                      <li>die IP-Adresse des Servers nicht
-     *                                                                      gefunden werden konnte.</li>
-     *                                                                      <li>es ein Problem mit dem Netzwerklayer
-     *                                                                      gibt.</li>
-     *                                                                      </ol>
-     *                                                                      Als Exception-Attribut wird "port" gesetzt.
+     * @param port
+     *         ist der Port auf dem der Server gestartet wird.
+     * @param password
+     *         Passwort des Servers.
+     *
+     * @throws com.github.odinasen.durak.business.exception.SystemException
+     *         with error code,
+     *         GameServerCode.SERVICE_ALREADY_RUNNING, NETWORK_ERROR, PORT_USED.
+     *         Each Exception contains the property "port".
      */
     public void startServer(int port, String password) throws SystemException {
         ServerService newServerService = ServerService.createService(password);
@@ -182,17 +177,15 @@ public class GameServer
      * Fuegt einen Client zum Spiel als Spieler oder Beobachter hinzu. Je nach dem, ob das Spiel
      * bereits laueft oder nicht. Es kann auch sein, dass ein Client gar nicht hinzugefuegt wird.
      *
-     * @param client Der Client, entweder als Spieler oder Zuschauer hinzugefuegt werden soll.
+     * @param client
+     *         Der Client, entweder als Spieler oder Zuschauer hinzugefuegt werden soll.
      */
     public synchronized void addClient(ClientDto client) {
         // Darf nur etwas gemacht werden, wenn der Server auch laeuft
         if (isRunning()) {
             List<Player> players = userModel.getPlayers();
             // Hat das Spiel begonnen oder gibt es mehr als 5 Spieler?
-            if (gameIsRunning || (players.size() > 5)) {
-                // Ja
-                userModel.getSpectators().add(new Spectator(client));
-            } else {
+            if (!gameIsRunning && (players.size() <= 5)) {
                 players.add(new Player(client));
             }
         }
@@ -204,12 +197,7 @@ public class GameServer
      * @return Die Anzahl der Clients, die entfernt wurden.
      */
     public int removeAllSpectators() {
-        List<Spectator> spectators = this.userModel.getSpectators();
-        int removed = spectators.size();
-
-        spectators.clear();
-
-        return removed;
+        return 0;
     }
 
     /**
@@ -248,7 +236,8 @@ public class GameServer
     /**
      * Schickt eine Nachricht an alle verbundenen Clients.
      *
-     * @param clientMessage Die Nachricht, die an die Clients gesendet wird. Darf nicht null sein.
+     * @param clientMessage
+     *         Die Nachricht, die an die Clients gesendet wird. Darf nicht null sein.
      */
     public void sendClientMessage(NetworkMessage<ClientMessageType> clientMessage) {
         Assert.assertNotNull(clientMessage, NetworkMessage.class);
@@ -268,52 +257,35 @@ public class GameServer
         return userModel.getPlayers();
     }
 
-    public List<Spectator> getSpectators() {
-        return userModel.getSpectators();
-    }
-
     /**
      * Update-Methode aus dem Observable-Pattern. Wird aufgerufen, wenn einer der registrierten
      * Observable-Objekte die notify-Methode aufruft.
      *
-     * @param observable ist das Observable-Objekt, dass die notify-Methode aufgerufen hat.
-     * @param o          Ein zusatzliches Informations-Objekt fuer weitere verarbeiten.
+     * @param observable
+     *         ist das Observable-Objekt, dass die notify-Methode aufgerufen hat.
+     * @param o
+     *         Ein zusatzliches Informations-Objekt fuer weitere verarbeiten.
      */
     @Override
     public void update(Observable observable, Object o) {
         if (o instanceof DurakServiceEvent) {
-            DurakServiceEvent event = (DurakServiceEvent) o;
+            DurakServiceEvent event = (DurakServiceEvent)o;
 
             this.eventHandler.handleEvent(event);
         }
     }
 
-    public void removeClients(List<? extends ClientDto> removedClients) {
-        if (removedClients != null && !removedClients.isEmpty()) {
+    public void removeClients(List<ClientDto> clients) {
+        if (clients != null && !clients.isEmpty()) {
             List<Player> players = userModel.getPlayers();
 
-            List<String> toBeRemovedClientIds = new ArrayList<>(removedClients.size());
+            List<String> toBeRemovedClientIds = new ArrayList<>(clients.size());
             players.removeIf(player -> {
-                long clientsWithSameIdCount =
-                        removedClients.stream().filter((Predicate<ClientDto>) player::hasSameIdAs).count();
-                if (clientsWithSameIdCount > 0) {
+                boolean listContainsId = ClientUtils.listHasClientWithPlayerId(clients, player);
+                if (listContainsId) {
                     toBeRemovedClientIds.add(player.getId());
-                    return true;
-                } else {
-                    return false;
                 }
-            });
-
-            List<Spectator> spectators = userModel.getSpectators();
-            spectators.removeIf(spectator -> {
-                long clientsWithSameIdCount =
-                        removedClients.stream().filter((Predicate<ClientDto>) spectator::hasSameIdAs).count();
-                if (clientsWithSameIdCount > 0) {
-                    toBeRemovedClientIds.add(spectator.getId());
-                    return true;
-                } else {
-                    return false;
-                }
+                return listContainsId;
             });
 
             toBeRemovedClientIds.forEach(

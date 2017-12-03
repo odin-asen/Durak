@@ -283,12 +283,10 @@ public class GameServerTest {
         }
 
         serverTester.assertServersidePlayerCount(2);
-        serverTester.assertServerHasZeroSpectators();
 
         server.removeClients(clients);
 
         serverTester.assertServersidePlayerCount(0);
-        serverTester.assertServerHasZeroSpectators();
     }
 
     @Test

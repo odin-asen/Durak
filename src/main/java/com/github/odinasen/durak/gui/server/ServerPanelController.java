@@ -141,7 +141,7 @@ public class ServerPanelController
         listLoggedClients.getItems().addListener((ListChangeListener<ClientDto>)change -> {
             while (change.next()) {
                 if (change.wasRemoved()) {
-                    List<? extends ClientDto> clientsToRemove = change.getRemoved();
+                    List<ClientDto> clientsToRemove = (List<ClientDto>)change.getRemoved();
                     GameServer.getInstance().removeClients(clientsToRemove);
                     ServerPanelController.this.gameServerModel.removeClients(clientsToRemove);
                     GameServer.getInstance()

@@ -83,12 +83,10 @@ public class ClientServerConnectionTest {
         assertTrue(connected);
 
         serverTester.assertServersidePlayerCount(1);
-        serverTester.assertServerHasZeroSpectators();
 
         server.stopServer();
 
         serverTester.assertServersidePlayerCount(0);
-        serverTester.assertServerHasZeroSpectators();
     }
 
     @Test
@@ -97,19 +95,16 @@ public class ClientServerConnectionTest {
         assertTrue(connected);
 
         serverTester.assertServersidePlayerCount(1);
-        serverTester.assertServerHasZeroSpectators();
 
         client.disconnect();
         assertFalse(client.isConnected());
 
         assertTrue(server.isRunning());
         serverTester.assertServersidePlayerCount(0);
-        serverTester.assertServerHasZeroSpectators();
 
         connected = client.reconnect("localhost", testPort, testClientName, "");
         assertTrue(connected);
 
         serverTester.assertServersidePlayerCount(1);
-        serverTester.assertServerHasZeroSpectators();
     }
 }
