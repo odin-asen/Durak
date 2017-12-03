@@ -20,7 +20,6 @@ import de.root1.simon.Simon;
 import de.root1.simon.exceptions.NameBindingException;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -52,6 +51,7 @@ public class GameServer
      */
     private static GameServer instance;
     private DurakServiceEventHandler eventHandler;
+
     /**
      * Objekt, das alle Service-Methoden fuer den Durakserver enthaelt.
      */
@@ -109,7 +109,7 @@ public class GameServer
      */
     public void startServer(int port, String password) throws SystemException {
         ServerService newServerService = ServerService.createService(password);
-        Registry newRegistry = null;
+        Registry newRegistry;
         try {
             newRegistry = Simon.createRegistry(port);
             newRegistry.start();
@@ -124,15 +124,9 @@ public class GameServer
             serverService.addObserver(this);
 
             LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Server is running");
-        } catch (NameBindingException e) {
-            stopRegistry(newRegistry);
-            throw SystemException.wrap(e, GameServerCode.SERVICE_ALREADY_RUNNING).set("port", port);
-        } catch (UnknownHostException e) {
-            stopRegistry(newRegistry);
-            throw SystemException.wrap(e, GameServerCode.NETWORK_ERROR).set("port", port);
-        } catch (IOException e) {
-            stopRegistry(newRegistry);
-            throw SystemException.wrap(e, GameServerCode.PORT_USED).set("port", port);
+        } catch (NameBindingException | IOException e) {
+            stopRegistry(registry);
+            new GameServerExceptionHandler(e, port).handleException();
         }
     }
 

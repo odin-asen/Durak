@@ -5,7 +5,8 @@ public enum GameServerCode implements ErrorCode {
   NETWORK_ERROR(502),
   PORT_USED(503),
   STOP_SERVER_ERROR(515),
-  NOT_ENOUGH_PLAYERS_FOR_GAME(516);
+  NOT_ENOUGH_PLAYERS_FOR_GAME(516),
+  UNKNOWN_SERVER_ERROR(599);
 
   private int errorNumber;
 
