@@ -15,7 +15,9 @@ public enum GameClientCode
     /**
      * Service am Server wurde nicht gefunden.
      */
-    SERVICE_NOT_FOUND(402);
+    SERVICE_NOT_FOUND(402),
+    ALREADY_CONNECTED(421),
+    UNKNOWN_CLIENT_EXCEPTION(499);
 
     private int errorNumber;
 

@@ -38,9 +38,6 @@ import static com.github.odinasen.durak.business.network.server.event.DurakServi
  * Die Klasse erbt von {@link java.util.Observable} und meldet allen registrierten
  * {@link java.util.Observer} eine Veraenderung mit {@link DurakServiceEvent} als
  * Informationsobjekt.
- * <p/>
- * Author: Timm Herrmann<br/>
- * Date: 21.06.14
  */
 public class GameServer
         extends ObserverNotificator

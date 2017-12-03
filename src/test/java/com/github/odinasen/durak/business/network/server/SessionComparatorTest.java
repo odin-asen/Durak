@@ -1,8 +1,10 @@
 package com.github.odinasen.durak.business.network.server;
 
+import com.github.odinasen.durak.business.network.ClientMessageType;
 import com.github.odinasen.durak.business.network.simon.Callable;
 import com.github.odinasen.durak.business.network.simon.SessionInterface;
 import com.github.odinasen.durak.dto.ClientDto;
+import de.root1.simon.exceptions.SimonRemoteException;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -49,5 +51,30 @@ public class SessionComparatorTest {
 
         Callable otherCallable = Mockito.mock(Callable.class);
         assertFalse(comparator.sessionHasReference(otherCallable));
+    }
+
+    @Test
+    public void sessionHasReferenceReturnsFalseForSimonException() {
+        Callable mockedCallable =
+                getCallableWithEqualsThrowsException(new SimonRemoteException(""));
+        SessionInterface session = createSession(mockedCallable);
+
+        SessionComparator comparator = new SessionComparator(session);
+
+        assertFalse(comparator.sessionHasReference(mockedCallable));
+    }
+
+    private Callable getCallableWithEqualsThrowsException(RuntimeException e) {
+        return new Callable() {
+            @Override
+            public void sendClientMessage(ClientMessageType parameter) {
+
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                throw e;
+            }
+        };
     }
 }

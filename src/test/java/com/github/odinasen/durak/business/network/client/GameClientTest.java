@@ -1,6 +1,9 @@
 package com.github.odinasen.durak.business.network.client;
 
+import com.github.odinasen.durak.business.exception.GameClientCode;
+import com.github.odinasen.durak.business.exception.SystemException;
 import com.github.odinasen.durak.business.network.server.GameServer;
+import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.util.LoggingUtility;
 import com.github.odinasen.test.UnitTest;
 import com.google.common.base.Stopwatch;
@@ -14,7 +17,8 @@ import java.util.ConcurrentModificationException;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
-import static org.junit.Assert.assertTrue;
+import static com.github.odinasen.durak.i18n.BundleStrings.USER_MESSAGES;
+import static org.junit.Assert.*;
 
 @Category(UnitTest.class)
 public class GameClientTest {
@@ -93,5 +97,39 @@ public class GameClientTest {
 
         client.closed();
         Assert.assertFalse(client.isConnected());
+    }
+
+    @Test
+    public void connectTwiceThrowsException() {
+        String serverAddress = "127.0.0.1";
+        boolean connected = client.connect(serverAddress, testPort, testClientName, "");
+        assertTrue(connected);
+
+        try {
+            client.connect("localhost", testPort, testClientName, "");
+            fail("Code should not reach this point");
+        } catch (SystemException ex) {
+            assertEquals(GameClientCode.ALREADY_CONNECTED, ex.getErrorCode());
+            assertEquals(serverAddress, ex.get("server"));
+            assertEquals(testPort, ex.get("port"));
+        }
+    }
+
+    @Test
+    public void getSocketAddressCanReturnUserMessage() {
+        String expected = I18nSupport.getValue(USER_MESSAGES, "no.address");
+        assertEquals(expected, client.getSocketAddress());
+    }
+
+    @Test
+    public void connectThrowsSystemExceptionForUnknownHost() {
+        String unknownAddress = "bjikajhswielf";
+        try {
+            client.connect(unknownAddress, testPort, testClientName, "");
+            fail("Must not reach this line");
+        } catch (SystemException ex) {
+            assertEquals(GameClientCode.SERVER_NOT_FOUND, ex.getErrorCode());
+            assertEquals(0, ex.getProperties().size());
+        }
     }
 }

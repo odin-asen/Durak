@@ -82,14 +82,16 @@ public class GameClient
      *         {@link GameClientCode}
      */
     public boolean connect(String serverAddress,
-                           Integer serverPort, String clientName, String password)
-            throws SystemException {
+                           Integer serverPort,
+                           String clientName,
+                           String password) throws SystemException {
 
         if (connected) {
-            return true;
-        }
+            SystemException exception = new SystemException(GameClientCode.ALREADY_CONNECTED);
+            exception.set("port", getConnectedPort()).set("server", getConnectedServerAddress());
 
-        final String failedSocketAddress = serverAddress + ":" + serverPort;
+            throw exception;
+        }
 
         try {
             nameLookup = Simon.createNameLookup(serverAddress, serverPort);
@@ -104,7 +106,7 @@ public class GameClient
                 connected = false;
             }
 
-            String socketAddress = this.getSocketAddress();
+            String socketAddress = getSocketAddress();
             if (connected) {
                 LoggingUtility.embedInfo(
                         LOGGER, LoggingUtility.STARS, "Connected to " + socketAddress);
@@ -113,19 +115,16 @@ public class GameClient
                         "Failed to connect to " + socketAddress + " without exception";
                 LoggingUtility.embedInfo(LOGGER, LoggingUtility.HASHES, logMessage);
             }
-        } catch (UnknownHostException e) {
-            LOGGER.warning("Failed connection try to " + failedSocketAddress);
-            throw new SystemException(GameClientCode.SERVER_NOT_FOUND);
-        } catch (EstablishConnectionFailed e) {
-            LOGGER.warning(
-                    "EstablishConnectionFailed occurred while connecting: " + e.getMessage());
-            throw new SystemException(GameClientCode.SERVER_NOT_FOUND);
-        } catch (LookupFailedException e) {
-            LOGGER.warning("LookupFailedException occurred while connection: " + e.getMessage());
-            throw new SystemException(GameClientCode.SERVICE_NOT_FOUND);
+        } catch (UnknownHostException | EstablishConnectionFailed | LookupFailedException e) {
+            final String failedSocketAddress = serverAddress + ":" + serverPort;
+            new GameClientExceptionHandler(e, LOGGER, failedSocketAddress).handleException();
         }
 
         return connected;
+    }
+
+    private int getConnectedPort() {
+        return nameLookup.getServerPort();
     }
 
     /**
@@ -133,8 +132,9 @@ public class GameClient
      * auf.
      */
     public boolean reconnect(String serverAddress,
-                             Integer serverPort, String clientName, String password)
-            throws SystemException {
+                             Integer serverPort,
+                             String clientName,
+                             String password) throws SystemException {
 
         if (connected) {
             disconnect();
@@ -181,11 +181,14 @@ public class GameClient
      */
     public String getSocketAddress() {
         if (nameLookup != null) {
-            return nameLookup.getServerAddress()
-                             .getHostAddress() + ":" + nameLookup.getServerPort();
+            return getConnectedServerAddress() + ":" + getConnectedPort();
         } else {
             return I18nSupport.getValue(USER_MESSAGES, "no.address");
         }
+    }
+
+    private String getConnectedServerAddress() {
+        return nameLookup.getServerAddress().getHostAddress();
     }
 
     public boolean isConnected() {
@@ -218,7 +221,8 @@ class ServerMessageReceiver
 
     @Override
     public void unreferenced() {
-        LoggingUtility.getLogger(this.getClass())
-                      .info("Server unreferenced this client. Good time to update display messages");
+        String loggingMessage =
+                "Server unreferenced this client. Good time to update display messages";
+        LoggingUtility.getLogger(this.getClass()).info(loggingMessage);
     }
 }
