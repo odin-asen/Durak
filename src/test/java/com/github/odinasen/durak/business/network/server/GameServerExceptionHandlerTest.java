@@ -2,30 +2,17 @@ package com.github.odinasen.durak.business.network.server;
 
 import com.github.odinasen.durak.business.exception.GameServerCode;
 import com.github.odinasen.durak.business.exception.SystemException;
-import de.root1.simon.Registry;
 import de.root1.simon.exceptions.NameBindingException;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 
 public class GameServerExceptionHandlerTest {
-
-    private GameServer serverMock;
-    private Registry registryMock;
-    private GameServerExceptionHandler exceptionHandler;
-
-    @Before
-    public void setUp() {
-        serverMock = Mockito.mock(GameServer.class);
-        registryMock = Mockito.mock(Registry.class);
-    }
-
     @Test
     public void handleNameBindingException() throws Exception {
         NameBindingException testException =
@@ -49,6 +36,7 @@ public class GameServerExceptionHandlerTest {
         int testPort = 5;
         try {
             new GameServerExceptionHandler(testException, testPort).handleException();
+            fail("Must not reach this line");
         } catch (SystemException ex) {
             assertEquals(errorCode, ex.getErrorCode());
             assertEquals(ex.get("port"), testPort);
@@ -60,6 +48,7 @@ public class GameServerExceptionHandlerTest {
         RuntimeException unexpectedException = new RuntimeException("Unbekannter Fehler");
         try {
             new GameServerExceptionHandler(unexpectedException, 5).handleException();
+            fail("Must not reach this line");
         } catch (SystemException ex) {
             assertEquals(GameServerCode.UNKNOWN_SERVER_ERROR, ex.getErrorCode());
             assertEquals(0, ex.getProperties().size());
