@@ -130,7 +130,7 @@ public class GameServer
         }
     }
 
-    public void startGame() {
+    public void startGame() throws SystemException {
         List<Player> players = getPlayers();
         if (players.size() > 1 && isRunning()) {
             gameIsRunning = true;
@@ -144,7 +144,7 @@ public class GameServer
      * Stoppt den laufenden Server. Laueft ein Spiel, wird dieses auch geschlossen.
      */
     public void stopServer() {
-        removeAllClients();
+        removeAllPlayers();
 
         stopGame();
 
@@ -186,15 +186,6 @@ public class GameServer
     }
 
     /**
-     * Trennt alle beobachtenden Clients vom Server und entfernt Sie aus der entsprechenden Liste.
-     *
-     * @return Die Anzahl der Clients, die entfernt wurden.
-     */
-    public int removeAllSpectators() {
-        return 0;
-    }
-
-    /**
      * Trennt alle spielenden Clients vom Server und entfernt Sie aus der entsprechenden Liste.
      *
      * @return Die Anzahl der Clients, die entfernt wurden.
@@ -206,18 +197,6 @@ public class GameServer
         players.clear();
 
         return removed;
-    }
-
-    /**
-     * Trennt alle Clients vom Server und entfernt Sie aus der Liste.
-     *
-     * @return Die Anzahl der Clients, die entfernt wurden.
-     */
-    public int removeAllClients() throws SystemException {
-        int removedPlayers = this.removeAllPlayers();
-        int removedSpectators = this.removeAllSpectators();
-
-        return removedSpectators + removedPlayers;
     }
 
     /**
