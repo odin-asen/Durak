@@ -54,11 +54,11 @@ public class GameClientTest {
                           .log(Level.INFO, logMessage.toString(), ex);
         }
         server.setPassword("");
+        client.disconnect();
     }
 
     @Test
     public void reconnect() throws Exception {
-        // Hier pruefen, ob die connect bzw. disconnect-Methode
         boolean connected = client.reconnect("localhost", testPort, testClientName, "");
         assertTrue(connected);
         assertTrue(client.isConnected());

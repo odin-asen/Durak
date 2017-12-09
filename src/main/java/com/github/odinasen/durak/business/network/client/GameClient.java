@@ -19,6 +19,7 @@ import de.root1.simon.SimonUnreferenced;
 import de.root1.simon.annotation.SimonRemote;
 import de.root1.simon.exceptions.EstablishConnectionFailed;
 import de.root1.simon.exceptions.LookupFailedException;
+import de.root1.simon.exceptions.SessionException;
 
 import java.io.Serializable;
 import java.net.UnknownHostException;
@@ -153,11 +154,19 @@ public class GameClient
         if (connected) {
             connected = false;
 
-            server.logoff(session);
-            nameLookup.release(server);
+            try {
+                server.logoff(session);
+                nameLookup.release(server);
+            } catch (SessionException | IllegalArgumentException ex) {
+                LOGGER.info("Server has already been shut down.");
+            } finally {
+                LoggingUtility.embedInfo(
+                        LOGGER, LoggingUtility.STARS, "Disconnected from " + getSocketAddress());
 
-            LoggingUtility.embedInfo(
-                    LOGGER, LoggingUtility.STARS, "Disconnected from " + getSocketAddress());
+                //TODO ganz schlechter Stil
+                server = null;
+                nameLookup = null;
+            }
         }
     }
 
@@ -171,6 +180,10 @@ public class GameClient
             LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Lost server connection");
             connected = false;
             this.setChangedAndNotifyObservers();
+
+            // TODO ganz schlechter Stil
+            nameLookup = null;
+            server = null;
         }
     }
 
