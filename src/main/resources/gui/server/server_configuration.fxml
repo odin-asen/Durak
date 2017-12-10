@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.github.odinasen.durak.gui.server.ServerConfigurationController">
+  <Label text="%label.deque" HBox.hgrow="ALWAYS" minWidth="40"/>
+  <!--Label text="%label.deque" GridPane.rowIndex="0" GridPane.columnIndex="0"
+         GridPane.margin="$gridPaneMargin"/-->
+  <ChoiceBox fx:id="boxInitialCards" maxWidth="Infinity" minWidth="60"/>
+  <Label fx:id="disabledInitialCards" visible="false"/>
+  <!--ChoiceBox fx:id="boxInitialCards" GridPane.rowIndex="0" GridPane.columnIndex="1"
+             GridPane.margin="$gridPaneMargin"/-->
+</HBox>

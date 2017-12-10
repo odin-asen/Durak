@@ -22,7 +22,7 @@
   <SplitPane fx:id="mainSplitPane" VBox.vgrow="ALWAYS" dividerPositions="0,1" styleClass="hiddenDivider">
     <GridPane minWidth="0" maxWidth="280" maxHeight="Infinity" SplitPane.resizableWithParent="false">
       <HBox fx:id="serverPanel" visible="false" GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS">
-        <fx:include source="server.fxml" HBox.hgrow="ALWAYS"/>
+        <fx:include source="server/server.fxml" HBox.hgrow="ALWAYS"/>
       </HBox>
       <HBox fx:id="clientPanel" visible="false" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS">
         <fx:include source="client.fxml" HBox.hgrow="ALWAYS"/>

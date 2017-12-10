@@ -22,7 +22,6 @@ import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -54,9 +53,6 @@ public class ServerPanelController
     @FXML
     private TextField fieldServerPort;
     @FXML
-    private ChoiceBox<InitialCard> boxInitialCards;
-    private Label labelInitialCards;
-    @FXML
     private TextField fieldPassword;
     @FXML
     private Button buttonLaunchServer;
@@ -64,6 +60,8 @@ public class ServerPanelController
     private Button buttonLaunchGame;
     @FXML
     private ListView<ClientDto> listLoggedClients;
+
+    private ServerConfigurationController configurationController;
 
     /**
      * Model mit allen Attributen zum Server, wie Clients, Port, Passwort, etc...
@@ -73,7 +71,7 @@ public class ServerPanelController
     public ServerPanelController() {
         super(FXMLNames.SERVER_PANEL,
               ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
-        this.gameServerModel = new GameServerModel();
+        gameServerModel = new GameServerModel();
 
         initEventHandler();
 
@@ -92,9 +90,10 @@ public class ServerPanelController
 
     @Override
     protected void initializePanel() {
+        configurationController = ServerConfigurationController.getInstance();
         initListView();
-        this.changeGameButton("tooltip.start.game");
-        this.changeServerButton("tooltip.server.start.server");
+        changeGameButton("tooltip.start.game");
+        changeServerButton("tooltip.server.start.server");
         initInitialCardsComponents();
 
         this.fieldServerPort.textProperty()
@@ -128,7 +127,6 @@ public class ServerPanelController
         Assert.assertFXElementNotNull(buttonLaunchServer, "buttonLaunchServer", fxmlName);
         Assert.assertFXElementNotNull(serverConfigPanel, "serverConfigPanel", fxmlName);
         Assert.assertFXElementNotNull(fieldServerPort, "fieldServerPort", fxmlName);
-        Assert.assertFXElementNotNull(boxInitialCards, "boxInitialCards", fxmlName);
         Assert.assertFXElementNotNull(fieldPassword, "fieldPassword", fxmlName);
         Assert.assertFXElementNotNull(listLoggedClients, "listLoggedClients", fxmlName);
     }
@@ -175,6 +173,7 @@ public class ServerPanelController
             }
             gameServerModel.removeAllClients();
             stopServer();
+            configurationController.toggleEnableStateForStartedServer(false);
             serverStatus = "Server wurde angehalten!";
         } else {
 
@@ -185,6 +184,7 @@ public class ServerPanelController
 
                 /* Eingabeelemente ausgrauen */
                 setEditableValueOnInputElements();
+                configurationController.toggleEnableStateForStartedServer(true);
             } catch (SystemException e) {
                 /* Fehlerpopup, da der Server nicht gestartet werden konnte */
                 DialogPopupFactory.getFactory()
@@ -207,7 +207,7 @@ public class ServerPanelController
 
         fieldPassword.setEditable(enableServerFields);
         fieldServerPort.setEditable(enableServerFields);
-        setBoxEditable(enableGameFields);
+        //setBoxEditable(enableGameFields);
     }
 
     /**
@@ -244,16 +244,19 @@ public class ServerPanelController
      * Initialisiert das ChoiceBox- und Label-Objekt für die Anzahl der Karten
      */
     private void initInitialCardsComponents() {
+        /* Ausgelagert zu ServerConfigurationController
         ObservableList<InitialCard> cards = boxInitialCards.getItems();
+
         Collections.addAll(cards, InitialCard.values());
         boxInitialCards.setValue(cards.get(0));
-
+*/
         /* Nicht editierbares Feld initialisieren */
-        labelInitialCards = new Label();
+  /*      labelInitialCards = new Label();
         copyHeightsAndWidths(boxInitialCards, labelInitialCards);
         GridPane.setMargin(labelInitialCards, GridPane.getMargin(boxInitialCards));
         GridPane.setColumnIndex(labelInitialCards, GridPane.getColumnIndex(boxInitialCards));
         GridPane.setRowIndex(labelInitialCards, GridPane.getRowIndex(boxInitialCards));
+        */
     }
 
     /**
@@ -267,26 +270,6 @@ public class ServerPanelController
         to.setMinHeight(from.getMinHeight());
         to.setPrefHeight(from.getPrefHeight());
         to.setPrefWidth(from.getPrefWidth());
-    }
-
-    /**
-     * Label und Choicebox tauschen Plaetze.
-     */
-    private void setBoxEditable(boolean editable) {
-        final ObservableList<Node> children = serverConfigPanel.getChildren();
-
-        if (editable) {
-            children.remove(labelInitialCards);
-            if (!children.contains(boxInitialCards)) {
-                children.add(boxInitialCards);
-            }
-        } else {
-            children.remove(boxInitialCards);
-            if (!children.contains(labelInitialCards)) {
-                children.add(labelInitialCards);
-                labelInitialCards.setText(boxInitialCards.getValue().toString());
-            }
-        }
     }
 
     /**
@@ -343,7 +326,7 @@ public class ServerPanelController
             }
         }
 
-        int numberCards = boxInitialCards.getValue().getNumberCards();
+        int numberCards = configurationController.getInitialCards();
         int cardsPerPlayer = 6;
         boolean enoughCards = numberCards / cardsPerPlayer >= countPlayers;
 

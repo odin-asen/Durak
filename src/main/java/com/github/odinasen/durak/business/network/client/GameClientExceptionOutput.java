@@ -21,6 +21,7 @@ public enum GameClientExceptionOutput {
 
     private Class<? extends Exception> exceptionClass;
     private String exceptionIntro;
+    //TODO variable entfernen
     private ErrorCode errorCode;
 
     GameClientExceptionOutput(Class<? extends Exception> exceptionClass,

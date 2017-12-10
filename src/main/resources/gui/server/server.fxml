@@ -19,10 +19,8 @@
           <GridPane.margin>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
           </GridPane.margin>
-          <Label text="%label.deque" GridPane.rowIndex="0" GridPane.columnIndex="0"
-                 GridPane.margin="$gridPaneMargin"/>
-          <ChoiceBox fx:id="boxInitialCards" GridPane.rowIndex="0" GridPane.columnIndex="1"
-                     GridPane.margin="$gridPaneMargin"/>
+          <fx:include source="server_configuration.fxml"
+                      GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
           <Label text="%label.port"
                  GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
           <TextField fx:id="fieldServerPort" prefColumnCount="4"
