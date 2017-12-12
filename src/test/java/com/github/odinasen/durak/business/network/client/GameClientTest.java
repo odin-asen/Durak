@@ -31,8 +31,8 @@ public class GameClientTest {
 
     @Before
     public void setUp() throws Exception {
-        server = GameServer.getInstance();
         testPort = 10000;
+        server = GameServer.getInstance();
         server.startServer(testPort);
 
         assertTrue(server.isRunning());

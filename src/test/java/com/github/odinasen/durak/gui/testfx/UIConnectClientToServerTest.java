@@ -19,7 +19,10 @@ public class UIConnectClientToServerTest
 
     @After
     public void tearDown() {
-        GameClient.getInstance().disconnect();
+        //TODO irgendwas stimmt mit dem Test nicht. Manuell klappt das Verbinden mit dem Server
+        if (GameClient.getInstance().isConnected()) {
+            GameClient.getInstance().disconnect();
+        }
         if (GameServer.getInstance().isRunning()) {
             GameServer.getInstance().stopServer();
         }

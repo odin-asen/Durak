@@ -21,9 +21,6 @@ public class GameClientExceptionHandler {
 
     public void handleException() throws SystemException {
         final String loggingFormat = "%s: %s";
-        GameClientExceptionOutput exceptionOutput =
-                GameClientExceptionOutput.getOutputObject(exception);
-
-        exceptionOutput.handleException(output, exception, messageOverride);
+        GameClientExceptionOutput.handleException(output, exception, messageOverride);
     }
 }

@@ -32,26 +32,32 @@ public enum GameClientExceptionOutput {
         this.errorCode = errorCode;
     }
 
-    public void handleException(Logger output, Exception exception, String messageOverride)
+    public static void handleException(Logger output, Exception exception, String messageOverride)
             throws SystemException {
         final String loggingFormat = "%s: %s";
 
-        output.warning(String.format(loggingFormat, exceptionIntro,
-                                     getOutputMessage(exception, messageOverride)));
+        output.warning(String.format(loggingFormat, getOutputObject(exception).exceptionIntro,
+                                     GameClientExceptionOutput.getOutputMessage(exception,
+                                                                                messageOverride)));
+        throw new SystemException(getOutputObject(exception).errorCode);
     }
 
-    private String getOutputMessage(Exception exception, String messageOverride) {
+    private static String getOutputMessage(Exception exception, String messageOverride) {
         final String exceptionMessage;
 
         if (messageOverride != null && !messageOverride.isEmpty()) {
             exceptionMessage = messageOverride;
         } else {
-            exceptionMessage = exception.getMessage();
+            if (exception != null) {
+                exceptionMessage = exception.getMessage();
+            } else {
+                exceptionMessage = "";
+            }
         }
         return exceptionMessage;
     }
 
-    public static GameClientExceptionOutput getOutputObject(Exception exception) {
+    private static GameClientExceptionOutput getOutputObject(Exception exception) {
         for (GameClientExceptionOutput object : GameClientExceptionOutput.values()) {
             if (object.exceptionClass.isInstance(exception)) {
                 return object;
