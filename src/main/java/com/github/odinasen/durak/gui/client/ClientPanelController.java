@@ -90,10 +90,10 @@ public class ClientPanelController
      */
     private void initByStartParameters() {
         ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance();
-        this.clientModel.getPassword().setValue(startParameter.getClientPwd());
-        this.clientModel.getPort().setValue(startParameter.getClientPort());
-        this.clientModel.getNickname().setValue(startParameter.getClientName());
-        this.clientModel.getServerAddress().setValue(startParameter.getClientConnectionAddress());
+        clientModel.getPassword().setValue(startParameter.getClientPwd());
+        clientModel.getPort().setValue(startParameter.getClientPort());
+        clientModel.getNickname().setValue(startParameter.getClientName());
+        clientModel.getServerAddress().setValue(startParameter.getClientConnectionAddress());
 
         if (startParameter.canInitialConnectToServer()) {
             connectDisconnect();

@@ -120,7 +120,8 @@ public class GameServer
             // verwenden wegen An- und Abmeldung
             serverService.addObserver(this);
 
-            LoggingUtility.embedInfo(LOGGER, LoggingUtility.STARS, "Server is running");
+            LoggingUtility.embedInfo(
+                    LOGGER, LoggingUtility.STARS, "Server is running on port " + port);
         } catch (NameBindingException | IOException e) {
             stopRegistry(registry);
             new GameServerExceptionHandler(e, port).handleException();

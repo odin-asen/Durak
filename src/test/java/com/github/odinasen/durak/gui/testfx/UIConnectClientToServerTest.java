@@ -17,12 +17,11 @@ import static org.junit.Assert.*;
 public class UIConnectClientToServerTest
         extends UIElementGuiTest {
 
+    private String connectionPort = "2000";
+
     @After
     public void tearDown() {
-        //TODO irgendwas stimmt mit dem Test nicht. Manuell klappt das Verbinden mit dem Server
-        if (GameClient.getInstance().isConnected()) {
-            GameClient.getInstance().disconnect();
-        }
+        GameClient.getInstance().disconnect();
         if (GameServer.getInstance().isRunning()) {
             GameServer.getInstance().stopServer();
         }
@@ -40,7 +39,7 @@ public class UIConnectClientToServerTest
         assertTrue(serverButton.hasStyleClass("startServerButton"));
 
         UIElement serverPortField = UIElement.ServerPortField;
-        doubleClick(serverPortField).type("1000");
+        doubleClick(serverPortField).type(connectionPort);
 
         click(serverButton);
         assertTrue(serverButton.hasStyleClass("stopServerButton"));
@@ -65,7 +64,7 @@ public class UIConnectClientToServerTest
 
         doubleClick(UIElement.ConnectionNameField).type("Horst");
         doubleClick(UIElement.ConnectionAddressField).type("localhost");
-        doubleClick(UIElement.ConnectionPortField).type("1000");
+        doubleClick(UIElement.ConnectionPortField).type(connectionPort);
         click(clientButton);
 
         Node disconnectGraphic = ((Button)clientButton.getElement()).getGraphic();

@@ -23,7 +23,13 @@ public abstract class UIElementGuiTest
         String upperCaseText = text.toUpperCase();
         KeyCode[] numberKeyCodes = new KeyCode[upperCaseText.length()];
         for (int index = 0; index < upperCaseText.length(); index++) {
-            numberKeyCodes[index] = KeyCode.getKeyCode(upperCaseText.substring(index, index + 1));
+            String character = upperCaseText.substring(index, index + 1);
+            if (character.equals(".")) {
+                numberKeyCodes[index] = KeyCode.PERIOD;
+            } else {
+                numberKeyCodes[index] = KeyCode.getKeyCode(character);
+            }
+
         }
 
         type(numberKeyCodes);

@@ -1,8 +1,9 @@
 package com.github.odinasen.durak.gui.server;
 
-import com.github.odinasen.durak.business.network.server.GameServer;
+import com.github.odinasen.durak.ApplicationStartParameter;
 import com.github.odinasen.durak.gui.FXMLNames;
 import com.github.odinasen.durak.gui.controller.JavaFXController;
+import com.github.odinasen.durak.gui.server.model.ServerConfigurationModel;
 import com.github.odinasen.durak.i18n.BundleStrings;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
@@ -11,6 +12,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.util.converter.NumberStringConverter;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -29,11 +32,19 @@ public class ServerConfigurationController
     @FXML
     private Label disabledInitialCards;
 
+    @FXML
+    private TextField portField;
+
+    private ServerConfigurationModel configurationModel;
+
     public ServerConfigurationController() {
         super(
                 FXMLNames.SERVER_CONFIGURATION,
                 ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
 
+        configurationModel = new ServerConfigurationModel();
+
+        // Instanz ist quatsch an dieser Stelle. Vom Parent Panel muss man irgendwie auf den Controller kommen
         if (controller == null) {
             controller = this;
         }
@@ -42,22 +53,25 @@ public class ServerConfigurationController
     @Override
     protected void initializePanel() {
         initInitialCardsComponents();
+
+        portField.textProperty()
+                 .bindBidirectional(configurationModel.getPort(), new NumberStringConverter());
+        initByStartParameters();
+    }
+
+    /**
+     * Setzt Panel-Werte anhand der Start-Parameter der Anwendung
+     */
+    private void initByStartParameters() {
+        ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance();
+        configurationModel.getPort().setValue(startParameter.getServerPort());
     }
 
     @Override
     protected void assertNotNullComponents() {
         final String fxmlName = getFxmlName();
         Assert.assertFXElementNotNull(boxInitialCards, "boxInitialCards", fxmlName);
-    }
-
-    /**
-     * Abhaenging von Verbindungszustand und Spielzustand, werden Eingabekomponenten aktiviert
-     * bzw. deaktiviert.
-     */
-    private void setEditableValueOnInputElements() {
-        boolean enableServerFields = !GameServer.getInstance().isRunning();
-
-        setBoxEditable(true);
+        Assert.assertFXElementNotNull(portField, "portField", fxmlName);
     }
 
     /**
@@ -90,26 +104,6 @@ public class ServerConfigurationController
         to.setPrefWidth(from.getPrefWidth());
     }
 
-    /**
-     * Label und Choicebox tauschen Plaetze.
-     */
-    private void setBoxEditable(boolean editable) {
-        // Per CSS aus und einblenden
-        /*
-        if (editable) {
-            children.remove(labelInitialCards);
-            if (!children.contains(boxInitialCards)) {
-                children.add(boxInitialCards);
-            }
-        } else {
-            children.remove(boxInitialCards);
-            if (!children.contains(labelInitialCards)) {
-                children.add(labelInitialCards);
-                labelInitialCards.setText(boxInitialCards.getValue().toString());
-            }
-        }*/
-    }
-
     public static ServerConfigurationController getInstance() {
         return controller;
     }
@@ -125,9 +119,15 @@ public class ServerConfigurationController
             disabledInitialCards.setVisible(false);
             boxInitialCards.setVisible(true);
         }
+
+        portField.setEditable(serverStarted);
     }
 
     public int getInitialCards() {
         return boxInitialCards.getValue().getNumberCards();
+    }
+
+    public int getPort() {
+        return configurationModel.getPort().getValue();
     }
 }

@@ -26,7 +26,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
-import javafx.util.converter.NumberStringConverter;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -50,8 +49,7 @@ public class ServerPanelController
 
     @FXML
     private GridPane serverConfigPanel;
-    @FXML
-    private TextField fieldServerPort;
+
     @FXML
     private TextField fieldPassword;
     @FXML
@@ -61,6 +59,7 @@ public class ServerPanelController
     @FXML
     private ListView<ClientDto> listLoggedClients;
 
+    @FXML
     private ServerConfigurationController configurationController;
 
     /**
@@ -90,16 +89,12 @@ public class ServerPanelController
 
     @Override
     protected void initializePanel() {
-        configurationController = ServerConfigurationController.getInstance();
         initListView();
         changeGameButton("tooltip.start.game");
         changeServerButton("tooltip.server.start.server");
         initInitialCardsComponents();
 
-        this.fieldServerPort.textProperty()
-                            .bindBidirectional(this.gameServerModel.getPort(),
-                                               new NumberStringConverter());
-        this.fieldPassword.textProperty().bindBidirectional(this.gameServerModel.getPassword());
+        fieldPassword.textProperty().bindBidirectional(gameServerModel.getPassword());
 
         GameServer.getInstance().addObserver(this);
 
@@ -111,8 +106,8 @@ public class ServerPanelController
      */
     private void initByStartParameters() {
         ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance();
-        this.gameServerModel.getPassword().setValue(startParameter.getServerPwd());
-        this.gameServerModel.getPort().setValue(startParameter.getServerPort());
+
+        gameServerModel.getPassword().setValue(startParameter.getServerPwd());
 
         if (startParameter.canInitialStartServer()) {
             startStopServer();
@@ -126,7 +121,6 @@ public class ServerPanelController
         Assert.assertFXElementNotNull(buttonLaunchGame, "buttonLaunchGame", fxmlName);
         Assert.assertFXElementNotNull(buttonLaunchServer, "buttonLaunchServer", fxmlName);
         Assert.assertFXElementNotNull(serverConfigPanel, "serverConfigPanel", fxmlName);
-        Assert.assertFXElementNotNull(fieldServerPort, "fieldServerPort", fxmlName);
         Assert.assertFXElementNotNull(fieldPassword, "fieldPassword", fxmlName);
         Assert.assertFXElementNotNull(listLoggedClients, "listLoggedClients", fxmlName);
     }
@@ -206,8 +200,6 @@ public class ServerPanelController
         boolean enableGameFields = !gameServerModel.isGameRunning();
 
         fieldPassword.setEditable(enableServerFields);
-        fieldServerPort.setEditable(enableServerFields);
-        //setBoxEditable(enableGameFields);
     }
 
     /**
@@ -345,11 +337,12 @@ public class ServerPanelController
         GameServer server = GameServer.getInstance();
 
         /* Der Port wird ueber Databinding im Textfeld gesetzt */
-        server.startServer(gameServerModel.getPort().getValue(),
-                           gameServerModel.getPassword().getValue());
+        server.startServer(
+                configurationController.getPort(),
+                gameServerModel.getPassword().getValue());
 
         /* GUI veraendern */
-        fieldServerPort.setEditable(false);
+        configurationController.toggleEnableStateForStartedServer(true);
         changeServerButton("tooltip.stop.server");
         buttonLaunchGame.setVisible(true);
     }
@@ -377,7 +370,8 @@ public class ServerPanelController
         /* GUI anpassen */
         buttonLaunchGame.setVisible(false);
         changeServerButton("tooltip.server.start.server");
-        fieldServerPort.setEditable(true);
+
+        configurationController.toggleEnableStateForStartedServer(false);
     }
 
     /**

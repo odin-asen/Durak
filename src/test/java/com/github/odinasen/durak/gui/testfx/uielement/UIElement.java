@@ -18,7 +18,7 @@ public enum UIElement {
     MainSplitPane("#mainSplitPane"),
     StartServerButton("#buttonLaunchServer"),
     StopServerButton("#buttonLaunchServer"),
-    ServerPortField("#fieldServerPort"),
+    ServerPortField("#portField"),
     StatusLabel("#leftStatus"),
     ConnectToServerButton("#buttonConnectDisconnect"),
     DisconnectFromServerButton("#buttonConnectDisconnect"),

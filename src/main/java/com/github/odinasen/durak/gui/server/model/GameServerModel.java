@@ -2,8 +2,6 @@ package com.github.odinasen.durak.gui.server.model;
 
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.Assert;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -14,27 +12,16 @@ import java.util.List;
 
 /**
  * Model fuer den Server, z.B. angemeldete Benutzer.
- * <p/>
- * Author: Timm Herrmann<br/>
- * Date: 27.03.15
  */
 public class GameServerModel {
 
     /** Initialer Wert fuer die Anzahl an Clients. */
     private static final int INITIAL_CLIENTS = 8;
 
-    /** Ist der Standardport fuer den Server. */
-    private static final int DEFAULT_SERVER_PORT = 10000;
-
     /**
      * Set aller Clients
      */
     private final ObservableList<ClientDto> clients;
-
-    /**
-     * Ist der Port auf dem der Server laueft.
-     */
-    private IntegerProperty port;
 
     /**
      * Ist das Passwort des Servers.
@@ -47,31 +34,25 @@ public class GameServerModel {
     private boolean gameRunning;
 
     /**
-     * Initialisiert {@link #clients} fuer {@value #INITIAL_CLIENTS} Clients. Das Passwort ist leer
-     * und der Port ist {@value #DEFAULT_SERVER_PORT}.
+     * Initialisiert {@link #clients} fuer {@value #INITIAL_CLIENTS} Clients. Das Passwort ist leer.
      */
     public GameServerModel() {
-        this.clients = FXCollections.observableArrayList(new ArrayList<ClientDto>(INITIAL_CLIENTS));
-        this.password = new SimpleStringProperty("");
-        this.port = new SimpleIntegerProperty(DEFAULT_SERVER_PORT);
+        clients = FXCollections.observableArrayList(new ArrayList<ClientDto>(INITIAL_CLIENTS));
+        password = new SimpleStringProperty("");
     }
 
     public ObservableList<ClientDto> getClients() {
-        return this.clients;
+        return clients;
     }
 
     public void addClient(ClientDto client) {
         Assert.assertNotNull(client);
 
-        this.clients.add(client);
-    }
-
-    public IntegerProperty getPort() {
-        return this.port;
+        clients.add(client);
     }
 
     public StringProperty getPassword() {
-        return this.password;
+        return password;
     }
 
     public void setGameRunning(boolean gameRunning) {
@@ -83,7 +64,7 @@ public class GameServerModel {
     }
 
     public void removeAllClients() {
-        this.clients.clear();
+        clients.clear();
     }
 
     /**
@@ -94,7 +75,7 @@ public class GameServerModel {
         if (clientIds != null) {
             List<ClientDto> clientsToRemove = new ArrayList<>(clientIds.size());
 
-            this.clients.removeIf(clientIds::contains);
+            clients.removeIf(clientIds::contains);
         }
     }
 }

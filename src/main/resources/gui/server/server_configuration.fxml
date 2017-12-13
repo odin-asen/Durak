@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <HBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -9,8 +8,23 @@
   <Label text="%label.deque" HBox.hgrow="ALWAYS" minWidth="40"/>
   <!--Label text="%label.deque" GridPane.rowIndex="0" GridPane.columnIndex="0"
          GridPane.margin="$gridPaneMargin"/-->
-  <ChoiceBox fx:id="boxInitialCards" maxWidth="Infinity" minWidth="60"/>
+  <ChoiceBox fx:id="boxInitialCards"/>
   <Label fx:id="disabledInitialCards" visible="false"/>
   <!--ChoiceBox fx:id="boxInitialCards" GridPane.rowIndex="0" GridPane.columnIndex="1"
              GridPane.margin="$gridPaneMargin"/-->
+  <Label text="%label.port"/>
+  <TextField fx:id="portField">
+    <tooltip>
+      <Tooltip text="%tooltip.server.server.port"/>
+    </tooltip>
+  </TextField>
+  <!--Label text="%label.port"
+         GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
+  <TextField fx:id="fieldServerPort" prefColumnCount="4"
+             GridPane.rowIndex="1" GridPane.columnIndex="1"
+             GridPane.margin="$gridPaneMargin">
+    <tooltip>
+      <Tooltip text="%tooltip.server.server.port"/>
+    </tooltip>
+  </TextField-->
 </HBox>
