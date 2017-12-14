@@ -40,8 +40,6 @@ public class ServerPanelController
 
     private static final String GAME_NOT_STARTED_MESSAGE = "Muss mit Inhalt gefuellt werden.";
 
-    private static JavaFXController controller;
-
     private DurakServiceEventHandler eventHandler;
 
     @FXML
@@ -73,10 +71,6 @@ public class ServerPanelController
         gameServerModel = new GameServerModel();
 
         initEventHandler();
-
-        if (controller == null) {
-            controller = this;
-        }
     }
 
     private void initEventHandler() {
@@ -160,6 +154,8 @@ public class ServerPanelController
         /* Laueft der Server? */
         if (isServerRunning()) {
 
+            //TODO test implementieren für diesen Zweig mit GameRunning == true und GameRunning
+            // == false
             /* Ja, also Server stoppen */
             if (gameServerModel.isGameRunning()) {
                 DialogPopupFactory.getFactory().makeDialog(mainWindow, "Halli hallo").show();
@@ -180,6 +176,8 @@ public class ServerPanelController
                 setEditableValueOnInputElements();
                 configurationController.toggleEnableStateForStartedServer(true);
             } catch (SystemException e) {
+                // TODO UI Test erstellen, der bei Server Start eine SystemException provoziert
+                // Darstellung einer Fehlermeldung prüfen
                 /* Fehlerpopup, da der Server nicht gestartet werden konnte */
                 DialogPopupFactory.getFactory()
                                   .showErrorPopup(mainWindow, e.getMessage(),
@@ -439,10 +437,6 @@ public class ServerPanelController
 
     public Parent getPanel() {
         return root;
-    }
-
-    public static JavaFXController getInstance() {
-        return controller;
     }
 
     /**

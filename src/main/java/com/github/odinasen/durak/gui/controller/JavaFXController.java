@@ -46,8 +46,6 @@ public abstract class JavaFXController {
     /**
      * Prueft alle Komponenten des Panels und wirft eine Assertation, wenn eine Variable nicht
      * korrekt initialisiert wurde.
-     *
-     * @see {@link #initialize()}
      */
     protected abstract void assertNotNullComponents();
 
