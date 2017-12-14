@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.VBox?>
 <VBox fx:id="root"
       xmlns:fx="http://javafx.com/fxml"
@@ -15,8 +14,7 @@
   <TabPane tabMinWidth="30">
     <Tab closable="false">
       <TitledPane collapsible="false" text="%title.server.configuration">
-        <fx:include fx:id="configurationPanel" source="server_configuration.fxml"
-                    GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
+        <fx:include fx:id="configurationPanel" source="server_configuration.fxml"/>
       </TitledPane>
     </Tab>
     <Tab closable="false">
