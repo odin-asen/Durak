@@ -390,10 +390,6 @@ public class ServerPanelController
         }
     }
 
-    public Parent getPanel() {
-        return root;
-    }
-
     /**
      * Handler fuer Clients, die sich einloggen.
      */
