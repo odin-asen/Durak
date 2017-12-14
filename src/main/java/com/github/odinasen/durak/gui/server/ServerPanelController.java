@@ -19,11 +19,13 @@ import com.github.odinasen.durak.i18n.I18nSupport;
 import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 
@@ -46,10 +48,8 @@ public class ServerPanelController
     private Parent root;
 
     @FXML
-    private GridPane serverConfigPanel;
+    private GridPane configurationPanel;
 
-    @FXML
-    private TextField fieldPassword;
     @FXML
     private Button buttonLaunchServer;
     @FXML
@@ -58,7 +58,7 @@ public class ServerPanelController
     private ListView<ClientDto> listLoggedClients;
 
     @FXML
-    private ServerConfigurationController configurationController;
+    private ServerConfigurationController configurationPanelController;
 
     /**
      * Model mit allen Attributen zum Server, wie Clients, Port, Passwort, etc...
@@ -74,7 +74,7 @@ public class ServerPanelController
     }
 
     private void initEventHandler() {
-        this.eventHandler = new DurakServiceEventHandler();
+        eventHandler = new DurakServiceEventHandler();
         eventHandler.registerEventFunction(DurakServiceEvent.DurakServiceEventType.CLIENT_LOGIN,
                                            new ClientLoginHandler());
         eventHandler.registerEventFunction(DurakServiceEvent.DurakServiceEventType.CLIENT_LOGOUT,
@@ -86,9 +86,6 @@ public class ServerPanelController
         initListView();
         changeGameButton("tooltip.start.game");
         changeServerButton("tooltip.server.start.server");
-        initInitialCardsComponents();
-
-        fieldPassword.textProperty().bindBidirectional(gameServerModel.getPassword());
 
         GameServer.getInstance().addObserver(this);
 
@@ -101,8 +98,6 @@ public class ServerPanelController
     private void initByStartParameters() {
         ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance();
 
-        gameServerModel.getPassword().setValue(startParameter.getServerPwd());
-
         if (startParameter.canInitialStartServer()) {
             startStopServer();
         }
@@ -114,8 +109,7 @@ public class ServerPanelController
         Assert.assertFXElementNotNull(root, "root", fxmlName);
         Assert.assertFXElementNotNull(buttonLaunchGame, "buttonLaunchGame", fxmlName);
         Assert.assertFXElementNotNull(buttonLaunchServer, "buttonLaunchServer", fxmlName);
-        Assert.assertFXElementNotNull(serverConfigPanel, "serverConfigPanel", fxmlName);
-        Assert.assertFXElementNotNull(fieldPassword, "fieldPassword", fxmlName);
+        Assert.assertFXElementNotNull(configurationPanel, "configurationPanel", fxmlName);
         Assert.assertFXElementNotNull(listLoggedClients, "listLoggedClients", fxmlName);
     }
 
@@ -124,21 +118,35 @@ public class ServerPanelController
         listLoggedClients.setCellFactory(
                 listView -> new ClientListCell(actionEvent -> removeSelectedClients()));
 
-        listLoggedClients.getItems().addListener((ListChangeListener<ClientDto>)change -> {
-            while (change.next()) {
-                if (change.wasRemoved()) {
-                    List<ClientDto> clientsToRemove = (List<ClientDto>)change.getRemoved();
-                    GameServer.getInstance().removeClients(clientsToRemove);
-                    ServerPanelController.this.gameServerModel.removeClients(clientsToRemove);
-                    GameServer.getInstance()
-                              .sendClientMessage(new NetworkMessage<>(new Object(),
-                                                                      ClientMessageType
-                                                                              .CLIENT_REMOVED_BY_SERVER));
-                }
-            }
-        });
+        listLoggedClients.setItems(gameServerModel.getClients());
+    }
 
-        listLoggedClients.setItems(this.gameServerModel.getClients());
+    /**
+     * Loescht die uebergebenen Clients und gibt die Anzahl
+     * der geloeschten Clients zurueck.
+     */
+    private int removeSelectedClients() {
+        ObservableList<ClientDto> loggedClients = listLoggedClients.getItems();
+        int before = loggedClients.size();
+
+        final List<ClientDto> selectedClients =
+                listLoggedClients.getSelectionModel().getSelectedItems();
+
+        for (int i = selectedClients.size() - 1; i >= 0; i--) {
+            listLoggedClients.getItems().remove(selectedClients.get(i));
+        }
+
+        removeClientsFromServerAndModel(selectedClients);
+
+        return before - loggedClients.size();
+    }
+
+    private void removeClientsFromServerAndModel(List<ClientDto> clientsToRemove) {
+        GameServer.getInstance().removeClients(clientsToRemove);
+        gameServerModel.removeClients(clientsToRemove);
+        NetworkMessage<ClientMessageType> networkMessage =
+                new NetworkMessage<>(new Object(), ClientMessageType.CLIENT_REMOVED_BY_SERVER);
+        GameServer.getInstance().sendClientMessage(networkMessage);
     }
 
     /**
@@ -163,7 +171,7 @@ public class ServerPanelController
             }
             gameServerModel.removeAllClients();
             stopServer();
-            configurationController.toggleEnableStateForStartedServer(false);
+            configurationPanelController.toggleEnableStateForStartedServer(false);
             serverStatus = "Server wurde angehalten!";
         } else {
 
@@ -174,7 +182,7 @@ public class ServerPanelController
 
                 /* Eingabeelemente ausgrauen */
                 setEditableValueOnInputElements();
-                configurationController.toggleEnableStateForStartedServer(true);
+                configurationPanelController.toggleEnableStateForStartedServer(true);
             } catch (SystemException e) {
                 // TODO UI Test erstellen, der bei Server Start eine SystemException provoziert
                 // Darstellung einer Fehlermeldung prüfen
@@ -196,8 +204,6 @@ public class ServerPanelController
     private void setEditableValueOnInputElements() {
         boolean enableServerFields = !GameServer.getInstance().isRunning();
         boolean enableGameFields = !gameServerModel.isGameRunning();
-
-        fieldPassword.setEditable(enableServerFields);
     }
 
     /**
@@ -228,56 +234,6 @@ public class ServerPanelController
                                             "Das Spiel wurde gestartet!");
             }
         }
-    }
-
-    /**
-     * Initialisiert das ChoiceBox- und Label-Objekt für die Anzahl der Karten
-     */
-    private void initInitialCardsComponents() {
-        /* Ausgelagert zu ServerConfigurationController
-        ObservableList<InitialCard> cards = boxInitialCards.getItems();
-
-        Collections.addAll(cards, InitialCard.values());
-        boxInitialCards.setValue(cards.get(0));
-*/
-        /* Nicht editierbares Feld initialisieren */
-  /*      labelInitialCards = new Label();
-        copyHeightsAndWidths(boxInitialCards, labelInitialCards);
-        GridPane.setMargin(labelInitialCards, GridPane.getMargin(boxInitialCards));
-        GridPane.setColumnIndex(labelInitialCards, GridPane.getColumnIndex(boxInitialCards));
-        GridPane.setRowIndex(labelInitialCards, GridPane.getRowIndex(boxInitialCards));
-        */
-    }
-
-    /**
-     * Kopiert die Werte maxHeight, maxWidth, minHeight, minWidth,
-     * prefHeight und preifWidth von einem Control-Objekt zum anderen.
-     */
-    private void copyHeightsAndWidths(Control from, Control to) {
-        to.setMaxWidth(from.getMaxWidth());
-        to.setMinWidth(from.getMinWidth());
-        to.setMaxHeight(from.getMaxHeight());
-        to.setMinHeight(from.getMinHeight());
-        to.setPrefHeight(from.getPrefHeight());
-        to.setPrefWidth(from.getPrefWidth());
-    }
-
-    /**
-     * Loescht die uebergebenen Clients und gibt die Anzahl
-     * der geloeschten Clients zurueck.
-     */
-    private int removeSelectedClients() {
-        ObservableList<ClientDto> loggedClients = this.listLoggedClients.getItems();
-        int before = loggedClients.size();
-
-        final List<ClientDto> selectedClients =
-                this.listLoggedClients.getSelectionModel().getSelectedItems();
-
-        for (int i = selectedClients.size() - 1; i >= 0; i--) {
-            this.listLoggedClients.getItems().remove(selectedClients.get(i));
-        }
-
-        return before - loggedClients.size();
     }
 
     /**
@@ -316,7 +272,7 @@ public class ServerPanelController
             }
         }
 
-        int numberCards = configurationController.getInitialCards();
+        int numberCards = configurationPanelController.getInitialCards();
         int cardsPerPlayer = 6;
         boolean enoughCards = numberCards / cardsPerPlayer >= countPlayers;
 
@@ -336,11 +292,10 @@ public class ServerPanelController
 
         /* Der Port wird ueber Databinding im Textfeld gesetzt */
         server.startServer(
-                configurationController.getPort(),
-                gameServerModel.getPassword().getValue());
+                configurationPanelController.getPort(), configurationPanelController.getPassword());
 
         /* GUI veraendern */
-        configurationController.toggleEnableStateForStartedServer(true);
+        configurationPanelController.toggleEnableStateForStartedServer(true);
         changeServerButton("tooltip.stop.server");
         buttonLaunchGame.setVisible(true);
     }
@@ -369,7 +324,7 @@ public class ServerPanelController
         buttonLaunchGame.setVisible(false);
         changeServerButton("tooltip.server.start.server");
 
-        configurationController.toggleEnableStateForStartedServer(false);
+        configurationPanelController.toggleEnableStateForStartedServer(false);
     }
 
     /**

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
 <VBox fx:id="root"
       xmlns:fx="http://javafx.com/fxml"
       stylesheets="/css/server.css"
@@ -15,22 +15,8 @@
   <TabPane tabMinWidth="30">
     <Tab closable="false">
       <TitledPane collapsible="false" text="%title.server.configuration">
-        <GridPane fx:id="serverConfigPanel">
-          <GridPane.margin>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="gridPaneMargin"/>
-          </GridPane.margin>
-          <fx:include fx:id="configuration" source="server_configuration.fxml"
-                      GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
-          <Label text="%label.password" GridPane.rowIndex="2" GridPane.columnIndex="0"
-                 GridPane.margin="$gridPaneMargin"/>
-          <TextField fx:id="fieldPassword"
-                     GridPane.margin="$gridPaneMargin" GridPane.rowIndex="2"
-                     GridPane.columnIndex="1">
-            <tooltip>
-              <Tooltip text="%tooltip.client.server.password"/>
-            </tooltip>
-          </TextField>
-        </GridPane>
+        <fx:include fx:id="configurationPanel" source="server_configuration.fxml"
+                    GridPane.rowIndex="0" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
       </TitledPane>
     </Tab>
     <Tab closable="false">

@@ -2,8 +2,6 @@ package com.github.odinasen.durak.gui.server.model;
 
 import com.github.odinasen.durak.dto.ClientDto;
 import com.github.odinasen.durak.util.Assert;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -24,11 +22,6 @@ public class GameServerModel {
     private final ObservableList<ClientDto> clients;
 
     /**
-     * Ist das Passwort des Servers.
-     */
-    private StringProperty password;
-
-    /**
      * Gibt an, ob das Spiel laeuft oder nicht.
      */
     private boolean gameRunning;
@@ -38,7 +31,6 @@ public class GameServerModel {
      */
     public GameServerModel() {
         clients = FXCollections.observableArrayList(new ArrayList<ClientDto>(INITIAL_CLIENTS));
-        password = new SimpleStringProperty("");
     }
 
     public ObservableList<ClientDto> getClients() {
@@ -49,10 +41,6 @@ public class GameServerModel {
         Assert.assertNotNull(client);
 
         clients.add(client);
-    }
-
-    public StringProperty getPassword() {
-        return password;
     }
 
     public void setGameRunning(boolean gameRunning) {

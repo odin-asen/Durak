@@ -10,7 +10,6 @@ import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.util.converter.NumberStringConverter;
@@ -25,15 +24,16 @@ public class ServerConfigurationController
     private static final Logger LOGGER =
             LoggingUtility.getLogger(ServerConfigurationController.class);
 
-    private static ServerConfigurationController controller;
-
     @FXML
-    private ChoiceBox<InitialCard> boxInitialCards;
+    private ChoiceBox<InitialCard> initialCardsSelect;
     @FXML
     private Label disabledInitialCards;
 
     @FXML
     private TextField portField;
+
+    @FXML
+    private TextField passwordField;
 
     private ServerConfigurationModel configurationModel;
 
@@ -43,11 +43,6 @@ public class ServerConfigurationController
                 ResourceBundle.getBundle(BundleStrings.JAVAFX_BUNDLE_NAME, Locale.getDefault()));
 
         configurationModel = new ServerConfigurationModel();
-
-        // Instanz ist quatsch an dieser Stelle. Vom Parent Panel muss man irgendwie auf den Controller kommen
-        if (controller == null) {
-            controller = this;
-        }
     }
 
     @Override
@@ -56,6 +51,8 @@ public class ServerConfigurationController
 
         portField.textProperty()
                  .bindBidirectional(configurationModel.getPort(), new NumberStringConverter());
+        passwordField.textProperty().bindBidirectional(configurationModel.getPassword());
+
         initByStartParameters();
     }
 
@@ -65,12 +62,14 @@ public class ServerConfigurationController
     private void initByStartParameters() {
         ApplicationStartParameter startParameter = ApplicationStartParameter.getInstance();
         configurationModel.getPort().setValue(startParameter.getServerPort());
+        configurationModel.getPassword().setValue(startParameter.getServerPwd());
     }
 
     @Override
     protected void assertNotNullComponents() {
         final String fxmlName = getFxmlName();
-        Assert.assertFXElementNotNull(boxInitialCards, "boxInitialCards", fxmlName);
+        Assert.assertFXElementNotNull(initialCardsSelect, "initialCardsSelect", fxmlName);
+        Assert.assertFXElementNotNull(passwordField, "passwordField", fxmlName);
         Assert.assertFXElementNotNull(portField, "portField", fxmlName);
     }
 
@@ -78,56 +77,35 @@ public class ServerConfigurationController
      * Initialisiert das ChoiceBox- und Label-Objekt für die Anzahl der Karten
      */
     private void initInitialCardsComponents() {
-        ObservableList<InitialCard> cards = boxInitialCards.getItems();
+        ObservableList<InitialCard> cards = initialCardsSelect.getItems();
         Collections.addAll(cards, InitialCard.values());
-        boxInitialCards.setValue(cards.get(0));
-
-        /* Nicht editierbares Feld initialisieren */
-        /*labelInitialCards = new Label();
-        copyHeightsAndWidths(boxInitialCards, labelInitialCards);
-        GridPane.setMargin(labelInitialCards, GridPane.getMargin(boxInitialCards));
-        GridPane.setColumnIndex(labelInitialCards, GridPane.getColumnIndex(boxInitialCards));
-        GridPane.setRowIndex(labelInitialCards, GridPane.getRowIndex(boxInitialCards));
-        */
-    }
-
-    /**
-     * Kopiert die Werte maxHeight, maxWidth, minHeight, minWidth,
-     * prefHeight und preifWidth von einem Control-Objekt zum anderen.
-     */
-    private void copyHeightsAndWidths(Control from, Control to) {
-        to.setMaxWidth(from.getMaxWidth());
-        to.setMinWidth(from.getMinWidth());
-        to.setMaxHeight(from.getMaxHeight());
-        to.setMinHeight(from.getMinHeight());
-        to.setPrefHeight(from.getPrefHeight());
-        to.setPrefWidth(from.getPrefWidth());
-    }
-
-    public static ServerConfigurationController getInstance() {
-        return controller;
+        initialCardsSelect.setValue(cards.get(0));
     }
 
     public void toggleEnableStateForStartedServer(boolean serverStarted) {
         if (serverStarted) {
-            String selectedCardsCountText =
-                    Integer.toString(boxInitialCards.getValue().getNumberCards());
-            disabledInitialCards.setText(selectedCardsCountText);
+            disabledInitialCards.setText(initialCardsSelect.getValue().toString());
             disabledInitialCards.setVisible(true);
-            boxInitialCards.setVisible(false);
+            initialCardsSelect.setVisible(false);
         } else {
+            //TODO test schreiben, der den Server trennt
             disabledInitialCards.setVisible(false);
-            boxInitialCards.setVisible(true);
+            initialCardsSelect.setVisible(true);
         }
 
-        portField.setEditable(serverStarted);
+        portField.setEditable(!serverStarted);
+        passwordField.setEditable(!serverStarted);
     }
 
     public int getInitialCards() {
-        return boxInitialCards.getValue().getNumberCards();
+        return initialCardsSelect.getValue().getNumberCards();
     }
 
     public int getPort() {
         return configurationModel.getPort().getValue();
+    }
+
+    public String getPassword() {
+        return configurationModel.getPassword().getValue();
     }
 }
