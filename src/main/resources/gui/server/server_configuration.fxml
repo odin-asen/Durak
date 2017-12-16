@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.github.odinasen.durak.gui.server.VariableAccessChoiceBoxPanel?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -11,10 +12,8 @@
   </GridPane.margin>
   <Label text="%label.deque" GridPane.rowIndex="0" GridPane.columnIndex="0"
          GridPane.margin="$gridPaneMargin"/>
-  <Label fx:id="disabledInitialCards" visible="false" GridPane.rowIndex="0" GridPane.columnIndex="1"
-         GridPane.margin="$gridPaneMargin"/>
-  <ChoiceBox fx:id="initialCardsSelect" GridPane.rowIndex="0" GridPane.columnIndex="1"
-             GridPane.margin="$gridPaneMargin"/>
+  <VariableAccessChoiceBoxPanel fx:id="initialCardsPanel" GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                GridPane.margin="$gridPaneMargin"/>
   <Label text="%label.port"
          GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.margin="$gridPaneMargin"/>
   <TextField fx:id="portField" prefColumnCount="4"

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         type="javafx.scene.layout.AnchorPane">
+  <Label fx:id="readOnlyField" visible="false" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="5.0"/>
+  <ChoiceBox fx:id="choiceBox"/>
+</fx:root>

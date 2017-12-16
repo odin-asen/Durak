@@ -29,12 +29,16 @@ public class ResourceGetter {
     private static final Logger LOGGER = LoggingUtility.getLogger(ResourceGetter.class.getName());
 
     public static Image getToolbarIcon(String toolbarBundleKey, Object... params) {
-        return getImage(TOOLBAR_ROOT + I18nSupport.getValue(RESOURCES_IMAGES, toolbarBundleKey, params), PNG);
+        return getImage(
+                TOOLBAR_ROOT + I18nSupport.getValue(RESOURCES_IMAGES, toolbarBundleKey, params),
+                PNG);
     }
 
     public static Image getUserIcon(String generalBundleKey, Object... params) {
-        return getImage(USER_ROOT + I18nSupport.getValue(RESOURCES_IMAGES, generalBundleKey, params), PNG);
+        return getImage(
+                USER_ROOT + I18nSupport.getValue(RESOURCES_IMAGES, generalBundleKey, params), PNG);
     }
+
     /* Loads an image from the specified path and adds the */
   /* surpassed extension if it is not null */
     private static Image getImage(String imageName, String extension) {
@@ -60,16 +64,23 @@ public class ResourceGetter {
         return extension;
     }
 
+    public static Parent loadFXMLPanel(String fileName) throws IOException {
+        return loadFXMLPanel(fileName, null);
+    }
+
     /**
      * Ist der Dateiname ohne Endung des zu ladenen Panels. Die zu ladene Datei muss aber fxml als
      * Endung haben.
      *
-     * @param fileName ist der Name der zu ladenen Datei ohne Endung.
-     * @param bundle   ist das ResourceBundle, das in der FXML-Datei verwendet wird.
+     * @param fileName
+     *         ist der Name der zu ladenen Datei ohne Endung.
+     * @param bundle
+     *         ist das ResourceBundle, das in der FXML-Datei verwendet wird.
+     *
      * @return das Panel, das aus der Datei gelesen wird.
      */
     public static Parent loadFXMLPanel(String fileName, ResourceBundle bundle) throws IOException {
-        final String resourcePath = "gui/" + fileName + ".fxml";
+        final String resourcePath = getFXMLResourcePath(fileName);
         final ClassLoader classLoader = ResourceGetter.class.getClassLoader();
         if (classLoader != null) {
             URL resourceURL = classLoader.getResource(resourcePath);
@@ -81,15 +92,30 @@ public class ResourceGetter {
                     return FXMLLoader.load(resourceURL);
                 }
             } else {
-                throw new Error("Could not find resource in path '" + resourcePath + "'." +
-                                "Make sure the file exists in classpath.");
+                throw new Error(
+                        "Could not find resource in path '" + resourcePath + "'." + "Make sure "
+                        + "the file exists in classpath.");
             }
         } else {
-            throw new Error("ClassLoader is null. Could not load classpath '" + resourcePath + "'.");
+            throw new Error(
+                    "ClassLoader is null. Could not load classpath '" + resourcePath + "'.");
         }
     }
 
-    public static Parent loadFXMLPanel(String fileName) throws IOException {
-        return loadFXMLPanel(fileName, null);
+    private static String getFXMLResourcePath(String fileName) {
+        return "gui/" + fileName + ".fxml";
+    }
+
+    public static void loadCustomFXMLPanel(String fileName, Object customPanel) {
+        final String resourcePath = getFXMLResourcePath(fileName);
+        final ClassLoader classLoader = ResourceGetter.class.getClassLoader();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(classLoader.getResource(resourcePath));
+            fxmlLoader.setRoot(customPanel);
+            fxmlLoader.setController(customPanel);
+            fxmlLoader.load();
+        } catch (IOException ex) {
+            throw new Error("Could not load FXML file '" + resourcePath + "'.");
+        }
     }
 }

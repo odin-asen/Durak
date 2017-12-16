@@ -34,8 +34,8 @@ public abstract class JavaFXController {
      */
     @FXML
     void initialize() {
-        this.assertNotNullComponents();
-        this.initializePanel();
+        assertNotNullComponents();
+        initializePanel();
     }
 
     /**
@@ -53,6 +53,6 @@ public abstract class JavaFXController {
      * @return den {@link #fxmlName}
      */
     public String getFxmlName() {
-        return this.fxmlName;
+        return fxmlName;
     }
 }

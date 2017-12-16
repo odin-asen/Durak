@@ -9,8 +9,6 @@ import com.github.odinasen.durak.util.Assert;
 import com.github.odinasen.durak.util.LoggingUtility;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.util.converter.NumberStringConverter;
 
@@ -25,15 +23,13 @@ public class ServerConfigurationController
             LoggingUtility.getLogger(ServerConfigurationController.class);
 
     @FXML
-    private ChoiceBox<InitialCard> initialCardsSelect;
-    @FXML
-    private Label disabledInitialCards;
-
-    @FXML
     private TextField portField;
 
     @FXML
     private TextField passwordField;
+
+    @FXML
+    private VariableAccessChoiceBoxPanel<InitialCard> initialCardsPanel;
 
     private ServerConfigurationModel configurationModel;
 
@@ -68,7 +64,7 @@ public class ServerConfigurationController
     @Override
     protected void assertNotNullComponents() {
         final String fxmlName = getFxmlName();
-        Assert.assertFXElementNotNull(initialCardsSelect, "initialCardsSelect", fxmlName);
+        Assert.assertFXElementNotNull(initialCardsPanel, "initialCardsPanel", fxmlName);
         Assert.assertFXElementNotNull(passwordField, "passwordField", fxmlName);
         Assert.assertFXElementNotNull(portField, "portField", fxmlName);
     }
@@ -77,28 +73,19 @@ public class ServerConfigurationController
      * Initialisiert das ChoiceBox- und Label-Objekt für die Anzahl der Karten
      */
     private void initInitialCardsComponents() {
-        ObservableList<InitialCard> cards = initialCardsSelect.getItems();
+        ObservableList<InitialCard> cards = initialCardsPanel.getChoiceBoxItems();
         Collections.addAll(cards, InitialCard.values());
-        initialCardsSelect.setValue(cards.get(0));
+        initialCardsPanel.setValue(cards.get(0));
     }
 
     public void toggleEnableStateForStartedServer(boolean serverStarted) {
-        if (serverStarted) {
-            disabledInitialCards.setText(initialCardsSelect.getValue().toString());
-            disabledInitialCards.setVisible(true);
-            initialCardsSelect.setVisible(false);
-        } else {
-            //TODO test schreiben, der den Server trennt
-            disabledInitialCards.setVisible(false);
-            initialCardsSelect.setVisible(true);
-        }
-
+        initialCardsPanel.setChoiceBoxEditable(!serverStarted);
         portField.setEditable(!serverStarted);
         passwordField.setEditable(!serverStarted);
     }
 
     public int getInitialCards() {
-        return initialCardsSelect.getValue().getNumberCards();
+        return initialCardsPanel.getValue().getNumberCards();
     }
 
     public int getPort() {
