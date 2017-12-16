@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<MenuBar xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         fx:controller="com.github.odinasen.durak.gui.menu.MenuController">
+  <Menu fx:id="menuConnection" text="%menu.connections">
+    <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open.server.panel"/>
+    <MenuItem fx:id="openHideClientPanelMenuItem" text="%menu.item.open.client.panel"/>
+    <MenuItem fx:id="closeMenuItem" text="%menu.item.close"/>
+  </Menu>
+  <Menu text="%menu.settings"/>
+</MenuBar>

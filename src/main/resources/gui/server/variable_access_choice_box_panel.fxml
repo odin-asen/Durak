@@ -6,6 +6,6 @@
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          type="javafx.scene.layout.AnchorPane">
-  <Label fx:id="readOnlyField" visible="false" AnchorPane.leftAnchor="0" AnchorPane.topAnchor="5.0"/>
+  <Label fx:id="readOnlyField" visible="false" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0"/>
   <ChoiceBox fx:id="choiceBox"/>
 </fx:root>

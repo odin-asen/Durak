@@ -7,14 +7,15 @@
       xmlns:fx="http://fxml.com/fxml"
       stylesheets="/css/common.css"
       fx:controller="com.github.odinasen.durak.gui.MainGUIController">
-  <MenuBar xmlns:fx="http://javafx.com/fxml">
+  <fx:include fx:id="menu" source="menu.fxml"/>
+  <!--MenuBar>
     <Menu fx:id="menuConnection" text="%menu.connections">
       <MenuItem fx:id="openHideServerPanelMenuItem" text="%menu.item.open.server.panel"/>
       <MenuItem fx:id="openHideClientPanelMenuItem" text="%menu.item.open.client.panel"/>
       <MenuItem fx:id="closeMenuItem" text="%menu.item.close"/>
     </Menu>
     <Menu text="%menu.settings"/>
-  </MenuBar>
+  </MenuBar-->
   <ToolBar maxWidth="1.7976931348623157E308">
     <Button text="karten nehmen"/>
     <Button text="Nächste Runde"/>
