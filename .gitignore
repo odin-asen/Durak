@@ -34,3 +34,5 @@ unicode-zeichen
 *.txt
 *.log
 *.txt.*
+
+*.jar
